@@ -2,4 +2,3 @@ id,name,age,sex,pregnancy_status,region,skin_type,primary_concern,secondary_conc
 1,Alex Kim,16,Male,N/A,Northeast USA,Oily,Acne,Hyperpigmentation,None,Retinoids cause dryness,Benzoyl peroxide 2.5% wash,Mild irritation week 1,Sunscreen sometimes; uses gym often,Humid summers,Touches face during sports
 2,Maya Lopez,14,Female,Not Pregnant,Southwest USA,Sensitive,Eczema,Post-inflammatory redness,Fragrance mix,AHAs sting,Hydrocortisone 1% short courses,None reported,Moisturizes nightly,Dry climate,Long hot showers
 3,Jordan Singh,18,Male,N/A,Midwest USA,Combination,Melasma,Uneven tone,None,None,Sunscreen daily (inconsistent),None,Forgets sunscreen on cloudy days,High UV in summer,Outdoor sports
-4,Leena Patel,17,Female,Not Pregnant,Southwest USA,Sensitive,Eczema,Post-inflammatory redness,Fragrance mix,AHAs sting,Hydrocortisone 1% short courses,None reported,Moisturizes nightly,Dry climate,Long hot showers

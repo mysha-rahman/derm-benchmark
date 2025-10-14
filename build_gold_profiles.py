@@ -144,13 +144,17 @@ def csv_to_jsonl(csv_path, jsonl_path):
     with csv_path.open("r", newline="", encoding="utf-8") as f_in, \
          jsonl_path.open("w", encoding="utf-8") as f_out:
         reader = csv.DictReader(f_in)
-        for i, row in enumerate(reader, start=2):  # start=2 because header is row 1
-            problems = validate_row(row, i)
+        for i, row in enumerate(reader, start=1):  # Auto-increment ID starting at 1
+            # Override the ID with auto-generated sequential number
+            row["id"] = str(i)
+            
+            problems = validate_row(row, i+1)  # i+1 for row number (accounting for header)
             if problems:
-                print(f"[WARN] Row {i}: " + " | ".join(problems))
-            # Convert flat CSV row to the nested JSON shape you may want later
+                print(f"[WARN] Row {i+1}: " + " | ".join(problems))
+            
+            # Convert flat CSV row to the nested JSON shape
             obj = {
-                "id": int(row["id"]),
+                "id": i,  # Use auto-generated ID
                 "personal_info": {
                     "name": row["name"],
                     "age": int(row["age"]),
@@ -180,7 +184,7 @@ def csv_to_jsonl(csv_path, jsonl_path):
             f_out.write(json.dumps(obj, ensure_ascii=False) + "\n")
             total += 1
     print(f"[OK] Wrote {total} JSONL item(s) -> {jsonl_path}")
-
+    
 def main():
     ensure_outdir()
     write_template_csv()
