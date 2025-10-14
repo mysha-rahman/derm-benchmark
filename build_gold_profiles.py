@@ -84,12 +84,28 @@ def write_template_csv():
     print(f"[OK] Template: {TEMPLATE_CSV}")
 
 def write_examples_csv():
-    with EXAMPLES_CSV.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=COLUMNS)
-        writer.writeheader()
-        for row in EXAMPLES:
-            writer.writerow(row)
-    print(f"[OK] Examples: {EXAMPLES_CSV}")
+    # Create the CSV if missing; if present, ensure it has a header, but do not overwrite data.
+    if not EXAMPLES_CSV.exists():
+        with EXAMPLES_CSV.open("w", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(f, fieldnames=COLUMNS)
+            writer.writeheader()
+            for row in EXAMPLES:
+                writer.writerow(row)
+        print(f"[OK] Examples created: {EXAMPLES_CSV}")
+        return
+    # If file exists but is empty / missing header, add header only.
+    with EXAMPLES_CSV.open("r+", newline="", encoding="utf-8") as f:
+        first_line = f.readline()
+        if not first_line or "id,name,age" not in first_line.replace(" ", ""):
+            f.seek(0)
+            contents = f.read()
+            f.seek(0)
+            writer = csv.DictWriter(f, fieldnames=COLUMNS)
+            writer.writeheader()
+            f.write(contents)
+            print(f"[OK] Header ensured on existing CSV: {EXAMPLES_CSV}")
+        else:
+            print(f"[OK] Examples already exist, not overwriting: {EXAMPLES_CSV}")
 
 def validate_row(row, row_num):
     # Basic checks to help you avoid mistakes
