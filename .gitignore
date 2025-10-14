@@ -1,0 +1,17 @@
+﻿# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+
+# VS Code
+.vscode/
+.history/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Generated outputs (keep CSVs, ignore JSONL)
+gold_profiles/*.jsonl
