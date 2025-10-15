@@ -15,3 +15,4 @@ Thumbs.db
 
 # Generated outputs (keep CSVs, ignore JSONL)
 gold_profiles/*.jsonl
+gold_profiles\*_BACKUP.csv
