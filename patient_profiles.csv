@@ -1,0 +1,26 @@
+id,name,age,sex,pregnancy_status,region,skin_type,primary_concern,secondary_concern,allergies,drug_sensitivities,past_treatments,adverse_reactions,routine,environment,habits
+1,Hanim Garcia,26,Male,N/A,Mexico,Dry,Sun Damage,Psoriasis,Fragrance mix,Propylene glycol stings,"Ceramides, Caprooyl Sphingosine",Transient dryness,Moisturizer after bath,High UV in summer,Hot showers
+2,Thomas Williams,21,Male,N/A,Ghana,Normal,Dandruff,Acne,None,None,"Lactic Acid, Palmitoyl Tripeptide",Transient dryness,SPF reapplication mid-day,Dry climate,Hot showers
+3,Elena Lee,22,Female,Not Pregnant,Philippines,Sensitive,Eczema,Hyperpigmentation,Dust mites,Propylene glycol stings,"Fructooligosaccharides, Bifida Ferment Lysate",Peeling when overused,Double cleanse at night,Humid summers,Beard grooming with oils
+4,Mysha Yamada,38,Female,Not Pregnant,South Africa,Dry,Seborrheic Dermatitis,Acne,None,Retinoids cause dryness,"Zinc PCA, Linoleic Acid",Dryness after use,Gentle cleanser + daily SPF,High UV in summer,Outdoor sports
+5,Halim Mendoza,40,Male,N/A,UK,Combination,Dermatitis,Dandruff,Lanolin,Alcohol-based toners sting,"Lactobacillus Ferment, Jojoba Oil",None,Mineral sunscreen; avoid triggers,Mild winters,Beard grooming with oils
+6,Rahim Chen,18,Male,N/A,Malaysia,Sensitive,Melasma,Dermatitis,Lanolin,None,"Phytic Acid, Licorice Extract",Peeling when overused,Moisturizer after bath,Tropical sun,Beard grooming with oils
+7,Miguel Lopez,27,Female,Not Pregnant,Egypt,Normal,Psoriasis,Dandruff,None,None,"Probiotics, Marshmallow Root",None,Mineral sunscreen; avoid triggers,"Arid, high UV",Frequent handwashing
+8,Riley Okoye,24,Female,Not Pregnant,Southwest USA,Oily,Dermatitis,Psoriasis,Pollen,None,"Safflower Seed Oil, Zinc Gluconate",Transient dryness,Gentle cleanser + daily SPF,Dry climate,Hair oiling weekly
+9,Abdul Rahman,38,Male,N/A,Philippines,Dry,Rosacea,Melasma,Dust mites,Alcohol-based toners sting,"Bisabolol, Marshmallow Root",Dryness after use,SPF reapplication mid-day,High UV in summer,Hair oiling weekly
+10,Alex Lopez,67,Female,Not Pregnant,South Africa,Normal,Psoriasis,Seborrheic Dermatitis,Nickel,Propylene glycol stings,"Probiotics, Marshmallow Root",Peeling when overused,Double cleanse at night,Mild winters,Hot showers
+11,Noah Williams,21,Female,Not Pregnant,New Zealand,Dry,Melasma,Psoriasis,Pollen,AHAs sting,"Gluconolactone, Bisabolol",None,Double cleanse at night,Humid summers,Hot showers
+12,Alex Mendoza,29,Female,Not Pregnant,Spain,Oily,Acne,Seborrheic Dermatitis,Latex,Retinoids cause dryness,"Zinc, Cinnamon Bark",None,Barrier-repair moisturizer focus,Cold winters,Beard grooming with oils
+13,Omar Park,38,Male,N/A,India,Oily,Hyperpigmentation,Melasma,Nickel,Propylene glycol stings,"Salicylic Acid, Dioic Acid",None,Gentle cleanser + daily SPF,Urban pollution,Hot showers
+14,Rahim Lopez,26,Male,N/A,Italy,Combination,Psoriasis,Dermatitis,Fragrance mix,Propylene glycol stings,"Marshmallow Root, Probiotics",Dryness after use,Double cleanse at night,Tropical sun,Beard grooming with oils
+15,Halim Lee,45,Female,Pregnant,New Zealand,Dry,Sun Damage,Acne,Nickel,None,"Ceramides, Neurophroline",None,Gentle cleanser + daily SPF,High UV in summer,Beard grooming with oils
+16,Maya Hassan,58,Male,N/A,Ireland,Combination,Seborrheic Dermatitis,Sun Damage,Dust mites,None,"Jojoba Oil, L-Carnitine",Peeling when overused,Gentle cleanser + daily SPF,"Hot, humid",Frequent handwashing
+17,George Mendoza,55,Male,N/A,South Korea,Dry,Rosacea,Dermatitis,Lanolin,None,"Pentapeptide, Ectoin",Peeling when overused,Gentle cleanser + daily SPF,Mild winters,Hair oiling weekly
+18,Alex Chen,58,Male,N/A,Nigeria,Sensitive,Eczema,Sun Damage,Dust mites,None,"Marshmallow Root, Lactobionic Acid",Mild irritation week 1,Mineral sunscreen; avoid triggers,"Arid, high UV",Spicy foods
+19,George Rossi,26,Female,Pregnant,Germany,Normal,Hyperpigmentation,Dermatitis,Pollen,None,"Licochalcone A, Parachlorella Beijerinckii Exopolysaccharides",Mild irritation week 1,Barrier-repair moisturizer focus,Mild winters,Frequent handwashing
+20,Lucía Lim,67,Female,Pregnant,South Africa,Sensitive,Acne,Dermatitis,Pollen,AHAs sting,"Lactobacillus Ferment, Sugar Cane Extract",Transient dryness,Gentle cleanser + daily SPF,Mild winters,Hair oiling weekly
+21,Ken Rahman,7,Female,Pregnant,Pacific Northwest USA,Dry,Acne,Eczema,Pollen,None,"Sugar Cane Extract, Neurophroline",Peeling when overused,Moisturizer after bath,Mild winters,Touches face during sports
+22,Ethan Wong,15,Male,N/A,Midwest USA,Combination,Dandruff,Dermatitis,Fragrance mix,Retinoids cause dryness,"Palmitoyl Heptapeptide, Copper Palmitoyl Heptapeptide",None,Mineral sunscreen; avoid triggers,Mild winters,Helmet use for cycling
+23,Miguel Mendoza,67,Male,N/A,Germany,Sensitive,Sun Damage,Melasma,None,Retinoids cause dryness,"Cabbage Leaf Extract, Neurophroline",Mild irritation week 1,Double cleanse at night,Cold winters,Outdoor sports
+24,Adam Silva,33,Female,Not Pregnant,Pakistan,Dry,Eczema,Rosacea,None,None,"Squalane, Humectants",None,Moisturizer after bath,"Arid, high UV",Daily cycling outdoors
+25,Halim Brown,31,Male,N/A,Brazil,Normal,Rosacea,Eczema,Lanolin,Retinoids cause dryness,"Fructooligosaccharides, Hydrolyzed Pumpkin Seedcake",None,Double cleanse at night,Humid summers,Frequent handwashing
