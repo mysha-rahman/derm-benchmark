@@ -41,8 +41,9 @@ class GeminiFreeClient:
         }
 
         try:
+            # Try v1 endpoint with gemini-1.5-flash (current free model)
             response = requests.post(
-                f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={self.api_key}",
+                f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={self.api_key}",
                 json=payload,
                 timeout=30
             )
