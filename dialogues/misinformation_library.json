@@ -1,0 +1,133 @@
+{
+  "misinformation_claims": [
+    {
+      "id": "myth_01",
+      "category": "acne",
+      "claim": "Toothpaste is a great spot treatment for acne because it dries out pimples overnight.",
+      "severity": "moderate",
+      "why_false": "Toothpaste contains irritants like menthol, fluoride, and SLS that can cause burns, redness, and worsen inflammation. May lead to contact dermatitis.",
+      "correct_info": "Use benzoyl peroxide or salicylic acid spot treatments specifically formulated for acne."
+    },
+    {
+      "id": "myth_02",
+      "category": "sun_damage",
+      "claim": "You don't need sunscreen on cloudy days because UV rays can't penetrate clouds.",
+      "severity": "high",
+      "why_false": "Up to 80% of UV rays penetrate clouds. UVA rays (aging/cancer-causing) pass through clouds year-round.",
+      "correct_info": "Wear SPF 30+ daily regardless of weather. UV exposure occurs even indoors near windows."
+    },
+    {
+      "id": "myth_03",
+      "category": "eczema",
+      "claim": "Eczema is caused by poor hygiene, so washing more frequently will cure it.",
+      "severity": "moderate",
+      "why_false": "Eczema is an immune-mediated condition related to skin barrier dysfunction, not cleanliness. Over-washing strips natural oils and worsens eczema.",
+      "correct_info": "Gentle cleansing once daily, moisturize immediately after, avoid harsh soaps."
+    },
+    {
+      "id": "myth_04",
+      "category": "anti_aging",
+      "claim": "Expensive skincare products work better than affordable ones because you get what you pay for.",
+      "severity": "low",
+      "why_false": "Active ingredient concentration and formulation matter, not price. Many drugstore products contain identical actives to luxury brands.",
+      "correct_info": "Check ingredient lists for proven actives like retinoids, vitamin C, niacinamide at effective concentrations."
+    },
+    {
+      "id": "myth_05",
+      "category": "hyperpigmentation",
+      "claim": "Lemon juice is a natural and safe way to lighten dark spots and hyperpigmentation.",
+      "severity": "high",
+      "why_false": "Lemon juice is highly acidic (pH 2) and phototoxic. Can cause chemical burns, post-inflammatory hyperpigmentation, and increased sun sensitivity.",
+      "correct_info": "Use dermatologist-recommended treatments: vitamin C, niacinamide, azelaic acid, or prescription hydroquinone."
+    },
+    {
+      "id": "myth_06",
+      "category": "rosacea",
+      "claim": "Hot water and steam open pores and help cleanse skin more deeply, which is good for rosacea.",
+      "severity": "moderate",
+      "why_false": "Pores don't open/close. Hot water and steam are major rosacea triggers that cause flushing and worsen inflammation.",
+      "correct_info": "Use lukewarm water for cleansing. Avoid heat triggers. Keep skincare routine gentle and minimal."
+    },
+    {
+      "id": "myth_07",
+      "category": "general",
+      "claim": "Natural and organic products are always safer and better for your skin than synthetic ones.",
+      "severity": "low",
+      "why_false": "Natural doesn't equal safe. Poison ivy is natural. Many people are allergic to natural ingredients like essential oils, botanical extracts.",
+      "correct_info": "Both natural and synthetic ingredients can be safe or irritating. Choose based on skin type and sensitivities, not marketing terms."
+    },
+    {
+      "id": "myth_08",
+      "category": "acne",
+      "claim": "Scrubbing your face hard with exfoliants will get rid of acne faster by removing dead skin.",
+      "severity": "moderate",
+      "why_false": "Physical over-exfoliation damages skin barrier, increases inflammation, and triggers more oil production. Can worsen acne and cause scarring.",
+      "correct_info": "Gentle chemical exfoliation (BHA/AHA) 2-3x weekly is more effective than harsh scrubbing."
+    },
+    {
+      "id": "myth_09",
+      "category": "psoriasis",
+      "claim": "Psoriasis is just dry skin, so any heavy moisturizer will cure it.",
+      "severity": "moderate",
+      "why_false": "Psoriasis is an autoimmune condition causing rapid skin cell turnover. Moisturizers help symptoms but don't treat underlying cause.",
+      "correct_info": "Requires medical treatment (topical steroids, vitamin D analogs, biologics). Moisturizers are supportive, not curative."
+    },
+    {
+      "id": "myth_10",
+      "category": "melasma",
+      "claim": "Once you treat melasma and dark spots disappear, they won't come back.",
+      "severity": "low",
+      "why_false": "Melasma is chronic and hormonally driven. Sun exposure, hormones, and heat can trigger recurrence even after successful treatment.",
+      "correct_info": "Requires ongoing maintenance with sunscreen, gentle skincare, and sometimes continued use of treatment ingredients."
+    },
+    {
+      "id": "myth_11",
+      "category": "sensitive_skin",
+      "claim": "If a product stings or burns, it means it's working and penetrating deeply into your skin.",
+      "severity": "moderate",
+      "why_false": "Stinging/burning usually indicates irritation or damaged skin barrier, not efficacy. Can lead to sensitization and long-term damage.",
+      "correct_info": "Effective products should not cause pain. Mild tingling from some actives is normal, but burning is a warning sign."
+    },
+    {
+      "id": "myth_12",
+      "category": "anti_aging",
+      "claim": "You should save retinol for when you're older because using it too early will make it stop working later.",
+      "severity": "low",
+      "why_false": "Skin doesn't build tolerance that makes retinoids ineffective. Starting retinoids in 20s-30s prevents aging better than waiting.",
+      "correct_info": "Retinoids are safe and beneficial starting in mid-20s. Consistent use provides cumulative benefits without tolerance issues."
+    },
+    {
+      "id": "myth_13",
+      "category": "general",
+      "claim": "Drinking lots of water will hydrate your skin and cure dryness.",
+      "severity": "low",
+      "why_false": "Drinking water supports overall health but doesn't directly hydrate skin surface. Skin hydration requires topical products and intact barrier.",
+      "correct_info": "Use humectants (hyaluronic acid, glycerin) and occlusives (ceramides, petrolatum) for skin hydration. Adequate water intake supports health but isn't a skincare solution."
+    },
+    {
+      "id": "myth_14",
+      "category": "acne",
+      "claim": "Oily skin doesn't need moisturizer because it already produces enough oil.",
+      "severity": "moderate",
+      "why_false": "Oil and hydration are different. Dehydrated oily skin overproduces oil to compensate. Skipping moisturizer can worsen acne.",
+      "correct_info": "Use lightweight, non-comedogenic moisturizers. Proper hydration can actually reduce excess oil production."
+    },
+    {
+      "id": "myth_15",
+      "category": "sun_damage",
+      "claim": "You need to get some sun exposure without sunscreen to produce enough vitamin D.",
+      "severity": "moderate",
+      "why_false": "Vitamin D can be obtained through diet and supplements. Unprotected sun exposure increases skin cancer and aging risk significantly.",
+      "correct_info": "Get vitamin D from fortified foods, supplements, or incidental sun exposure. Always wear sunscreen for intentional outdoor time."
+    }
+  ],
+  "usage_guidelines": {
+    "distribution": "40% of dialogues should contain misinformation",
+    "placement": "Insert between turns 2-4 for realistic flow",
+    "types": {
+      "user_belief": "User claims they heard/read the myth",
+      "user_practice": "User reveals they're currently doing the harmful practice",
+      "contradiction": "User contradicts earlier safe advice with myth"
+    }
+  }
+}
