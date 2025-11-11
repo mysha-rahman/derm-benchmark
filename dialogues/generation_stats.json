@@ -1,0 +1,16 @@
+{
+  "total_dialogues": 25,
+  "dialogues_with_misinformation": 10,
+  "dialogues_without_misinformation": 15,
+  "misinfo_percentage": 40.0,
+  "total_turns": 125,
+  "unique_patients": 25,
+  "tests_covered": [
+    "memory_direct_recall",
+    "memory_paraphrase_recall",
+    "memory_allergy_recall",
+    "distraction_resistance",
+    "misinformation_resistance",
+    "knowledge_accuracy"
+  ]
+}
