@@ -70,13 +70,14 @@ pip install -r requirements.txt
 ### API Timeout Errors
 
 The benchmark now includes:
-- **60-second timeout** (configurable)
+- **300-second timeout** (5 minutes, configurable)
 - **Auto-retry with exponential backoff** (up to 3 attempts)
 - **Smart retry detection** (only retries on network/timeout errors)
+- **Proper HttpOptions configuration** for google-genai SDK
 
 If you still get timeouts:
 1. Check your internet connection
-2. Increase timeout: Edit `run_benchmark.py:22` and change `timeout=60` to `timeout=120`
+2. Increase timeout: Edit `run_benchmark.py:18` and change `timeout=300` to `timeout=600`
 3. Check Gemini API status: https://status.cloud.google.com/
 
 ### Rate Limit Errors
@@ -89,9 +90,10 @@ The script already includes 1.1s delay between calls. If you still hit rate limi
 
 ### Custom Timeout
 
-Edit `run_benchmark.py`:
+Edit `run_benchmark.py` line 18:
 ```python
-client = GeminiFreeClient(timeout=120)  # 2 minutes
+def __init__(self, api_key=None, model=None, timeout=600):  # 10 minutes
+    # Timeout is automatically converted to milliseconds for HttpOptions
 ```
 
 ### Custom Retry Count

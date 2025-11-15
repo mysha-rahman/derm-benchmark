@@ -15,12 +15,16 @@ from google.genai import types
 class GeminiFreeClient:
     """Gemini client using google-genai v1.50.1"""
 
-    def __init__(self, api_key=None, model=None, timeout=200):
+    def __init__(self, api_key=None, model=None, timeout=300):
         self.api_key = api_key or os.getenv("GOOGLE_API_KEY")
         if not self.api_key:
             raise ValueError("Missing GOOGLE_API_KEY environment variable")
 
-        self.client = genai.Client(api_key=self.api_key)
+        # Configure timeout via HttpOptions (timeout in milliseconds)
+        self.client = genai.Client(
+            api_key=self.api_key,
+            http_options=types.HttpOptions(timeout=timeout * 1000)  # Convert seconds to milliseconds
+        )
         self.model = model or "models/gemini-2.5-flash"
         self.timeout = timeout
 
@@ -37,8 +41,8 @@ class GeminiFreeClient:
                     config=types.GenerateContentConfig(
                         temperature=temperature,
                         max_output_tokens=max_tokens
-                    ),
-                    timeout=self.timeout  # <- REQUIRED
+                    )
+                    # timeout is configured via HttpOptions in __init__
                 )
 
                 return {
