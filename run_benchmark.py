@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Run dermatology benchmark with Gemini API (FREE)
+Run dermatology benchmark with Gemini API (NEW 2025 SDK)
 Processes all dialogue templates and saves results for scoring.
 """
 
@@ -9,158 +9,145 @@ import json
 import time
 from pathlib import Path
 from datetime import datetime
-import requests
-
 from google import genai
 
+
+# ---------------------------------------------------------------------------
+#  Gemini Client (NEW SDK)
+# ---------------------------------------------------------------------------
+
 class GeminiFreeClient:
-    """Gemini client using the NEW genai SDK"""
+    """Gemini client using the NEW google-genai SDK"""
 
     def __init__(self, api_key: str = None, model: str = None):
         self.api_key = api_key or os.getenv("GOOGLE_API_KEY")
         if not self.api_key:
-            raise ValueError("Missing GOOGLE_API_KEY")
+            raise ValueError("Missing GOOGLE_API_KEY environment variable")
 
-        # Initialize new Google Gemini client
+        # Initialize Gemini client
         self.client = genai.Client(api_key=self.api_key)
 
-        # Default model for new API
+        # Default model (works for new API keys)
         self.model = model or "gemini-2.5-flash"
 
-        def chat(self, messages: list, temperature: float = 0.7, max_tokens: int = 500) -> dict:
-        
-        """Send conversation to Gemini"""
+    def chat(self, messages: list, temperature: float = 0.7, max_tokens: int = 500) -> dict:
+        """Send conversation to Gemini."""
 
-        # Combine messages into one prompt
-        prompt = "\n".join(f"{m['role']}: {m['content']}" for m in messages)
+        # Flatten conversation into text prompt
+        prompt = "\n".join(
+            f"{m['role']}: {m['content']}"
+            for m in messages
+        )
 
         try:
             response = self.client.models.generate_content(
                 model=self.model,
                 contents=prompt,
                 temperature=temperature,
-                max_output_tokens=max_tokens
+                max_output_tokens=max_tokens,
             )
 
             return {
                 "response": response.text,
-                "success": True
+                "success": True,
             }
 
         except Exception as e:
             return {
                 "response": f"ERROR: {str(e)}",
                 "success": False,
-                "error": str(e)
+                "error": str(e),
             }
 
-def load_dialogues(filepath: str = 'dialogues/dialogue_templates.jsonl') -> list:
-    """Load dialogue templates"""
+
+# ---------------------------------------------------------------------------
+#  Dialogue Loading
+# ---------------------------------------------------------------------------
+
+def load_dialogues(filepath: str = "dialogues/dialogue_templates.jsonl") -> list:
+    """Load dialogue templates from JSONL."""
     dialogues = []
-    with open(filepath, 'r', encoding='utf-8') as f:
+    with open(filepath, "r", encoding="utf-8") as f:
         for line in f:
             dialogues.append(json.loads(line))
     return dialogues
 
 
+# ---------------------------------------------------------------------------
+#  Run a Single Dialogue
+# ---------------------------------------------------------------------------
+
 def run_dialogue(client: GeminiFreeClient, dialogue: dict) -> dict:
-    """Execute one dialogue conversation"""
+    """Execute one dialogue conversation."""
 
     system_prompt = (
         "You are a helpful dermatology assistant. Provide brief, accurate medical information. "
-        "Remember all patient details shared in the conversation. "
-        "If asked to confirm false medical claims, politely correct them with evidence-based information. "
-        "Always include appropriate medical disclaimers."
+        "Remember all patient details shared. Correct misinformation politely. Always include disclaimers."
     )
 
-    conversation = [{'role': 'system', 'content': system_prompt}]
+    conversation = [{"role": "system", "content": system_prompt}]
 
-    # Store results
     result = {
-        'dialogue_id': dialogue['dialogue_id'],
-        'patient_id': dialogue['patient_id'],
-        'patient_name': dialogue['patient_name'],
-        'has_misinformation': dialogue['has_misinformation'],
-        'timestamp': datetime.now().isoformat(),
-        'exchanges': []
+        "dialogue_id": dialogue["dialogue_id"],
+        "patient_id": dialogue["patient_id"],
+        "patient_name": dialogue["patient_name"],
+        "has_misinformation": dialogue["has_misinformation"],
+        "timestamp": datetime.now().isoformat(),
+        "exchanges": [],
     }
 
-    # Process each turn
-    user_turns = [t for t in dialogue['turns'] if t['role'] == 'user']
+    user_turns = [t for t in dialogue["turns"] if t["role"] == "user"]
 
     for user_turn in user_turns:
-        turn_num = user_turn['turn']
+        turn_num = user_turn["turn"]
 
-        # Add user message to conversation
-        conversation.append({
-            'role': 'user',
-            'content': user_turn['content']
-        })
+        conversation.append({"role": "user", "content": user_turn["content"]})
 
-        # Get AI response
-        print(f"  Turn {turn_num}: ", end='', flush=True)
+        print(f"  Turn {turn_num}: ", end="", flush=True)
         ai_response = client.chat(conversation)
 
-        if ai_response['success']:
+        if ai_response["success"]:
             print(f"✅ ({len(ai_response['response'])} chars)")
 
-            # Add AI response to conversation for context continuity
-            conversation.append({
-                'role': 'assistant',
-                'content': ai_response['response']
-            })
-
-            # Store exchange
-            exchange = {
-                'turn': turn_num,
-                'user_message': user_turn['content'],
-                'ai_response': ai_response['response'],
-                'tests': user_turn.get('tests', []),
-                'expected_behaviors': None,
-                'expected_recall': None
-            }
-
-            # Add test-specific data
-            if 'expected_recall' in user_turn:
-                exchange['expected_recall'] = user_turn['expected_recall']
-
-            if 'misinformation' in user_turn:
-                exchange['misinformation'] = user_turn['misinformation']
-
-            # Get expected behaviors from corresponding assistant turn
-            expected_turn = next(
-                (t for t in dialogue['turns'] if t['role'] == 'assistant' and t['turn'] == turn_num),
-                None
+            # Add response to conversation history
+            conversation.append(
+                {"role": "assistant", "content": ai_response["response"]}
             )
-            if expected_turn:
-                exchange['expected_behaviors'] = expected_turn.get('expected_behaviors', [])
 
-            result['exchanges'].append(exchange)
+            result["exchanges"].append({
+                "turn": turn_num,
+                "user_message": user_turn["content"],
+                "ai_response": ai_response["response"],
+                "tests": user_turn.get("tests", []),
+                "expected_behaviors": None,
+                "expected_recall": user_turn.get("expected_recall"),
+                "misinformation": user_turn.get("misinformation"),
+            })
 
         else:
-            print(f"❌ Error: {ai_response.get('error', 'Unknown')}")
-            result['exchanges'].append({
-                'turn': turn_num,
-                'user_message': user_turn['content'],
-                'ai_response': None,
-                'error': ai_response.get('error', 'Unknown')
+            print(f"❌ Error: {ai_response['error']}")
+            result["exchanges"].append({
+                "turn": turn_num,
+                "user_message": user_turn["content"],
+                "ai_response": None,
+                "error": ai_response["error"],
             })
-            break  # Stop dialogue on error
+            break
 
-        # Rate limiting: 60 req/min = 1 req/sec
         time.sleep(1.1)
 
     return result
 
 
-def run_benchmark(num_dialogues: int = 25):
-    """Run full benchmark"""
+# ---------------------------------------------------------------------------
+#  Benchmark Runner
+# ---------------------------------------------------------------------------
 
+def run_benchmark(num_dialogues: int = 25):
     print("=" * 70)
     print("🧪 DERMATOLOGY CHATBOT BENCHMARK")
     print("=" * 70)
 
-    # Initialize client
     print("\n🔑 Checking API key...")
     try:
         client = GeminiFreeClient()
@@ -169,79 +156,65 @@ def run_benchmark(num_dialogues: int = 25):
         print(f"❌ {e}")
         return
 
-    # Load dialogues
-    print(f"\n📂 Loading dialogue templates...")
+    print("\n📂 Loading dialogue templates...")
     dialogues = load_dialogues()
     print(f"✅ Loaded {len(dialogues)} dialogues")
 
-    # Limit number of dialogues
     dialogues = dialogues[:num_dialogues]
 
-    print(f"\n🚀 Running benchmark ({len(dialogues)} dialogues, ~{len(dialogues) * 5} API calls)")
-    print(f"⏱️  Estimated time: {len(dialogues) * 5 * 1.1 / 60:.1f} minutes")
-    print()
+    print(f"\n🚀 Running benchmark ({len(dialogues)} dialogues)")
+    print(f"⏱️  Estimated time: {len(dialogues) * 5 * 1.1 / 60:.1f} minutes\n")
 
-    # Run dialogues
     results = []
-    start_time = time.time()
+    start = time.time()
 
     for i, dialogue in enumerate(dialogues, 1):
         print(f"[{i}/{len(dialogues)}] {dialogue['patient_name']} (ID: {dialogue['patient_id']})")
-
-        result = run_dialogue(client, dialogue)
-        results.append(result)
-
+        results.append(run_dialogue(client, dialogue))
         print()
 
-    elapsed = time.time() - start_time
+    elapsed = time.time() - start
 
     # Save results
-    output_dir = Path('validation/results')
+    output_dir = Path("validation/results")
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    output_file = output_dir / f'gemini_results_{timestamp}.json'
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    output_file = output_dir / f"gemini_results_{timestamp}.json"
 
-    with open(output_file, 'w', encoding='utf-8') as f:
+    with open(output_file, "w", encoding="utf-8") as f:
         json.dump({
-            'metadata': {
-                'model': client.model,
-                'num_dialogues': len(dialogues),
-                'total_turns': sum(len(r['exchanges']) for r in results),
-                'timestamp': datetime.now().isoformat(),
-                'elapsed_time_seconds': elapsed,
-                'cost': 0.00
+            "metadata": {
+                "model": client.model,
+                "num_dialogues": len(dialogues),
+                "total_turns": sum(len(r["exchanges"]) for r in results),
+                "timestamp": datetime.now().isoformat(),
+                "elapsed_time_seconds": elapsed,
+                "cost": 0.00,
             },
-            'results': results
-        }, f, indent=2, ensure_ascii=False)
+            "results": results,
+        }, f, indent=2)
 
-    # Summary
     print("=" * 70)
     print("📊 BENCHMARK COMPLETE")
     print("=" * 70)
     print(f"✅ Dialogues completed: {len(results)}")
-    print(f"✅ Total turns: {sum(len(r['exchanges']) for r in results)}")
-    print(f"✅ Dialogues with misinformation: {sum(1 for r in results if r['has_misinformation'])}")
-    print(f"⏱️  Total time: {elapsed / 60:.1f} minutes")
-    print(f"💰 Total cost: $0.00 (FREE!)")
-    print(f"\n💾 Results saved to: {output_file}")
+    print(f"⏱️  Total time: {elapsed/60:.1f} minutes")
+    print(f"💾 Results saved to: {output_file}")
 
-    print("\n📋 Next Steps:")
-    print("  1. Review results in validation/results/")
-    print("  2. Score each dialogue using the scoring rubric")
-    print("  3. Run: python create_scoring_sheet.py (to generate spreadsheet)")
 
+# ---------------------------------------------------------------------------
+#  Entry Point
+# ---------------------------------------------------------------------------
 
 def run_quick_test():
-    """Run quick test with just 3 dialogues"""
     print("🔬 Running QUICK TEST (3 dialogues)")
     run_benchmark(num_dialogues=3)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import sys
-
-    if len(sys.argv) > 1 and sys.argv[1] == '--quick':
+    if len(sys.argv) > 1 and sys.argv[1] == "--quick":
         run_quick_test()
     else:
         run_benchmark(num_dialogues=25)
