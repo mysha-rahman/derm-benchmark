@@ -19,19 +19,23 @@ from google import genai
 class GeminiFreeClient:
     """Gemini client using the NEW google-genai SDK"""
 
-    def __init__(self, api_key: str = None, model: str = None):
+    def __init__(self, api_key: str = None, model: str = None, timeout: int = 60):
         self.api_key = api_key or os.getenv("GOOGLE_API_KEY")
         if not self.api_key:
             raise ValueError("Missing GOOGLE_API_KEY environment variable")
 
-        # Initialize Gemini client
-        self.client = genai.Client(api_key=self.api_key)
+        # Initialize Gemini client with timeout
+        self.client = genai.Client(
+            api_key=self.api_key,
+            http_options={'timeout': timeout}
+        )
 
         # Default model (works for new API keys)
         self.model = model or "gemini-2.5-flash"
+        self.timeout = timeout
 
-    def chat(self, messages: list, temperature: float = 0.7, max_tokens: int = 500) -> dict:
-        """Send conversation to Gemini."""
+    def chat(self, messages: list, temperature: float = 0.7, max_tokens: int = 500, max_retries: int = 3) -> dict:
+        """Send conversation to Gemini with retry logic."""
 
         # Flatten conversation into text prompt
         prompt = "\n".join(
@@ -39,25 +43,55 @@ class GeminiFreeClient:
             for m in messages
         )
 
-        try:
-            response = self.client.models.generate_content(
-                model=self.model,
-                contents=prompt,
-                temperature=temperature,
-                max_output_tokens=max_tokens,
-            )
+        # Retry logic with exponential backoff
+        for attempt in range(max_retries):
+            try:
+                response = self.client.models.generate_content(
+                    model=self.model,
+                    contents=prompt,
+                    config={
+                        'temperature': temperature,
+                        'max_output_tokens': max_tokens,
+                    }
+                )
 
-            return {
-                "response": response.text,
-                "success": True,
-            }
+                return {
+                    "response": response.text,
+                    "success": True,
+                }
 
-        except Exception as e:
-            return {
-                "response": f"ERROR: {str(e)}",
-                "success": False,
-                "error": str(e),
-            }
+            except Exception as e:
+                error_msg = str(e)
+
+                # Check if it's a timeout or rate limit error
+                is_retryable = (
+                    "timeout" in error_msg.lower() or
+                    "rate limit" in error_msg.lower() or
+                    "429" in error_msg or
+                    "503" in error_msg or
+                    "connection" in error_msg.lower()
+                )
+
+                # If last attempt or not retryable, return error
+                if attempt == max_retries - 1 or not is_retryable:
+                    return {
+                        "response": f"ERROR: {error_msg}",
+                        "success": False,
+                        "error": error_msg,
+                    }
+
+                # Wait before retrying (exponential backoff: 2s, 4s, 8s)
+                wait_time = 2 ** (attempt + 1)
+                print(f"⚠️  API error (attempt {attempt + 1}/{max_retries}): {error_msg}")
+                print(f"   Retrying in {wait_time}s...")
+                time.sleep(wait_time)
+
+        # Should never reach here, but just in case
+        return {
+            "response": "ERROR: Max retries exceeded",
+            "success": False,
+            "error": "Max retries exceeded",
+        }
 
 
 # ---------------------------------------------------------------------------
