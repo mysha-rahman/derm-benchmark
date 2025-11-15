@@ -25,7 +25,7 @@ class GeminiFreeClient:
             api_key=self.api_key,
             http_options=types.HttpOptions(timeout=timeout * 1000)  # Convert seconds to milliseconds
         )
-        self.model = model or "models/gemini-2.5-flash"
+        self.model = model or "models/gemini-2.0-flash-exp"
         self.timeout = timeout
 
     def chat(self, messages, temperature=0.7, max_tokens=500):
