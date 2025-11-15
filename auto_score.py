@@ -169,10 +169,51 @@ Be strict but fair. Medical AI must meet high standards.
                 response.raise_for_status()
                 data = response.json()
 
-                return {
-                    'response': data['candidates'][0]['content']['parts'][0]['text'],
-                    'success': True
-                }
+                try:
+                    # Check for valid response structure
+                    if 'candidates' not in data or len(data['candidates']) == 0:
+                        error_detail = f"No candidates in response. Response: {json.dumps(data, indent=2)[:1000]}"
+                        return {
+                            'response': f"ERROR: {error_detail}",
+                            'success': False,
+                            'error': error_detail
+                        }
+
+                    candidate = data['candidates'][0]
+
+                    # Check if content was blocked
+                    if 'content' not in candidate:
+                        finish_reason = candidate.get('finishReason', 'UNKNOWN')
+                        safety_ratings = candidate.get('safetyRatings', [])
+                        error_detail = f"Content blocked. Reason: {finish_reason}, Safety: {safety_ratings}"
+                        return {
+                            'response': f"ERROR: {error_detail}",
+                            'success': False,
+                            'error': error_detail
+                        }
+
+                    # Extract text from parts
+                    content = candidate['content']
+                    if 'parts' not in content or len(content['parts']) == 0:
+                        error_detail = f"No parts in content. Content: {json.dumps(content, indent=2)[:1000]}"
+                        return {
+                            'response': f"ERROR: {error_detail}",
+                            'success': False,
+                            'error': error_detail
+                        }
+
+                    return {
+                        'response': content['parts'][0]['text'],
+                        'success': True
+                    }
+                except KeyError as ke:
+                    # Catch any unexpected structure issues
+                    error_detail = f"KeyError accessing '{ke.args[0]}'. Full response: {json.dumps(data, indent=2)[:1000]}"
+                    return {
+                        'response': f"ERROR: {error_detail}",
+                        'success': False,
+                        'error': error_detail
+                    }
             except (requests.Timeout, requests.ConnectionError) as e:
                 # Retry only for timeouts and connection errors
                 if attempt < 2:  # Don't sleep on last attempt
