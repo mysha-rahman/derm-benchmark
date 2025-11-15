@@ -28,33 +28,30 @@ class GeminiFreeClient:
         self.model = model or "gemini-2.5-flash"
 
     def chat(self, messages: list, temperature: float = 0.7, max_tokens: int = 500) -> dict:
-        """Send conversation to Gemini"""
+    """Send conversation to Gemini"""
 
-        # Combine messages into a single text prompt
-        prompt = "\n".join(
-            f"{m['role']}: {m['content']}" for m in messages
+    # Combine messages into one prompt
+    prompt = "\n".join(f"{m['role']}: {m['content']}" for m in messages)
+
+    try:
+        response = self.client.models.generate_content(
+            model=self.model,
+            contents=prompt,
+            temperature=temperature,
+            max_output_tokens=max_tokens
         )
 
-        try:
-            response = self.client.models.generate_content(
-                model=self.model,
-                contents=prompt,
-                generation_config={
-                    "temperature": temperature,
-                    "max_output_tokens": max_tokens,
-                }
-            )
-            return {
-                "response": response.text,
-                "success": True
-            }
+        return {
+            "response": response.text,
+            "success": True
+        }
 
-        except Exception as e:
-            return {
-                "response": f"ERROR: {str(e)}",
-                "success": False,
-                "error": str(e)
-            }
+    except Exception as e:
+        return {
+            "response": f"ERROR: {str(e)}",
+            "success": False,
+            "error": str(e)
+        }
 
 def load_dialogues(filepath: str = 'dialogues/dialogue_templates.jsonl') -> list:
     """Load dialogue templates"""
