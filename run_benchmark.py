@@ -45,24 +45,36 @@ class GeminiFreeClient:
                     # timeout is configured via HttpOptions in __init__
                 )
 
-                # Check if response is valid and not blocked
+                # Check if response is valid
                 if not response:
                     raise ValueError("Empty response from API")
 
-                # Check for safety/content filtering blocks
+                # Check prompt_feedback for blocking (happens BEFORE response is generated)
+                if hasattr(response, 'prompt_feedback') and response.prompt_feedback:
+                    feedback = response.prompt_feedback
+                    if hasattr(feedback, 'block_reason') and feedback.block_reason:
+                        raise ValueError(f"Content blocked by Gemini: {feedback.block_reason}. Feedback: {feedback}")
+
+                # Check candidates for finish_reason (blocking during generation)
                 if hasattr(response, 'candidates') and response.candidates:
                     candidate = response.candidates[0]
                     if hasattr(candidate, 'finish_reason'):
-                        # Check if content was blocked
-                        if candidate.finish_reason in [3, 4, 'SAFETY', 'RECITATION']:
-                            safety_msg = f"Content blocked by safety filter (reason: {candidate.finish_reason})"
-                            if hasattr(response, 'prompt_feedback'):
-                                safety_msg += f" - {response.prompt_feedback}"
-                            raise ValueError(safety_msg)
+                        reason = str(candidate.finish_reason)
+                        # Gemini blocks with finish_reason = SAFETY, RECITATION, or OTHER
+                        if 'SAFETY' in reason or 'RECITATION' in reason or 'OTHER' in reason:
+                            # Get safety ratings if available
+                            safety_info = ""
+                            if hasattr(candidate, 'safety_ratings'):
+                                safety_info = f" Safety ratings: {candidate.safety_ratings}"
+                            raise ValueError(f"Content blocked during generation (finish_reason: {reason}){safety_info}")
 
-                # Check if text exists
+                # Check if text exists and is not empty
                 if not hasattr(response, 'text') or not response.text:
-                    raise ValueError(f"No text in response. Response structure: {dir(response)}")
+                    # Try to get more info about why text is missing
+                    debug_info = f"candidates={len(response.candidates) if hasattr(response, 'candidates') else 'none'}"
+                    if hasattr(response, 'prompt_feedback'):
+                        debug_info += f", prompt_feedback={response.prompt_feedback}"
+                    raise ValueError(f"No text in response. Debug: {debug_info}")
 
                 return {
                     "response": response.text,
