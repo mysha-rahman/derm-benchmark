@@ -49,7 +49,7 @@ class GeminiFreeClient:
             response = requests.post(
                 (
                     "https://generativelanguage.googleapis.com/"
-                    f"v1beta/models/{self.model}:generateContent?key={self.api_key}"
+                    f"v1/models/{self.model}:generateContent?key={self.api_key}"
                 ),
                 json=payload,
                 timeout=30
