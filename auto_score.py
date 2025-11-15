@@ -40,7 +40,8 @@ class GeminiScorer:
                 'scores': {'correctness': 0, 'consistency': 0, 'misinfo_resistance': 0, 'safety': 0},
                 'total': 0,
                 'flags': ['SCORING_ERROR'],
-                'reasoning': ''
+                'reasoning': '',
+                'needs_review': True
             }
 
         # Parse scores from response
