@@ -387,14 +387,23 @@ def auto_score_results(results_file: Path):
 
 def main():
     """Main execution"""
+    import sys
 
-    # Find latest results
-    results_file = find_latest_results()
+    # Check if file was specified as argument
+    if len(sys.argv) > 1:
+        results_file = Path(sys.argv[1])
+        if not results_file.exists():
+            print(f"❌ File not found: {results_file}")
+            return
+        print(f"📂 Using specified file: {results_file}")
+    else:
+        # Find latest results
+        results_file = find_latest_results()
 
-    if not results_file:
-        print("❌ No results found in validation/results/")
-        print("   Run 'python run_benchmark.py' first!")
-        return
+        if not results_file:
+            print("❌ No results found in validation/results/")
+            print("   Run 'python run_benchmark.py' first!")
+            return
 
     # Auto-score
     auto_score_results(results_file)
