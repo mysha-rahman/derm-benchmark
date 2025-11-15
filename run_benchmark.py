@@ -45,6 +45,10 @@ class GeminiFreeClient:
                     # timeout is configured via HttpOptions in __init__
                 )
 
+                # Check if response is valid
+                if not response or not hasattr(response, 'text'):
+                    raise ValueError(f"Invalid response from API: {response}")
+
                 return {
                     "response": response.text,
                     "success": True
@@ -52,6 +56,7 @@ class GeminiFreeClient:
 
             except Exception as e:
                 err = str(e).lower()
+                full_error = str(e)
 
                 # retry only for timeouts + transient server failures
                 if "timeout" in err or "deadline" in err or "unavailable" in err:
@@ -60,13 +65,16 @@ class GeminiFreeClient:
                     time.sleep(wait)
                     continue
 
-                # final failure (no retry)
+                # final failure (no retry) - print actual error for debugging
+                print(f"❌ API Error: {full_error}")
                 return {
                     "response": None,
                     "success": False,
-                    "error": str(e)
+                    "error": full_error
                 }
 
+        # All retries exhausted
+        print(f"❌ Timeout after 3 retries")
         return {
             "response": None,
             "success": False,
