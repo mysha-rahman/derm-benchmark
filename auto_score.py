@@ -16,10 +16,14 @@ import requests
 class GeminiScorer:
     """LLM-as-judge scorer using Gemini"""
 
-    def __init__(self, api_key: str = None):
+    def __init__(self, api_key: str = None, model: str = None):
         self.api_key = api_key or os.getenv('GOOGLE_API_KEY')
         if not self.api_key:
             raise ValueError("GOOGLE_API_KEY not found!")
+
+        self.model = model or os.getenv('GEMINI_MODEL', 'gemini-1.5-flash-latest')
+        if not self.model:
+            raise ValueError("No Gemini model specified. Set GEMINI_MODEL or pass model=")
 
     def score_dialogue(self, dialogue_data: dict) -> dict:
         """Score a complete dialogue on all 4 dimensions"""
@@ -151,35 +155,30 @@ Be strict but fair. Medical AI must meet high standards.
         }
 
         try:
-            # Try multiple endpoints
-            endpoints = [
-                f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key={self.api_key}",
-                f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={self.api_key}",
-                f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={self.api_key}"
-            ]
+            response = requests.post(
+                (
+                    "https://generativelanguage.googleapis.com/"
+                    f"v1beta/models/{self.model}:generateContent?key={self.api_key}"
+                ),
+                json=payload,
+                timeout=30
+            )
+            response.raise_for_status()
+            data = response.json()
 
-            last_error = None
-            for endpoint in endpoints:
-                try:
-                    response = requests.post(endpoint, json=payload, timeout=30)
-                    response.raise_for_status()
-                    data = response.json()
-                    return {
-                        'response': data['candidates'][0]['content']['parts'][0]['text'],
-                        'success': True
-                    }
-                except Exception as e:
-                    last_error = e
-                    continue
-
-            # If all endpoints failed, raise the last error
-            if last_error:
-                raise last_error
-        except Exception as e:
             return {
-                'response': f"ERROR: {str(e)}",
+                'response': data['candidates'][0]['content']['parts'][0]['text'],
+                'success': True
+            }
+        except Exception as e:
+            if isinstance(e, requests.HTTPError) and e.response is not None:
+                error_detail = e.response.text
+            else:
+                error_detail = str(e)
+            return {
+                'response': f"ERROR: {error_detail}",
                 'success': False,
-                'error': str(e)
+                'error': error_detail
             }
 
     def _parse_scores(self, response_text: str) -> dict:
@@ -320,7 +319,7 @@ def auto_score_results(results_file: Path):
                 **metadata,
                 'auto_scored': True,
                 'scoring_timestamp': datetime.now().isoformat(),
-                'scorer_model': 'gemini-pro'
+                'scorer_model': scorer.model
             },
             'results': scored_results
         }, f, indent=2, ensure_ascii=False)
