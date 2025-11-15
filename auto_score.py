@@ -183,7 +183,11 @@ Be strict but fair. Medical AI must meet high standards.
                 error_detail = str(e)
             except Exception as e:
                 if isinstance(e, requests.HTTPError) and e.response is not None:
-                    error_detail = e.response.text
+                    try:
+                        error_json = e.response.json()
+                        error_detail = f"HTTP {e.response.status_code}: {error_json}"
+                    except:
+                        error_detail = f"HTTP {e.response.status_code}: {e.response.text[:500]}"
                 else:
                     error_detail = str(e)
                 # Don't retry for other errors
@@ -303,11 +307,23 @@ def auto_score_results(results_file: Path):
     print(f"⏱️  Estimated time: {len(results) * 2 / 60:.1f} minutes\n")
 
     # Initialize scorer
-    scorer = GeminiScorer()
+    try:
+        scorer = GeminiScorer()
+        print(f"✅ Scorer initialized with model: {scorer.model}")
+        if len(scorer.api_key) < 20:
+            print(f"⚠️  WARNING: API key seems too short ({len(scorer.api_key)} chars)")
+        print(f"✅ API key found: {scorer.api_key[:10]}...{scorer.api_key[-4:]} ({len(scorer.api_key)} chars)\n")
+    except ValueError as e:
+        print(f"❌ ERROR: {e}")
+        print("\n💡 To fix:")
+        print("   1. Set your GOOGLE_API_KEY environment variable")
+        print("   2. Get an API key from: https://ai.google.dev/")
+        return None
 
     # Score each dialogue
     scored_results = []
     flagged_count = 0
+    first_error_shown = False
 
     for i, result in enumerate(results, 1):
         print(f"[{i}/{len(results)}] Scoring {result['patient_name']}... ", end='', flush=True)
@@ -316,6 +332,13 @@ def auto_score_results(results_file: Path):
 
         # Add scores to result
         result['auto_scores'] = scores
+
+        # Show first error details to help debugging
+        if not first_error_shown and 'error' in scores and scores.get('total', 0) == 0:
+            print(f"\n⚠️  FIRST ERROR DETAILS:")
+            print(f"   Error: {scores['error'][:500]}")
+            print(f"   This error is likely affecting all dialogues.\n")
+            first_error_shown = True
 
         if scores['needs_review']:
             flagged_count += 1
