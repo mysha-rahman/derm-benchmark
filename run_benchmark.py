@@ -28,7 +28,32 @@ class GeminiFreeClient:
         self.model = model or "models/gemini-2.5-flash"
         self.timeout = timeout
 
-    def chat(self, messages, temperature=0.7, max_tokens=500):
+    def _extract_text(self, response):
+        """
+        Extract text from Gemini response, handling cases where response.text is None.
+        Falls back to extracting from candidates[0].content.parts when needed.
+
+        This handles MAX_TOKENS and other cases where response.text isn't populated.
+        """
+        # Try the simple case first
+        if hasattr(response, 'text') and response.text:
+            return response.text
+
+        # Fall back to extracting from candidates
+        if hasattr(response, 'candidates') and response.candidates:
+            candidate = response.candidates[0]
+            if hasattr(candidate, 'content') and candidate.content:
+                if hasattr(candidate.content, 'parts') and candidate.content.parts:
+                    parts_text = []
+                    for part in candidate.content.parts:
+                        if hasattr(part, 'text') and part.text:
+                            parts_text.append(part.text)
+                    if parts_text:
+                        return ''.join(parts_text)
+
+        return None
+
+    def chat(self, messages, temperature=0.7, max_tokens=2048):
         """Send conversation to Gemini with retries"""
 
         prompt = "\n".join(f"{m['role']}: {m['content']}" for m in messages)
@@ -73,34 +98,22 @@ class GeminiFreeClient:
                                 safety_info = f" Safety ratings: {candidate.safety_ratings}"
                             raise ValueError(f"Content blocked during generation (finish_reason: {reason}){safety_info}")
 
-                # Check if text exists and is not empty
-                if not hasattr(response, 'text') or not response.text:
-                    # Deep debugging - check candidates directly
+                # Extract text using helper (handles response.text or candidates.parts)
+                extracted_text = self._extract_text(response)
+
+                if not extracted_text:
+                    # Build debug info
                     debug_info = f"candidates={len(response.candidates) if hasattr(response, 'candidates') else 'none'}"
                     if hasattr(response, 'prompt_feedback'):
                         debug_info += f", prompt_feedback={response.prompt_feedback}"
-
-                    # Try to access text from candidates directly
                     if hasattr(response, 'candidates') and response.candidates:
                         candidate = response.candidates[0]
-                        debug_info += f", finish_reason={candidate.finish_reason if hasattr(candidate, 'finish_reason') else 'none'}"
-
-                        # Try to get text from parts
-                        if hasattr(candidate, 'content') and candidate.content:
-                            if hasattr(candidate.content, 'parts') and candidate.content.parts:
-                                parts_text = [p.text for p in candidate.content.parts if hasattr(p, 'text')]
-                                if parts_text:
-                                    # Found text in parts! Use it directly
-                                    return {
-                                        "response": ''.join(parts_text),
-                                        "success": True
-                                    }
-                                debug_info += f", parts={len(candidate.content.parts)}, parts_structure={dir(candidate.content.parts[0])}"
-
+                        if hasattr(candidate, 'finish_reason'):
+                            debug_info += f", finish_reason={candidate.finish_reason}"
                     raise ValueError(f"No text in response. Debug: {debug_info}")
 
                 return {
-                    "response": response.text,
+                    "response": extracted_text,
                     "success": True
                 }
 

@@ -10,6 +10,30 @@ from google import genai
 from google.genai import types
 
 
+def _extract_text(response):
+    """
+    Extract text from Gemini response, handling cases where response.text is None.
+    Falls back to extracting from candidates[0].content.parts when needed.
+    """
+    # Try the simple case first
+    if hasattr(response, 'text') and response.text:
+        return response.text
+
+    # Fall back to extracting from candidates
+    if hasattr(response, 'candidates') and response.candidates:
+        candidate = response.candidates[0]
+        if hasattr(candidate, 'content') and candidate.content:
+            if hasattr(candidate.content, 'parts') and candidate.content.parts:
+                parts_text = []
+                for part in candidate.content.parts:
+                    if hasattr(part, 'text') and part.text:
+                        parts_text.append(part.text)
+                if parts_text:
+                    return ''.join(parts_text)
+
+    return None
+
+
 def test_api():
     print("=" * 70)
     print("🔬 TESTING GOOGLE GEMINI API")
@@ -45,8 +69,11 @@ def test_api():
             )
         )
 
-        if response and hasattr(response, 'text'):
-            print(f"✅ API Response: {response.text}")
+        # Extract text (handles both response.text and candidates.parts)
+        extracted_text = _extract_text(response)
+
+        if extracted_text:
+            print(f"✅ API Response: {extracted_text}")
             print()
             print("=" * 70)
             print("✅ SUCCESS! Your API is working correctly!")
@@ -56,7 +83,7 @@ def test_api():
             print("  python run_benchmark.py --quick")
             return True
         else:
-            print(f"❌ Invalid response: {response}")
+            print(f"❌ No text in response: {response}")
             return False
 
     except Exception as e:
