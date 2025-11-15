@@ -28,7 +28,7 @@ class GeminiFreeClient:
         self.model = model or "models/gemini-2.5-flash"
         self.timeout = timeout
 
-    def chat(self, messages, temperature=0.7, max_tokens=500):
+    def chat(self, messages, temperature=0.7, max_tokens=2048):
         """Send conversation to Gemini with retries"""
 
         prompt = "\n".join(f"{m['role']}: {m['content']}" for m in messages)
@@ -85,17 +85,25 @@ class GeminiFreeClient:
                         candidate = response.candidates[0]
                         debug_info += f", finish_reason={candidate.finish_reason if hasattr(candidate, 'finish_reason') else 'none'}"
 
-                        # Try to get text from parts
+                        # Try to get text from parts (handles MAX_TOKENS case)
                         if hasattr(candidate, 'content') and candidate.content:
                             if hasattr(candidate.content, 'parts') and candidate.content.parts:
-                                parts_text = [p.text for p in candidate.content.parts if hasattr(p, 'text')]
-                                if parts_text:
-                                    # Found text in parts! Use it directly
-                                    return {
-                                        "response": ''.join(parts_text),
-                                        "success": True
-                                    }
-                                debug_info += f", parts={len(candidate.content.parts)}, parts_structure={dir(candidate.content.parts[0])}"
+                                try:
+                                    parts_text = []
+                                    for p in candidate.content.parts:
+                                        if hasattr(p, 'text') and p.text:
+                                            parts_text.append(p.text)
+                                    if parts_text:
+                                        # Found text in parts! Use it even if MAX_TOKENS
+                                        combined_text = ''.join(parts_text)
+                                        print(f"DEBUG: Extracted {len(combined_text)} chars from parts")
+                                        return {
+                                            "response": combined_text,
+                                            "success": True
+                                        }
+                                except Exception as e:
+                                    debug_info += f", parts_error={str(e)}"
+                                debug_info += f", parts={len(candidate.content.parts)}"
 
                     raise ValueError(f"No text in response. Debug: {debug_info}")
 
