@@ -41,9 +41,9 @@ class GeminiFreeClient:
         }
 
         try:
-            # Try v1 endpoint with gemini-1.5-flash (current free model)
+            # Use gemini-pro (free model)
             response = requests.post(
-                f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={self.api_key}",
+                f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={self.api_key}",
                 json=payload,
                 timeout=30
             )
@@ -213,7 +213,7 @@ def run_benchmark(num_dialogues: int = 25):
     with open(output_file, 'w', encoding='utf-8') as f:
         json.dump({
             'metadata': {
-                'model': 'gemini-1.5-flash',
+                'model': 'gemini-pro',
                 'num_dialogues': len(dialogues),
                 'total_turns': sum(len(r['exchanges']) for r in results),
                 'timestamp': datetime.now().isoformat(),
