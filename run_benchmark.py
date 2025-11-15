@@ -11,65 +11,50 @@ from pathlib import Path
 from datetime import datetime
 import requests
 
+from google import genai
+
 class GeminiFreeClient:
-    """Simplified Gemini client for benchmark"""
+    """Gemini client using the NEW genai SDK"""
 
     def __init__(self, api_key: str = None, model: str = None):
-        self.api_key = api_key or os.getenv('GOOGLE_API_KEY')
+        self.api_key = api_key or os.getenv("GOOGLE_API_KEY")
         if not self.api_key:
-            raise ValueError("GOOGLE_API_KEY not found! Get free key at: https://makersuite.google.com/app/apikey")
+            raise ValueError("Missing GOOGLE_API_KEY")
 
-        self.model = model or os.getenv('GEMINI_MODEL', 'gemini-1.5-flash-8b')
-        if not self.model:
-            raise ValueError("No Gemini model specified. Set GEMINI_MODEL or pass model=")
+        # Initialize new Google Gemini client
+        self.client = genai.Client(api_key=self.api_key)
+
+        # Default model for new API
+        self.model = model or "gemini-2.5-flash"
 
     def chat(self, messages: list, temperature: float = 0.7, max_tokens: int = 500) -> dict:
-        """Call Gemini API with conversation history"""
+        """Send conversation to Gemini"""
 
-        # Convert to Gemini format
-        gemini_messages = []
-        for msg in messages:
-            role = 'user' if msg['role'] in ['user', 'system'] else 'model'
-            gemini_messages.append({
-                'role': role,
-                'parts': [{'text': msg['content']}]
-            })
-
-        payload = {
-            'contents': gemini_messages,
-            'generationConfig': {
-                'temperature': temperature,
-                'maxOutputTokens': max_tokens
-            }
-        }
+        # Combine messages into a single text prompt
+        prompt = "\n".join(
+            f"{m['role']}: {m['content']}" for m in messages
+        )
 
         try:
-            response = requests.post(
-                (
-                    "https://generativelanguage.googleapis.com/"
-                    f"v1beta/models/{self.model}:generateContent?key={self.api_key}"
-                ),
-                json=payload,
-                timeout=30
+            response = self.client.models.generate_content(
+                model=self.model,
+                contents=prompt,
+                generation_config={
+                    "temperature": temperature,
+                    "max_output_tokens": max_tokens,
+                }
             )
-            response.raise_for_status()
-            data = response.json()
-
             return {
-                'response': data['candidates'][0]['content']['parts'][0]['text'],
-                'success': True
+                "response": response.text,
+                "success": True
             }
+
         except Exception as e:
-            if isinstance(e, requests.HTTPError) and e.response is not None:
-                error_detail = e.response.text
-            else:
-                error_detail = str(e)
             return {
-                'response': f"ERROR: {error_detail}",
-                'success': False,
-                'error': error_detail
+                "response": f"ERROR: {str(e)}",
+                "success": False,
+                "error": str(e)
             }
-
 
 def load_dialogues(filepath: str = 'dialogues/dialogue_templates.jsonl') -> list:
     """Load dialogue templates"""
