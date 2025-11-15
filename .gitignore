@@ -26,6 +26,10 @@ validation/results/
 validation/scoring_sheet_*.csv
 validation/detailed_review_*.txt
 
+# DermNet NZ pattern extraction (optional - can be committed if desired)
+# validation/dermnet_patterns.json
+# validation/DERMNET_ATTRIBUTION.md
+
 # Jupyter notebooks
 *.ipynb_checkpoints/
 .ipynb_checkpoints/
