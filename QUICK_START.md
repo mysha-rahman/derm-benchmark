@@ -4,10 +4,11 @@
 
 Your benchmark is now **streamlined and ready to test**!
 
+- ✅ 100 patient profiles (based on HAM10000 dataset)
 - ✅ 25 dialogue templates (40% with misinformation)
 - ✅ 15 dermatology myths library
 - ✅ Gemini API testing (FREE)
-- ✅ Scoring rubric (4 dimensions)
+- ✅ Scoring rubric (4 dimensions, 0-12 scale)
 - ✅ All scripts ready to run
 
 ---
@@ -16,6 +17,7 @@ Your benchmark is now **streamlined and ready to test**!
 
 ```
 derm-benchmark/
+├── patient_profiles_100.csv              # 100 synthetic patients
 ├── dialogues/
 │   ├── dialogue_templates.jsonl          # 25 conversations (125 turns)
 │   ├── misinformation_library.json       # 15 myths to test
@@ -23,7 +25,7 @@ derm-benchmark/
 │
 ├── validation/
 │   ├── scoring_rubric.md                 # How to score (0-12 scale)
-│   └── results/                          # Results saved here
+│   └── results/                          # Results saved here (after tests)
 │
 ├── generate_dialogues.py                 # Generate more dialogues
 ├── run_benchmark.py                      # Run tests with Gemini
@@ -139,11 +141,11 @@ Every conversation has **5 turns** testing:
 Want 30 dialogues instead of 25?
 
 ```bash
-# Edit generate_dialogues.py, line 181:
-generate_all_dialogues(num_templates=30)  # Change 25 → 30
-
-# Regenerate:
+# Regenerate with more dialogues:
 python generate_dialogues.py
+
+# The script will randomly select from 100 patient profiles
+# and create new dialogue templates
 ```
 
 ---
