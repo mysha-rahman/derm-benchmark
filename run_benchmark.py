@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """
-Run dermatology benchmark with Gemini API (NEW 2025 SDK)
-Processes all dialogue templates and saves results for scoring.
+Run dermatology benchmark with Gemini API (google-genai v1.50.1)
 """
 
 import os
@@ -10,64 +9,68 @@ import time
 from pathlib import Path
 from datetime import datetime
 from google import genai
+from google.genai import types
 
-
-# ---------------------------------------------------------------------------
-#  Gemini Client (NEW SDK)
-# ---------------------------------------------------------------------------
 
 class GeminiFreeClient:
-    """Gemini client using the NEW google-genai SDK"""
+    """Gemini client using google-genai v1.50.1"""
 
-    def __init__(self, api_key: str = None, model: str = None, timeout: int = 60):
+    def __init__(self, api_key=None, model=None, timeout=200):
         self.api_key = api_key or os.getenv("GOOGLE_API_KEY")
         if not self.api_key:
             raise ValueError("Missing GOOGLE_API_KEY environment variable")
 
-        # Initialize Gemini client with timeout
-        self.client = genai.Client(
-            api_key=self.api_key,
-            http_options={'timeout': timeout}
-        )
-
-        # Default model (works for new API keys)
-        self.model = model or "gemini-2.5-flash"
+        self.client = genai.Client(api_key=self.api_key)
+        self.model = model or "models/gemini-2.5-flash"
         self.timeout = timeout
 
-    def chat(self, messages: list, temperature: float = 0.7, max_tokens: int = 500) -> dict:
-    """Send conversation to Gemini"""
+    def chat(self, messages, temperature=0.7, max_tokens=500):
+        """Send conversation to Gemini with retries"""
 
-    # Combine messages into one prompt
-    prompt = "\n".join(f"{m['role']}: {m['content']}" for m in messages)
+        prompt = "\n".join(f"{m['role']}: {m['content']}" for m in messages)
 
-    try:
-        response = self.client.models.generate_content(
-            model=self.model,
-            contents=prompt,
-            config={
-                "temperature": temperature,
-                "max_output_tokens": max_tokens
-            }
-        )
+        for attempt in range(3):  # exponential backoff
+            try:
+                response = self.client.models.generate_content(
+                    model=self.model,
+                    contents=prompt,
+                    config=types.GenerateContentConfig(
+                        temperature=temperature,
+                        max_output_tokens=max_tokens
+                    ),
+                    timeout=self.timeout  # <- REQUIRED
+                )
+
+                return {
+                    "response": response.text,
+                    "success": True
+                }
+
+            except Exception as e:
+                err = str(e).lower()
+
+                # retry only for timeouts + transient server failures
+                if "timeout" in err or "deadline" in err or "unavailable" in err:
+                    wait = 2 ** attempt
+                    print(f"    ⏳ Timeout, retrying in {wait}s...")
+                    time.sleep(wait)
+                    continue
+
+                # final failure (no retry)
+                return {
+                    "response": None,
+                    "success": False,
+                    "error": str(e)
+                }
 
         return {
-            "response": response.text,
-            "success": True
-        }
-
-    except Exception as e:
-        return {
-            "response": f"ERROR: {str(e)}",
+            "response": None,
             "success": False,
-            "error": str(e)
+            "error": "Timeout after 3 retries"
         }
-
-# ---------------------------------------------------------------------------
-#  Dialogue Loading
-# ---------------------------------------------------------------------------
+    
 
 def load_dialogues(filepath: str = "dialogues/dialogue_templates.jsonl") -> list:
-    """Load dialogue templates from JSONL."""
     dialogues = []
     with open(filepath, "r", encoding="utf-8") as f:
         for line in f:
@@ -75,16 +78,10 @@ def load_dialogues(filepath: str = "dialogues/dialogue_templates.jsonl") -> list
     return dialogues
 
 
-# ---------------------------------------------------------------------------
-#  Run a Single Dialogue
-# ---------------------------------------------------------------------------
-
 def run_dialogue(client: GeminiFreeClient, dialogue: dict) -> dict:
-    """Execute one dialogue conversation."""
-
     system_prompt = (
         "You are a helpful dermatology assistant. Provide brief, accurate medical information. "
-        "Remember all patient details shared. Correct misinformation politely. Always include disclaimers."
+        "Remember all patient details shared. Correct misinformation politely. Include disclaimers."
     )
 
     conversation = [{"role": "system", "content": system_prompt}]
@@ -95,27 +92,21 @@ def run_dialogue(client: GeminiFreeClient, dialogue: dict) -> dict:
         "patient_name": dialogue["patient_name"],
         "has_misinformation": dialogue["has_misinformation"],
         "timestamp": datetime.now().isoformat(),
-        "exchanges": [],
+        "exchanges": []
     }
 
     user_turns = [t for t in dialogue["turns"] if t["role"] == "user"]
 
     for user_turn in user_turns:
         turn_num = user_turn["turn"]
-
         conversation.append({"role": "user", "content": user_turn["content"]})
 
         print(f"  Turn {turn_num}: ", end="", flush=True)
         ai_response = client.chat(conversation)
 
-        if ai_response["success"]:
+        if ai_response["success"] and ai_response["response"] is not None:
             print(f"✅ ({len(ai_response['response'])} chars)")
-
-            # Add response to conversation history
-            conversation.append(
-                {"role": "assistant", "content": ai_response["response"]}
-            )
-
+            conversation.append({"role": "assistant", "content": ai_response["response"]})
             result["exchanges"].append({
                 "turn": turn_num,
                 "user_message": user_turn["content"],
@@ -124,26 +115,22 @@ def run_dialogue(client: GeminiFreeClient, dialogue: dict) -> dict:
                 "expected_behaviors": None,
                 "expected_recall": user_turn.get("expected_recall"),
                 "misinformation": user_turn.get("misinformation"),
-            })
+                })
 
         else:
-            print(f"❌ Error: {ai_response['error']}")
+            print(f"❌ Error: {ai_response.get('error', 'Unknown error')}")
             result["exchanges"].append({
                 "turn": turn_num,
                 "user_message": user_turn["content"],
                 "ai_response": None,
-                "error": ai_response["error"],
-            })
+                "error": ai_response.get("error"),
+                })
             break
 
         time.sleep(1.1)
 
     return result
 
-
-# ---------------------------------------------------------------------------
-#  Benchmark Runner
-# ---------------------------------------------------------------------------
 
 def run_benchmark(num_dialogues: int = 25):
     print("=" * 70)
@@ -153,7 +140,8 @@ def run_benchmark(num_dialogues: int = 25):
     print("\n🔑 Checking API key...")
     try:
         client = GeminiFreeClient()
-        print("✅ Gemini API key found!")
+        print(f"✅ Gemini API key found!")
+        print(f"📱 Using model: {client.model}")
     except ValueError as e:
         print(f"❌ {e}")
         return
@@ -164,8 +152,7 @@ def run_benchmark(num_dialogues: int = 25):
 
     dialogues = dialogues[:num_dialogues]
 
-    print(f"\n🚀 Running benchmark ({len(dialogues)} dialogues)")
-    print(f"⏱️  Estimated time: {len(dialogues) * 5 * 1.1 / 60:.1f} minutes\n")
+    print(f"\n🚀 Running benchmark ({len(dialogues)} dialogues)\n")
 
     results = []
     start = time.time()
@@ -177,7 +164,6 @@ def run_benchmark(num_dialogues: int = 25):
 
     elapsed = time.time() - start
 
-    # Save results
     output_dir = Path("validation/results")
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -194,7 +180,7 @@ def run_benchmark(num_dialogues: int = 25):
                 "elapsed_time_seconds": elapsed,
                 "cost": 0.00,
             },
-            "results": results,
+            "results": results
         }, f, indent=2)
 
     print("=" * 70)
@@ -204,10 +190,6 @@ def run_benchmark(num_dialogues: int = 25):
     print(f"⏱️  Total time: {elapsed/60:.1f} minutes")
     print(f"💾 Results saved to: {output_file}")
 
-
-# ---------------------------------------------------------------------------
-#  Entry Point
-# ---------------------------------------------------------------------------
 
 def run_quick_test():
     print("🔬 Running QUICK TEST (3 dialogues)")
