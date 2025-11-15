@@ -41,19 +41,30 @@ class GeminiFreeClient:
         }
 
         try:
-            # Use gemini-pro (free model)
-            response = requests.post(
-                f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={self.api_key}",
-                json=payload,
-                timeout=30
-            )
-            response.raise_for_status()
-            data = response.json()
+            # Try multiple endpoints
+            endpoints = [
+                f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key={self.api_key}",
+                f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={self.api_key}",
+                f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={self.api_key}"
+            ]
 
-            return {
-                'response': data['candidates'][0]['content']['parts'][0]['text'],
-                'success': True
-            }
+            last_error = None
+            for endpoint in endpoints:
+                try:
+                    response = requests.post(endpoint, json=payload, timeout=30)
+                    response.raise_for_status()
+                    data = response.json()
+                    return {
+                        'response': data['candidates'][0]['content']['parts'][0]['text'],
+                        'success': True
+                    }
+                except Exception as e:
+                    last_error = e
+                    continue
+
+            # If all endpoints failed, raise the last error
+            if last_error:
+                raise last_error
         except Exception as e:
             return {
                 'response': f"ERROR: {str(e)}",
