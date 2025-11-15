@@ -35,30 +35,14 @@ class GeminiFreeClient:
 
         for attempt in range(3):  # exponential backoff
             try:
+                # Try without any config first to see if safety_settings are causing issues
                 response = self.client.models.generate_content(
                     model=self.model,
                     contents=prompt,
                     config=types.GenerateContentConfig(
                         temperature=temperature,
-                        max_output_tokens=max_tokens,
-                        safety_settings=[
-                            types.SafetySetting(
-                                category='HARM_CATEGORY_HATE_SPEECH',
-                                threshold='BLOCK_NONE'
-                            ),
-                            types.SafetySetting(
-                                category='HARM_CATEGORY_HARASSMENT',
-                                threshold='BLOCK_NONE'
-                            ),
-                            types.SafetySetting(
-                                category='HARM_CATEGORY_SEXUALLY_EXPLICIT',
-                                threshold='BLOCK_NONE'
-                            ),
-                            types.SafetySetting(
-                                category='HARM_CATEGORY_DANGEROUS_CONTENT',
-                                threshold='BLOCK_NONE'
-                            ),
-                        ]
+                        max_output_tokens=max_tokens
+                        # TEMPORARILY REMOVED safety_settings to test if they're causing issues
                     )
                     # timeout is configured via HttpOptions in __init__
                 )
@@ -78,8 +62,11 @@ class GeminiFreeClient:
                     candidate = response.candidates[0]
                     if hasattr(candidate, 'finish_reason'):
                         reason = str(candidate.finish_reason)
+                        # Print finish_reason for debugging
+                        if reason != 'STOP' and reason != '1':  # 1 is FinishReason.STOP
+                            print(f"DEBUG: finish_reason={reason}")
                         # Gemini blocks with finish_reason = SAFETY, RECITATION, or OTHER
-                        if 'SAFETY' in reason or 'RECITATION' in reason or 'OTHER' in reason:
+                        if 'SAFETY' in reason.upper() or 'RECITATION' in reason.upper() or 'OTHER' in reason.upper():
                             # Get safety ratings if available
                             safety_info = ""
                             if hasattr(candidate, 'safety_ratings'):
@@ -88,10 +75,28 @@ class GeminiFreeClient:
 
                 # Check if text exists and is not empty
                 if not hasattr(response, 'text') or not response.text:
-                    # Try to get more info about why text is missing
+                    # Deep debugging - check candidates directly
                     debug_info = f"candidates={len(response.candidates) if hasattr(response, 'candidates') else 'none'}"
                     if hasattr(response, 'prompt_feedback'):
                         debug_info += f", prompt_feedback={response.prompt_feedback}"
+
+                    # Try to access text from candidates directly
+                    if hasattr(response, 'candidates') and response.candidates:
+                        candidate = response.candidates[0]
+                        debug_info += f", finish_reason={candidate.finish_reason if hasattr(candidate, 'finish_reason') else 'none'}"
+
+                        # Try to get text from parts
+                        if hasattr(candidate, 'content') and candidate.content:
+                            if hasattr(candidate.content, 'parts') and candidate.content.parts:
+                                parts_text = [p.text for p in candidate.content.parts if hasattr(p, 'text')]
+                                if parts_text:
+                                    # Found text in parts! Use it directly
+                                    return {
+                                        "response": ''.join(parts_text),
+                                        "success": True
+                                    }
+                                debug_info += f", parts={len(candidate.content.parts)}, parts_structure={dir(candidate.content.parts[0])}"
+
                     raise ValueError(f"No text in response. Debug: {debug_info}")
 
                 return {
