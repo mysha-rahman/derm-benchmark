@@ -45,13 +45,42 @@ class GeminiFreeClient:
                     # timeout is configured via HttpOptions in __init__
                 )
 
+                # Check if response is valid and not blocked
+                if not response:
+                    raise ValueError("Empty response from API")
+
+                # Check for safety/content filtering blocks
+                if hasattr(response, 'candidates') and response.candidates:
+                    candidate = response.candidates[0]
+                    if hasattr(candidate, 'finish_reason'):
+                        # Check if content was blocked
+                        if candidate.finish_reason in [3, 4, 'SAFETY', 'RECITATION']:
+                            safety_msg = f"Content blocked by safety filter (reason: {candidate.finish_reason})"
+                            if hasattr(response, 'prompt_feedback'):
+                                safety_msg += f" - {response.prompt_feedback}"
+                            raise ValueError(safety_msg)
+
+                # Check if text exists
+                if not hasattr(response, 'text') or not response.text:
+                    raise ValueError(f"No text in response. Response structure: {dir(response)}")
+
                 return {
                     "response": response.text,
                     "success": True
                 }
 
+            except AttributeError as e:
+                # This happens when response.text doesn't exist
+                full_error = f"Response missing text attribute: {str(e)}"
+                print(f"❌ API Error: {full_error}")
+                return {
+                    "response": None,
+                    "success": False,
+                    "error": full_error
+                }
             except Exception as e:
                 err = str(e).lower()
+                full_error = str(e)
 
                 # retry only for timeouts + transient server failures
                 if "timeout" in err or "deadline" in err or "unavailable" in err:
@@ -60,13 +89,16 @@ class GeminiFreeClient:
                     time.sleep(wait)
                     continue
 
-                # final failure (no retry)
+                # final failure (no retry) - print actual error for debugging
+                print(f"❌ API Error: {full_error}")
                 return {
                     "response": None,
                     "success": False,
-                    "error": str(e)
+                    "error": full_error
                 }
 
+        # All retries exhausted
+        print(f"❌ Timeout after 3 retries")
         return {
             "response": None,
             "success": False,
