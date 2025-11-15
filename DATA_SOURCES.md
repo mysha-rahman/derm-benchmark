@@ -12,9 +12,13 @@ This document explains how we use real dermatology data to create realistic synt
 - Ensure our synthetic patients reflect realistic clinical presentations
 
 **Why synthetic?**
+
 ✅ No patient privacy concerns (no IRB approval needed)
+
 ✅ Full control over test scenarios (allergies, misinformation, etc.)
+
 ✅ Reproducible research (same profiles can be shared publicly)
+
 ✅ Ethical AI testing without real patient risk
 
 ---
