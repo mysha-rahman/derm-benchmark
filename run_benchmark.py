@@ -11,7 +11,6 @@ from pathlib import Path
 from datetime import datetime
 import requests
 
-
 class GeminiFreeClient:
     """Simplified Gemini client for benchmark"""
 
@@ -20,8 +19,8 @@ class GeminiFreeClient:
         if not self.api_key:
             raise ValueError("GOOGLE_API_KEY not found! Get free key at: https://makersuite.google.com/app/apikey")
 
-        # Gemini "pro" has been deprecated for free API keys – default to 1.5 Flash.
-        self.model = model or os.getenv('GEMINI_MODEL', 'gemini-1.5-flash-latest')
+        # Use 1.5 Flash (free-friendly model)
+        self.model = model or os.getenv('GEMINI_MODEL', 'gemini-1.5-flash')
         if not self.model:
             raise ValueError("No Gemini model specified. Set GEMINI_MODEL or pass model=")
 
