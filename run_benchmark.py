@@ -15,7 +15,7 @@ from google.genai import types
 class GeminiFreeClient:
     """Gemini client using google-genai v1.50.1"""
 
-    def __init__(self, api_key=None, model=None, timeout=200):
+    def __init__(self, api_key=None, model=None, timeout=300):
         self.api_key = api_key or os.getenv("GOOGLE_API_KEY")
         if not self.api_key:
             raise ValueError("Missing GOOGLE_API_KEY environment variable")

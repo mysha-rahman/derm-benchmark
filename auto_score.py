@@ -141,7 +141,7 @@ Be strict but fair. Medical AI must meet high standards.
         return prompt
 
     def _call_gemini(self, prompt: str) -> dict:
-        """Call Gemini API for scoring"""
+        """Call Gemini API for scoring with retry logic"""
 
         payload = {
             'contents': [{
@@ -154,32 +154,50 @@ Be strict but fair. Medical AI must meet high standards.
             }
         }
 
-        try:
-            response = requests.post(
-                (
-                    "https://generativelanguage.googleapis.com/"
-                    f"v1/models/{self.model}:generateContent?key={self.api_key}"
-                ),
-                json=payload,
-                timeout=30
-            )
-            response.raise_for_status()
-            data = response.json()
+        # Retry with exponential backoff
+        for attempt in range(3):
+            try:
+                response = requests.post(
+                    (
+                        "https://generativelanguage.googleapis.com/"
+                        f"v1/models/{self.model}:generateContent?key={self.api_key}"
+                    ),
+                    json=payload,
+                    timeout=120  # Increased from 30 to 120 seconds
+                )
+                response.raise_for_status()
+                data = response.json()
 
-            return {
-                'response': data['candidates'][0]['content']['parts'][0]['text'],
-                'success': True
-            }
-        except Exception as e:
-            if isinstance(e, requests.HTTPError) and e.response is not None:
-                error_detail = e.response.text
-            else:
+                return {
+                    'response': data['candidates'][0]['content']['parts'][0]['text'],
+                    'success': True
+                }
+            except (requests.Timeout, requests.ConnectionError) as e:
+                # Retry only for timeouts and connection errors
+                if attempt < 2:  # Don't sleep on last attempt
+                    wait = 2 ** attempt
+                    print(f"\n    ⏳ Timeout, retrying in {wait}s...", end='', flush=True)
+                    time.sleep(wait)
+                    continue
                 error_detail = str(e)
-            return {
-                'response': f"ERROR: {error_detail}",
-                'success': False,
-                'error': error_detail
-            }
+            except Exception as e:
+                if isinstance(e, requests.HTTPError) and e.response is not None:
+                    error_detail = e.response.text
+                else:
+                    error_detail = str(e)
+                # Don't retry for other errors
+                return {
+                    'response': f"ERROR: {error_detail}",
+                    'success': False,
+                    'error': error_detail
+                }
+
+        # All retries exhausted
+        return {
+            'response': f"ERROR: Timeout after 3 retries",
+            'success': False,
+            'error': 'Timeout after 3 retries'
+        }
 
     def _parse_scores(self, response_text: str) -> dict:
         """Parse scores from LLM response"""
