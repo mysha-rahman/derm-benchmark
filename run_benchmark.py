@@ -34,65 +34,33 @@ class GeminiFreeClient:
         self.model = model or "gemini-2.5-flash"
         self.timeout = timeout
 
-    def chat(self, messages: list, temperature: float = 0.7, max_tokens: int = 500, max_retries: int = 3) -> dict:
-        """Send conversation to Gemini with retry logic."""
+    def chat(self, messages: list, temperature: float = 0.7, max_tokens: int = 500) -> dict:
+    """Send conversation to Gemini"""
 
-        # Flatten conversation into text prompt
-        prompt = "\n".join(
-            f"{m['role']}: {m['content']}"
-            for m in messages
+    # Combine messages into one prompt
+    prompt = "\n".join(f"{m['role']}: {m['content']}" for m in messages)
+
+    try:
+        response = self.client.models.generate_content(
+            model=self.model,
+            contents=prompt,
+            config={
+                "temperature": temperature,
+                "max_output_tokens": max_tokens
+            }
         )
 
-        # Retry logic with exponential backoff
-        for attempt in range(max_retries):
-            try:
-                response = self.client.models.generate_content(
-                    model=self.model,
-                    contents=prompt,
-                    config={
-                        'temperature': temperature,
-                        'max_output_tokens': max_tokens,
-                    }
-                )
-
-                return {
-                    "response": response.text,
-                    "success": True,
-                }
-
-            except Exception as e:
-                error_msg = str(e)
-
-                # Check if it's a timeout or rate limit error
-                is_retryable = (
-                    "timeout" in error_msg.lower() or
-                    "rate limit" in error_msg.lower() or
-                    "429" in error_msg or
-                    "503" in error_msg or
-                    "connection" in error_msg.lower()
-                )
-
-                # If last attempt or not retryable, return error
-                if attempt == max_retries - 1 or not is_retryable:
-                    return {
-                        "response": f"ERROR: {error_msg}",
-                        "success": False,
-                        "error": error_msg,
-                    }
-
-                # Wait before retrying (exponential backoff: 2s, 4s, 8s)
-                wait_time = 2 ** (attempt + 1)
-                print(f"⚠️  API error (attempt {attempt + 1}/{max_retries}): {error_msg}")
-                print(f"   Retrying in {wait_time}s...")
-                time.sleep(wait_time)
-
-        # Should never reach here, but just in case
         return {
-            "response": "ERROR: Max retries exceeded",
-            "success": False,
-            "error": "Max retries exceeded",
+            "response": response.text,
+            "success": True
         }
 
+    except Exception as e:
+        return {
+            "response": f"ERROR: {str(e)}",
+            "success": False,
+            "error": str(e)
+        }
 
 # ---------------------------------------------------------------------------
 #  Dialogue Loading
