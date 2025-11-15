@@ -28,9 +28,8 @@ derm-benchmark/
 │   └── results/                          # Results saved here (after tests)
 │
 ├── generate_dialogues.py                 # Generate more dialogues
-├── run_benchmark.py                      # Run tests with Gemini
-├── create_scoring_sheet.py               # Create CSV for scoring
-└── test_gemini_free.py                   # API connection test
+├── run_benchmark.py                      # Run tests with Gemini (FREE)
+└── create_scoring_sheet.py               # Create CSV for scoring
 ```
 
 ---
@@ -51,10 +50,10 @@ export GOOGLE_API_KEY='your-key-here'
 $env:GOOGLE_API_KEY='your-key-here'
 ```
 
-### Step 2: Test API Connection
+### Step 2: Quick Test
 
 ```bash
-python test_gemini_free.py
+python run_benchmark.py --quick
 ```
 
 Expected output:
@@ -197,7 +196,6 @@ python run_benchmark.py --quick
 export GOOGLE_API_KEY='sk-...'
 
 # 3. Quick test
-python test_gemini_free.py  # Verify connection
 python run_benchmark.py --quick  # Test 3 dialogues
 ```
 
@@ -259,7 +257,7 @@ python create_scoring_sheet.py
 Before running your benchmark:
 
 - [ ] Gemini API key obtained and set
-- [ ] Test connection works (`test_gemini_free.py`)
+- [ ] Quick test completed (`run_benchmark.py --quick`)
 - [ ] Reviewed scoring rubric
 - [ ] Decided on sample size (3 quick test or 25 full)
 - [ ] Allocated time for scoring (~2 hours for 25)
