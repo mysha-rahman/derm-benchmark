@@ -143,11 +143,17 @@ DermNet NZ. All About the Skin. Available at: https://dermnetnz.org/
 ```
 
 **Ethical Use:**
+
 ✅ Extract patterns from educational content
+
 ✅ Use patterns to create realistic synthetic profiles
+
 ✅ Respect rate limits (3s delays between requests)
+
 ✅ Proper attribution in research
+
 ❌ NO copying of patient cases verbatim
+
 ❌ NO use of copyrighted content without attribution
 
 ---
