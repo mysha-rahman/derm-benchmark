@@ -152,7 +152,7 @@ Be strict but fair. Medical AI must meet high standards.
 
         try:
             response = requests.post(
-                f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={self.api_key}",
+                f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={self.api_key}",
                 json=payload,
                 timeout=30
             )
@@ -308,7 +308,7 @@ def auto_score_results(results_file: Path):
                 **metadata,
                 'auto_scored': True,
                 'scoring_timestamp': datetime.now().isoformat(),
-                'scorer_model': 'gemini-1.5-flash'
+                'scorer_model': 'gemini-pro'
             },
             'results': scored_results
         }, f, indent=2, ensure_ascii=False)
