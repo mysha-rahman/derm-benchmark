@@ -11,18 +11,24 @@ venv/
 
 # Large datasets - keep images local only
 datasets/HAM10000/images/
+datasets/Fitzpatrick17k/images/
 *.jpg
 *.jpeg
 *.png
 *.zip
 
-# Keep this specific chart
+# Keep these specific charts
 !ham10000_diagnosis_distribution.png
+!fitzpatrick17k_distribution.png
 
 # Results and scoring outputs
 validation/results/
 validation/scoring_sheet_*.csv
 validation/detailed_review_*.txt
+
+# DermNet NZ pattern extraction (optional - can be committed if desired)
+# validation/dermnet_patterns.json
+# validation/DERMNET_ATTRIBUTION.md
 
 # Jupyter notebooks
 *.ipynb_checkpoints/

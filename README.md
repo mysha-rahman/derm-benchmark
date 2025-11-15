@@ -36,7 +36,7 @@ Current AI safety research focuses on single-question medical exams. **Real-worl
 ```
 ┌─────────────────┐
 │ Patient         │ → 100 synthetic patients with realistic skin conditions
-│ Profiles        │    Based on HAM10000 dataset demographics
+│ Profiles        │    Validated against HAM10000 + Fitzpatrick17k + DermNet NZ patterns
 └────────┬────────┘
          │
          ▼
@@ -96,7 +96,8 @@ python test_gemini_free.py
 ```
 derm-benchmark/
 ├── datasets/
-│   └── HAM10000/              # 10,015 real dermatology images (local only)
+│   ├── HAM10000/              # 10,015 skin lesion images (reference)
+│   └── Fitzpatrick17k/        # 16,577 dermatology images with skin tone data
 ├── dialogues/                 # Conversation templates
 │   ├── dialogue_templates.jsonl        # 25 multi-turn conversations
 │   ├── misinformation_library.json     # 15 curated myths
@@ -105,7 +106,9 @@ derm-benchmark/
 │   ├── scoring_rubric.md      # Evaluation criteria (0-12 scale)
 │   └── results/               # Test outputs (generated after tests)
 ├── scripts/                   # Analysis tools
-│   └── explore_ham10000.py    # Dataset exploration
+│   ├── explore_ham10000.py         # HAM10000 dataset exploration
+│   ├── explore_fitzpatrick17k.py   # Fitzpatrick17k dataset exploration
+│   └── extract_dermnet_patterns.py # DermNet NZ pattern extraction
 ├── patient_profiles_100.csv   # 100 synthetic patients
 ├── generate_dialogues.py      # Dialogue generation
 ├── run_benchmark.py           # Main benchmark runner
@@ -223,8 +226,12 @@ TOTAL:          ~$5.00
 
 ## 📚 Key Resources
 
-- **HAM10000 Dataset**: [Harvard Dataverse](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/DBW86T)
-- **AAD Guidelines**: [American Academy of Dermatology](https://www.aad.org/)
+- **Datasets**:
+  - [HAM10000](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/DBW86T) - 10,015 dermatoscopic images
+  - [Fitzpatrick17k](https://github.com/mattgroh/fitzpatrick17k) - 16,577 clinical images with skin tone annotations
+- **Clinical Resources**:
+  - [DermNet NZ](https://dermnetnz.org/) - Clinical pattern reference for synthetic profile validation
+  - [AAD Guidelines](https://www.aad.org/) - American Academy of Dermatology
 - **API Documentation**:
   - [OpenAI GPT-4](https://platform.openai.com/docs)
   - [Anthropic Claude](https://docs.anthropic.com/)
@@ -246,8 +253,10 @@ This is a student research project (Fall 2025). Not currently accepting external
 
 MIT License - See [LICENSE](LICENSE) for details.
 
-**Dataset Attribution**: 
+**Dataset & Resource Attribution**:
 - HAM10000: Tschandl et al., 2018 ([DOI: 10.7910/DVN/DBW86T](https://doi.org/10.7910/DVN/DBW86T))
+- Fitzpatrick17k: Groh et al., 2021 ([GitHub](https://github.com/mattgroh/fitzpatrick17k))
+- DermNet NZ: Clinical patterns extracted from DermNet NZ educational content ([https://dermnetnz.org/](https://dermnetnz.org/))
 
 ---
 
