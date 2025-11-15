@@ -41,7 +41,7 @@ Current AI safety research focuses on single-question medical exams. **Real-worl
          │
          ▼
 ┌─────────────────┐
-│ Dialogues       │ → 100 multi-turn conversations (5-7 turns each)
+│ Dialogues       │ → 25 multi-turn conversations (5 turns each)
 │ + Misinformation│    40% contain deliberate false claims
 └────────┬────────┘
          │
@@ -84,10 +84,10 @@ export GOOGLE_API_KEY='AIza...'
 
 ### 4. Test APIs
 ```bash
-python test_llm_api.py
+python test_gemini_free.py
 ```
 
-**Full setup instructions**: See [SETUP_GUIDE.md](SETUP_GUIDE.md)
+**Full setup instructions**: See [QUICK_START.md](QUICK_START.md)
 
 ---
 
@@ -98,19 +98,24 @@ derm-benchmark/
 ├── datasets/
 │   └── HAM10000/              # 10,015 real dermatology images (local only)
 ├── gold_profiles/             # Synthetic patient database
-│   ├── gold_profiles.jsonl    # 100 patient profiles (target)
-│   └── examples.csv           # Human-readable samples
+│   ├── template.csv           # Template for creating profiles
+│   └── gold_profiles.jsonl    # Structured profile data
 ├── dialogues/                 # Conversation templates
-│   ├── dialogue_templates.jsonl        # Multi-turn conversations
-│   └── misinformation_library.json     # Curated myths
+│   ├── dialogue_templates.jsonl        # 25 multi-turn conversations
+│   ├── misinformation_library.json     # 15 curated myths
+│   └── generation_stats.json           # Generation summary
 ├── validation/                # Scoring system
-│   ├── scoring_rubric.md      # Evaluation criteria
-│   └── results/               # Test outputs
+│   ├── scoring_rubric.md      # Evaluation criteria (0-12 scale)
+│   └── results/               # Test outputs (generated after tests)
 ├── scripts/                   # Analysis tools
 │   ├── explore_ham10000.py
-│   ├── validate_gold_profiles.py
-│   └── generate_dialogue_templates.py
-└── test_llm_api.py           # API integration (core)
+│   └── match_profiles_to_ham.py
+├── patient_profiles_100.csv   # 100 synthetic patients
+├── build_gold_profiles.py     # Profile generation
+├── generate_dialogues.py      # Dialogue generation
+├── run_benchmark.py           # Main benchmark runner
+├── create_scoring_sheet.py    # Scoring sheet generator
+└── test_gemini_free.py        # API connection test
 ```
 
 ---
@@ -179,35 +184,35 @@ Early testing (5 dialogues, 3 models):
 
 ## 💰 Cost Estimate
 
-For full benchmark (100 profiles, 100 dialogues, 6 turns each):
+For current benchmark (25 dialogues, 5 turns each):
 
 ```python
-Total API Calls: 600 per model × 3 models = 1,800 calls
+Total API Calls: 125 per model
 Estimated Tokens: ~500 tokens/call average
 
-GPT-4:          ~$21.60
-Claude 3.5:     ~$2.16
-Gemini Pro:     ~$0.18
+GPT-4:          ~$4.50
+Claude 3.5:     ~$0.54
+Gemini Pro:     $0.00 (FREE tier)
 ─────────────────────────
-TOTAL:          ~$24.00
+TOTAL:          ~$5.00
 ```
 
-**Budget with buffer**: $30
+**To scale to 100 dialogues**: ~$24.00 total
 
 ---
 
 ## 🗓️ Timeline
 
-| Phase | Dates | Deliverables |
-|-------|-------|--------------|
-| **Foundation** | Week 1 (Oct 15-22) | ✅ 30 profiles, API setup, 10 dialogues |
-| **Expansion** | Week 2-3 (Oct 23-Nov 5) | 100 profiles, 100 dialogues |
-| **Testing** | Week 4-5 (Nov 6-19) | Run all tests, collect data |
-| **Analysis** | Week 6-7 (Nov 20-Dec 3) | Score results, identify patterns |
-| **Reporting** | Week 8 (Dec 4-11) | Final report, visualization |
-| **Publication** | Week 9 (Dec 12-18) | Public release, documentation |
+| Phase | Status | Deliverables |
+|-------|--------|--------------|
+| **Foundation** | ✅ Complete | 100 patient profiles, 25 dialogues, 15 myths |
+| **API Integration** | ✅ Complete | Gemini free tier working, benchmark runner ready |
+| **Testing** | 🟡 Ready to Start | Run benchmark, collect data |
+| **Analysis** | ⏳ Pending | Score results, identify patterns |
+| **Reporting** | ⏳ Pending | Final report, visualization |
+| **Publication** | ⏳ Pending | Public release, documentation |
 
-**Final Delivery**: Mid-December 2025
+**Next Milestone**: Run full benchmark with Gemini (15 min, $0.00)
 
 ---
 
@@ -294,6 +299,6 @@ This benchmark is for research purposes only. AI models tested should **NOT** be
 
 ---
 
-**Status**: 🟢 Active Development (Week 1 Complete)  
-**Last Updated**: October 22, 2025  
-**Next Milestone**: Scale to 100 profiles + 100 dialogues (Nov 5)
+**Status**: 🟢 Ready for Testing
+**Last Updated**: November 15, 2025
+**Next Milestone**: Run benchmark and collect initial results
