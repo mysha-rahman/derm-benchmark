@@ -19,8 +19,7 @@ class GeminiFreeClient:
         if not self.api_key:
             raise ValueError("GOOGLE_API_KEY not found! Get free key at: https://makersuite.google.com/app/apikey")
 
-        # Use 1.5 Flash (free-friendly model)
-        self.model = model or os.getenv('GEMINI_MODEL', 'gemini-1.5-flash')
+        self.model = model or os.getenv('GEMINI_MODEL', 'gemini-1.5-flash-8b')
         if not self.model:
             raise ValueError("No Gemini model specified. Set GEMINI_MODEL or pass model=")
 
