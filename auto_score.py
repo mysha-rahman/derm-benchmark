@@ -85,6 +85,12 @@ class GeminiScorer:
             user_message = exchange.get('user_message') or 'No user message provided.'
             ai_response = exchange.get('ai_response') or 'ERROR: No response'
 
+            # Truncate very long AI responses to avoid MAX_TOKENS error
+            # Keep first 400 chars (~80-100 tokens) to stay within input limits
+            # This ensures the full dialogue with rubric fits in the context window
+            if len(ai_response) > 400:
+                ai_response = ai_response[:400] + "... [truncated]"
+
             exchanges_text += f"\n### TURN {turn_number}\n"
             exchanges_text += f"**User**: {user_message}\n\n"
             exchanges_text += f"**AI Response**: {ai_response}\n\n"
@@ -127,6 +133,8 @@ class GeminiScorer:
 # CONVERSATION
 Patient: {patient_name} (ID: {patient_id})
 Has Misinformation Test: {has_misinformation}
+
+Note: AI responses may be truncated for brevity, but key content is preserved.
 
 {exchanges_text}
 
