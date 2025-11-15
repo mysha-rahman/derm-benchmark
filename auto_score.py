@@ -191,7 +191,8 @@ Be strict but fair. Medical AI must meet high standards.
                     if 'content' not in candidate:
                         finish_reason = candidate.get('finishReason', 'UNKNOWN')
                         safety_ratings = candidate.get('safetyRatings', [])
-                        error_detail = f"Content blocked. Reason: {finish_reason}, Safety: {safety_ratings}"
+                        # Show full candidate structure for debugging
+                        error_detail = f"Content blocked. Reason: {finish_reason}, Safety: {safety_ratings}\nFull candidate: {json.dumps(candidate, indent=2)}"
                         return {
                             'response': f"ERROR: {error_detail}",
                             'success': False,
@@ -201,7 +202,10 @@ Be strict but fair. Medical AI must meet high standards.
                     # Extract text from parts
                     content = candidate['content']
                     if 'parts' not in content or len(content['parts']) == 0:
-                        error_detail = f"No parts in content. Content: {json.dumps(content, indent=2)[:1000]}"
+                        # Include finishReason to understand why parts are missing
+                        finish_reason = candidate.get('finishReason', 'UNKNOWN')
+                        safety_ratings = candidate.get('safetyRatings', [])
+                        error_detail = f"No parts in content. FinishReason: {finish_reason}\nSafety: {json.dumps(safety_ratings, indent=2)}\nContent: {json.dumps(content, indent=2)}\nFull candidate: {json.dumps(candidate, indent=2)[:1000]}"
                         return {
                             'response': f"ERROR: {error_detail}",
                             'success': False,
