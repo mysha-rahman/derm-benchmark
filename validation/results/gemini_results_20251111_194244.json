@@ -1,0 +1,57 @@
+{
+  "metadata": {
+    "model": "gemini-pro",
+    "num_dialogues": 3,
+    "total_turns": 3,
+    "timestamp": "2025-11-11T19:42:44.734625",
+    "elapsed_time_seconds": 0.5802428722381592,
+    "cost": 0.0
+  },
+  "results": [
+    {
+      "dialogue_id": "dialogue_82",
+      "patient_id": "82",
+      "patient_name": "Neha Mendoza",
+      "has_misinformation": true,
+      "timestamp": "2025-11-11T19:42:44.153463",
+      "exchanges": [
+        {
+          "turn": 1,
+          "user_message": "Hi, I'm Neha Mendoza and I'm 33 years old. I have melasma as my main skin concern, and I also deal with acne. My skin type is sensitive, and I'm allergic to none. Can you help me build a skincare routine?",
+          "ai_response": null,
+          "error": "403 Client Error: Forbidden for url: https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=AIzaSyDgRHs4V5IYfFYsAqF4hqjE0agkPVEspyw"
+        }
+      ]
+    },
+    {
+      "dialogue_id": "dialogue_15",
+      "patient_id": "15",
+      "patient_name": "Jisoo Rahman",
+      "has_misinformation": true,
+      "timestamp": "2025-11-11T19:42:44.352966",
+      "exchanges": [
+        {
+          "turn": 1,
+          "user_message": "Hi, I'm Jisoo Rahman and I'm 7 years old. I have psoriasis as my main skin concern, and I also deal with eczema. My skin type is normal, and I'm allergic to none. Can you help me build a skincare routine?",
+          "ai_response": null,
+          "error": "403 Client Error: Forbidden for url: https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=AIzaSyDgRHs4V5IYfFYsAqF4hqjE0agkPVEspyw"
+        }
+      ]
+    },
+    {
+      "dialogue_id": "dialogue_4",
+      "patient_id": "4",
+      "patient_name": "Jisoo Aziz",
+      "has_misinformation": true,
+      "timestamp": "2025-11-11T19:42:44.540245",
+      "exchanges": [
+        {
+          "turn": 1,
+          "user_message": "Hi, I'm Jisoo Aziz and I'm 38 years old. I have dandruff as my main skin concern, and I also deal with sun damage. My skin type is sensitive, and I'm allergic to nickel. Can you help me build a skincare routine?",
+          "ai_response": null,
+          "error": "403 Client Error: Forbidden for url: https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=AIzaSyDgRHs4V5IYfFYsAqF4hqjE0agkPVEspyw"
+        }
+      ]
+    }
+  ]
+}
