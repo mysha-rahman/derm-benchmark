@@ -10,11 +10,13 @@
 
 ## 📋 Project Overview
 
-This benchmark tests whether AI chatbots (GPT-4, Claude, Gemini) can be trusted with dermatology advice by evaluating three critical capabilities:
+This benchmark tests whether AI chatbots can be trusted with dermatology advice by evaluating three critical capabilities:
 
 1. **Memory Consistency** - Can AI remember patient information across conversations?
 2. **Misinformation Resistance** - Does AI reject false claims about skin conditions?
 3. **Knowledge Integrity** - Does AI provide safe, medically accurate guidance?
+
+**Current Status**: Testing with **Gemini 1.5 Flash (free tier)**. Framework designed to expand to GPT-4 and Claude in future iterations.
 
 ### Why This Matters
 
@@ -47,8 +49,8 @@ Current AI safety research focuses on single-question medical exams. **Real-worl
          │
          ▼
 ┌─────────────────┐
-│ LLM Testing     │ → GPT-4, Claude 3.5 Sonnet, Gemini Pro
-│ (3 models)      │    Temperature: 0.7 | Max tokens: 500
+│ LLM Testing     │ → Gemini 1.5 Flash (free tier)
+│ (Current)       │    Temperature: 0.7 | Max tokens: 500
 └────────┬────────┘
          │
          ▼
@@ -75,12 +77,13 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 3. Configure API Keys
+### 3. Configure API Key
 ```bash
-export OPENAI_API_KEY='sk-...'
-export ANTHROPIC_API_KEY='sk-ant-...'
+# Get FREE API key at: https://makersuite.google.com/app/apikey
 export GOOGLE_API_KEY='AIza...'
 ```
+
+> **Note**: Currently using Gemini (free tier, no credit card needed). To test GPT-4 or Claude, see [multi-model setup](#) (future).
 
 ### 4. Run Benchmark
 ```bash
@@ -173,32 +176,37 @@ Scoring: 0 (fail) to 3 (excellent) per dimension
 
 > **Note**: Full results available after testing phase (Nov 2025)
 
-Early testing (5 dialogues, 3 models):
+**Current testing: Gemini 1.5 Flash**
 
-| Model | Avg Score | Strengths | Weaknesses |
-|-------|-----------|-----------|------------|
-| GPT-4 | TBD | TBD | TBD |
-| Claude 3.5 | TBD | TBD | TBD |
-| Gemini Pro | TBD | TBD | TBD |
+| Metric | Status | Notes |
+|--------|--------|-------|
+| **Avg Score** | TBD | Awaiting initial test run |
+| **Memory Recall** | TBD | Testing age/allergy recall |
+| **Misinformation Resistance** | TBD | Testing 15 common myths |
+| **Safety Compliance** | TBD | Critical: allergy warnings |
+
+**Future**: Expand to GPT-4 and Claude 3.5 Sonnet for comparative analysis.
 
 ---
 
 ## 💰 Cost Estimate
 
-For current benchmark (25 dialogues, 5 turns each):
+**Current implementation (Gemini 1.5 Flash - FREE)**:
 
 ```python
-Total API Calls: 125 per model
-Estimated Tokens: ~500 tokens/call average
+Total API Calls: 125 calls (25 dialogues × 5 turns)
+Estimated Time:  ~15 minutes
+Cost:            $0.00 (FREE tier, no credit card needed!)
 
-GPT-4:          ~$4.50
-Claude 3.5:     ~$0.54
-Gemini Pro:     $0.00 (FREE tier)
-─────────────────────────
-TOTAL:          ~$5.00
+Free tier limits:
+  - 60 requests/minute
+  - 1,500 requests/day
+  → More than enough for 500+ dialogues/day
 ```
 
-**To scale to 100 dialogues**: ~$24.00 total
+**Future multi-model testing** (GPT-4 + Claude + Gemini):
+- 25 dialogues: ~$5.00 total
+- 100 dialogues: ~$24.00 total
 
 ---
 
