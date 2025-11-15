@@ -79,13 +79,16 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 3. Configure API Key
+### 3. Configure API Key & Model (optional)
 ```bash
 # Get FREE API key at: https://makersuite.google.com/app/apikey
 export GOOGLE_API_KEY='AIza...'
+
+# Optional: override the default Gemini model (defaults to gemini-1.5-flash-latest)
+export GEMINI_MODEL='gemini-1.5-pro-latest'
 ```
 
-> **Note**: Currently using Gemini (free tier, no credit card needed). To test GPT-4 or Claude, see [multi-model setup](#) (future).
+> **Note**: Scripts default to the `gemini-1.5-flash-latest` model because `gemini-pro` no longer works with free API keys. To test GPT-4 or Claude, see [multi-model setup](#) (future).
 
 ### 4. Run Benchmark & Auto-Score
 ```bash

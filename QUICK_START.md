@@ -48,6 +48,9 @@ export GOOGLE_API_KEY='your-key-here'
 
 # Or (Windows):
 $env:GOOGLE_API_KEY='your-key-here'
+
+# Optional: override default Gemini model (defaults to gemini-1.5-flash-latest)
+export GEMINI_MODEL='gemini-1.5-pro-latest'
 ```
 
 ### Step 2: Quick Test
@@ -197,6 +200,17 @@ echo $env:GOOGLE_API_KEY  # Windows
 
 # Re-set if empty
 ```
+
+### "404 ... models/gemini-pro:generateContent"
+
+- Google deprecated the `gemini-pro` endpoint for free API keys.
+- Update to the new default by pulling the latest repo or set:
+
+```bash
+export GEMINI_MODEL='gemini-1.5-flash-latest'
+```
+
+- You can also choose any other publicly available Gemini model, e.g. `gemini-1.5-pro-latest`.
 
 ### "Rate limit exceeded"
 ```bash
