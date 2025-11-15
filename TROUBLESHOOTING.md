@@ -2,11 +2,13 @@
 
 ## Common Errors and Solutions
 
-### "Unknown error" or "Error: Unknown error"
+### "No text in response" or "Unknown error"
 
-**Cause**: This usually means Gemini's safety filters are blocking medical content.
+**Cause**: Gemini's safety filters are blocking medical content. The response object exists but `response.text` is empty because content was filtered.
 
-**Solution**:
+**This is now FIXED in the latest code!** Safety filters are disabled for educational medical content.
+
+**Solution if you're still seeing this**:
 1. **Pull latest code** with better error reporting:
    ```bash
    git pull origin your-branch-name

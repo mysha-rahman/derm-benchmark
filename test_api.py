@@ -37,7 +37,7 @@ def test_api():
         )
 
         response = client.models.generate_content(
-            model="models/gemini-2.0-flash-exp",
+            model="models/gemini-2.5-flash",
             contents="Say 'Hello! API is working!' in one sentence.",
             config=types.GenerateContentConfig(
                 temperature=0.7,

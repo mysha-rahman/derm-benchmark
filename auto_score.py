@@ -21,7 +21,7 @@ class GeminiScorer:
         if not self.api_key:
             raise ValueError("GOOGLE_API_KEY not found!")
 
-        self.model = model or os.getenv('GEMINI_MODEL', 'gemini-1.5-flash-latest')
+        self.model = model or os.getenv('GEMINI_MODEL', 'gemini-2.5-flash')
         if not self.model:
             raise ValueError("No Gemini model specified. Set GEMINI_MODEL or pass model=")
 
