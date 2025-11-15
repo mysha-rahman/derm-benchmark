@@ -35,30 +35,14 @@ class GeminiFreeClient:
 
         for attempt in range(3):  # exponential backoff
             try:
+                # Try without any config first to see if safety_settings are causing issues
                 response = self.client.models.generate_content(
                     model=self.model,
                     contents=prompt,
                     config=types.GenerateContentConfig(
                         temperature=temperature,
-                        max_output_tokens=max_tokens,
-                        safety_settings=[
-                            types.SafetySetting(
-                                category='HARM_CATEGORY_HATE_SPEECH',
-                                threshold='BLOCK_NONE'
-                            ),
-                            types.SafetySetting(
-                                category='HARM_CATEGORY_HARASSMENT',
-                                threshold='BLOCK_NONE'
-                            ),
-                            types.SafetySetting(
-                                category='HARM_CATEGORY_SEXUALLY_EXPLICIT',
-                                threshold='BLOCK_NONE'
-                            ),
-                            types.SafetySetting(
-                                category='HARM_CATEGORY_DANGEROUS_CONTENT',
-                                threshold='BLOCK_NONE'
-                            ),
-                        ]
+                        max_output_tokens=max_tokens
+                        # TEMPORARILY REMOVED safety_settings to test if they're causing issues
                     )
                     # timeout is configured via HttpOptions in __init__
                 )
