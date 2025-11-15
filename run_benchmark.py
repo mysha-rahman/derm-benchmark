@@ -15,10 +15,15 @@ import requests
 class GeminiFreeClient:
     """Simplified Gemini client for benchmark"""
 
-    def __init__(self, api_key: str = None):
+    def __init__(self, api_key: str = None, model: str = None):
         self.api_key = api_key or os.getenv('GOOGLE_API_KEY')
         if not self.api_key:
             raise ValueError("GOOGLE_API_KEY not found! Get free key at: https://makersuite.google.com/app/apikey")
+
+        # Gemini "pro" has been deprecated for free API keys – default to 1.5 Flash.
+        self.model = model or os.getenv('GEMINI_MODEL', 'gemini-1.5-flash-latest')
+        if not self.model:
+            raise ValueError("No Gemini model specified. Set GEMINI_MODEL or pass model=")
 
     def chat(self, messages: list, temperature: float = 0.7, max_tokens: int = 500) -> dict:
         """Call Gemini API with conversation history"""
@@ -41,35 +46,30 @@ class GeminiFreeClient:
         }
 
         try:
-            # Try multiple endpoints
-            endpoints = [
-                f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key={self.api_key}",
-                f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={self.api_key}",
-                f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={self.api_key}"
-            ]
+            response = requests.post(
+                (
+                    "https://generativelanguage.googleapis.com/"
+                    f"v1beta/models/{self.model}:generateContent?key={self.api_key}"
+                ),
+                json=payload,
+                timeout=30
+            )
+            response.raise_for_status()
+            data = response.json()
 
-            last_error = None
-            for endpoint in endpoints:
-                try:
-                    response = requests.post(endpoint, json=payload, timeout=30)
-                    response.raise_for_status()
-                    data = response.json()
-                    return {
-                        'response': data['candidates'][0]['content']['parts'][0]['text'],
-                        'success': True
-                    }
-                except Exception as e:
-                    last_error = e
-                    continue
-
-            # If all endpoints failed, raise the last error
-            if last_error:
-                raise last_error
-        except Exception as e:
             return {
-                'response': f"ERROR: {str(e)}",
+                'response': data['candidates'][0]['content']['parts'][0]['text'],
+                'success': True
+            }
+        except Exception as e:
+            if isinstance(e, requests.HTTPError) and e.response is not None:
+                error_detail = e.response.text
+            else:
+                error_detail = str(e)
+            return {
+                'response': f"ERROR: {error_detail}",
                 'success': False,
-                'error': str(e)
+                'error': error_detail
             }
 
 
@@ -224,7 +224,7 @@ def run_benchmark(num_dialogues: int = 25):
     with open(output_file, 'w', encoding='utf-8') as f:
         json.dump({
             'metadata': {
-                'model': 'gemini-pro',
+                'model': client.model,
                 'num_dialogues': len(dialogues),
                 'total_turns': sum(len(r['exchanges']) for r in results),
                 'timestamp': datetime.now().isoformat(),
