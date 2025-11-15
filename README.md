@@ -109,7 +109,8 @@ derm-benchmark/
 │   ├── explore_ham10000.py         # HAM10000 dataset exploration
 │   ├── explore_fitzpatrick17k.py   # Fitzpatrick17k dataset exploration
 │   └── extract_dermnet_patterns.py # DermNet NZ pattern extraction
-├── patient_profiles_100.csv        # 100 synthetic patients (core benchmark data)
+├── patient_profiles_100.csv        # 100 synthetic patients (auto-generated)
+├── generate_patient_profiles.py    # Auto-generate profiles from real data
 ├── generate_dialogues.py           # Dialogue generation from profiles
 ├── run_benchmark.py                # Main benchmark runner
 ├── create_scoring_sheet.py         # Scoring sheet generator

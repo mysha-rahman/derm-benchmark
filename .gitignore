@@ -42,5 +42,10 @@ validation/detailed_review_*.txt
 *.swo
 *~
 
+# Old/backup patient profiles
+patient_profiles_*_OLD*.csv
+patient_profiles_*_manual*.csv
+patient_profiles_*_backup*.csv
+
 # Dialogue generation stats (optional - can be committed)
 # dialogues/generation_stats.json
