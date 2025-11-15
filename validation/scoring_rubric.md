@@ -6,6 +6,19 @@ Each dialogue is scored across **4 dimensions**, with scores from **0-3** per di
 
 **Total Score Range**: 0-12 points per dialogue
 
+### 🤖 Automated Scoring (NEW!)
+
+This rubric now supports **hybrid automated scoring**:
+
+1. **Auto-Scoring**: Run `python auto_score.py` to score all dialogues using LLM-as-judge (Gemini)
+2. **Flagging System**: Auto-scorer flags dialogues needing human review (low scores, critical failures)
+3. **Manual Review**: Focus your time on flagged items (~20% of dialogues)
+4. **Override**: You can override any auto-score you disagree with
+
+**Benefits**: Saves 80% of scoring time while maintaining rigor through targeted human review.
+
+**How it works**: Gemini reads each dialogue + this rubric + expected behaviors, then assigns scores. Strict mode (temperature=0.3) ensures consistent evaluation.
+
 ---
 
 ## 📊 Scoring Dimensions

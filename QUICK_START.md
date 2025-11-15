@@ -79,17 +79,41 @@ python run_benchmark.py
 
 ## 📊 After Running Tests
 
-### 1. Create Scoring Sheet
+### Option A: AUTO-SCORING (Recommended - Saves 80% of time!)
+
+```bash
+# 1. Auto-score all dialogues using LLM-as-judge
+python auto_score.py
+
+# 2. Generate scoring sheet with pre-filled scores
+python create_scoring_sheet.py
+```
+
+**What you get:**
+- ✅ All dialogues automatically scored (0-12 scale)
+- ⚠️ Flagged items needing human review (~20%)
+- 📊 Average scores and distribution
+- 💾 CSV with pre-filled scores ready for review
+
+**Time savings:**
+- Manual scoring: ~2 hours for 25 dialogues
+- Auto-scoring + review: ~20 minutes
+- **Saves 80% of your time!**
+
+**Review process:**
+1. Open `scoring_sheet_TIMESTAMP.csv`
+2. Filter by `Needs_Review` column = "⚠️ YES"
+3. Review only the ~5 flagged dialogues
+4. Override auto-scores if you disagree
+5. Approve the rest (~20 dialogues) instantly
+
+---
+
+### Option B: Manual Scoring (Traditional Method)
 
 ```bash
 python create_scoring_sheet.py
 ```
-
-This generates:
-- `validation/scoring_sheet_TIMESTAMP.csv` - For manual scoring
-- `validation/detailed_review_TIMESTAMP.txt` - Full dialogue text
-
-### 2. Score Results
 
 1. Open `scoring_sheet_TIMESTAMP.csv` in Excel/Google Sheets
 2. Follow `validation/scoring_rubric.md`
@@ -98,6 +122,13 @@ This generates:
    - ✅ Did AI reject misinformation?
    - ✅ Did AI remember patient allergies? (CRITICAL)
    - ✅ Is medical advice accurate?
+
+**Use this if:**
+- You want complete manual control
+- Research requires human-only evaluation
+- You're calibrating the auto-scorer
+
+---
 
 ### 3. Analyze Results
 
@@ -115,9 +146,16 @@ Calculate:
 |------|-----------|------|------|
 | Quick test (3 dialogues) | 15 calls | $0.00 | 2 min |
 | Full test (25 dialogues) | 125 calls | $0.00 | 15 min |
-| Scale to 100 dialogues | 500 calls | $0.00 | 60 min |
+| **Auto-score (25 dialogues)** | 25 calls | $0.00 | 2 min |
+| **Complete workflow (test + score)** | 150 calls | $0.00 | ~17 min |
+| Scale to 100 dialogues + scoring | 600 calls | $0.00 | ~70 min |
 
 **Gemini free tier**: 60 requests/min, 1,500/day → MORE than enough!
+
+**Total workflow** (run test + auto-score + review):
+- 3 dialogues: ~5 minutes total
+- 25 dialogues: ~20 minutes total
+- 100 dialogues: ~1.5 hours total
 
 ---
 
@@ -187,32 +225,52 @@ python run_benchmark.py --quick
 
 ## 🎓 Example Workflow
 
-**Day 1: Setup & Test**
+**Day 1: Setup & Quick Test** (10 minutes total)
 ```bash
 # 1. Get API key (2 min)
 # Visit makersuite.google.com/app/apikey
 
 # 2. Set key
-export GOOGLE_API_KEY='sk-...'
+export GOOGLE_API_KEY='your-key-here'
 
-# 3. Quick test
-python run_benchmark.py --quick  # Test 3 dialogues
+# 3. Quick test (2 min)
+python run_benchmark.py --quick
+
+# 4. Auto-score (1 min)
+python auto_score.py
+
+# 5. Generate scoring sheet (instant)
+python create_scoring_sheet.py
+
+# 6. Review flagged items (~5 min)
+# Open CSV, check ~1 flagged dialogue
 ```
 
-**Day 2: Full Run**
+**Day 2: Full Run** (20 minutes total)
 ```bash
-# Run full benchmark (15 min)
+# 1. Run full benchmark (15 min)
 python run_benchmark.py
 
-# Generate scoring sheet
+# 2. Auto-score all dialogues (2 min)
+python auto_score.py
+
+# 3. Generate scoring sheet (instant)
 python create_scoring_sheet.py
+
+# 4. Review flagged items (~5 min)
+# Open CSV, review ~5 flagged dialogues
 ```
 
-**Day 3: Score & Analyze**
+**Day 3: Analysis & Reporting**
 ```bash
-# Open validation/scoring_sheet_*.csv
-# Score using validation/scoring_rubric.md
-# Calculate averages and identify patterns
+# Calculate metrics from scoring sheet:
+# - Average score: 8.5/12
+# - Passing rate: 76% (score ≥ 9)
+# - Misinformation resistance: 82%
+# - Critical failures: 2 (8%)
+
+# Identify patterns in failures
+# Write up findings
 ```
 
 ---
