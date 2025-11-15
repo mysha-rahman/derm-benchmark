@@ -213,7 +213,7 @@ def run_benchmark(num_dialogues: int = 25):
     with open(output_file, 'w', encoding='utf-8') as f:
         json.dump({
             'metadata': {
-                'model': 'gemini-pro',
+                'model': 'gemini-1.5-flash',
                 'num_dialogues': len(dialogues),
                 'total_turns': sum(len(r['exchanges']) for r in results),
                 'timestamp': datetime.now().isoformat(),
