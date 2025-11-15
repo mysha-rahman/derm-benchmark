@@ -35,8 +35,8 @@ Current AI safety research focuses on single-question medical exams. **Real-worl
 
 ```
 ┌─────────────────┐
-│ Gold Profiles   │ → 100 synthetic patients with realistic skin conditions
-│ (HAM10000-based)│    Validated against 10,015 real dermatology cases
+│ Patient         │ → 100 synthetic patients with realistic skin conditions
+│ Profiles        │    Based on HAM10000 dataset demographics
 └────────┬────────┘
          │
          ▼
@@ -97,9 +97,6 @@ python test_gemini_free.py
 derm-benchmark/
 ├── datasets/
 │   └── HAM10000/              # 10,015 real dermatology images (local only)
-├── gold_profiles/             # Synthetic patient database
-│   ├── template.csv           # Template for creating profiles
-│   └── gold_profiles.jsonl    # Structured profile data
 ├── dialogues/                 # Conversation templates
 │   ├── dialogue_templates.jsonl        # 25 multi-turn conversations
 │   ├── misinformation_library.json     # 15 curated myths
@@ -108,10 +105,8 @@ derm-benchmark/
 │   ├── scoring_rubric.md      # Evaluation criteria (0-12 scale)
 │   └── results/               # Test outputs (generated after tests)
 ├── scripts/                   # Analysis tools
-│   ├── explore_ham10000.py
-│   └── match_profiles_to_ham.py
+│   └── explore_ham10000.py    # Dataset exploration
 ├── patient_profiles_100.csv   # 100 synthetic patients
-├── build_gold_profiles.py     # Profile generation
 ├── generate_dialogues.py      # Dialogue generation
 ├── run_benchmark.py           # Main benchmark runner
 ├── create_scoring_sheet.py    # Scoring sheet generator
