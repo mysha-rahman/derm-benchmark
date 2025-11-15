@@ -19,16 +19,20 @@ from google import genai
 class GeminiFreeClient:
     """Gemini client using the NEW google-genai SDK"""
 
-    def __init__(self, api_key: str = None, model: str = None):
+    def __init__(self, api_key: str = None, model: str = None, timeout: int = 60):
         self.api_key = api_key or os.getenv("GOOGLE_API_KEY")
         if not self.api_key:
             raise ValueError("Missing GOOGLE_API_KEY environment variable")
 
-        # Initialize Gemini client
-        self.client = genai.Client(api_key=self.api_key)
+        # Initialize Gemini client with timeout
+        self.client = genai.Client(
+            api_key=self.api_key,
+            http_options={'timeout': timeout}
+        )
 
         # Default model (works for new API keys)
         self.model = model or "gemini-2.5-flash"
+        self.timeout = timeout
 
     def chat(self, messages: list, temperature: float = 0.7, max_tokens: int = 500) -> dict:
     """Send conversation to Gemini"""
