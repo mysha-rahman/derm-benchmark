@@ -28,6 +28,7 @@ class GeminiFreeClient:
         self.model = model or "gemini-2.5-flash"
 
         def chat(self, messages: list, temperature: float = 0.7, max_tokens: int = 500) -> dict:
+        
         """Send conversation to Gemini"""
 
         # Combine messages into one prompt
