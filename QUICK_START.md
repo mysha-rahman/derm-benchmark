@@ -4,7 +4,7 @@
 
 Your benchmark is now **streamlined and ready to test**!
 
-- ✅ 100 patient profiles (based on HAM10000 dataset)
+- ✅ 100 patient profiles (validated against HAM10000 + Fitzpatrick17k datasets)
 - ✅ 25 dialogue templates (40% with misinformation)
 - ✅ 15 dermatology myths library
 - ✅ Gemini API testing (FREE)

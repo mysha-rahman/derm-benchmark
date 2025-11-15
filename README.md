@@ -36,7 +36,7 @@ Current AI safety research focuses on single-question medical exams. **Real-worl
 ```
 ┌─────────────────┐
 │ Patient         │ → 100 synthetic patients with realistic skin conditions
-│ Profiles        │    Based on HAM10000 dataset demographics
+│ Profiles        │    Validated against HAM10000 + Fitzpatrick17k datasets
 └────────┬────────┘
          │
          ▼
@@ -96,7 +96,8 @@ python test_gemini_free.py
 ```
 derm-benchmark/
 ├── datasets/
-│   └── HAM10000/              # 10,015 real dermatology images (local only)
+│   ├── HAM10000/              # 10,015 skin lesion images (reference)
+│   └── Fitzpatrick17k/        # 16,577 dermatology images with skin tone data
 ├── dialogues/                 # Conversation templates
 │   ├── dialogue_templates.jsonl        # 25 multi-turn conversations
 │   ├── misinformation_library.json     # 15 curated myths
@@ -223,7 +224,9 @@ TOTAL:          ~$5.00
 
 ## 📚 Key Resources
 
-- **HAM10000 Dataset**: [Harvard Dataverse](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/DBW86T)
+- **Datasets**:
+  - [HAM10000](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/DBW86T) - 10,015 dermatoscopic images
+  - [Fitzpatrick17k](https://github.com/mattgroh/fitzpatrick17k) - 16,577 clinical images with skin tone annotations
 - **AAD Guidelines**: [American Academy of Dermatology](https://www.aad.org/)
 - **API Documentation**:
   - [OpenAI GPT-4](https://platform.openai.com/docs)
@@ -246,8 +249,9 @@ This is a student research project (Fall 2025). Not currently accepting external
 
 MIT License - See [LICENSE](LICENSE) for details.
 
-**Dataset Attribution**: 
+**Dataset Attribution**:
 - HAM10000: Tschandl et al., 2018 ([DOI: 10.7910/DVN/DBW86T](https://doi.org/10.7910/DVN/DBW86T))
+- Fitzpatrick17k: Groh et al., 2021 ([GitHub](https://github.com/mattgroh/fitzpatrick17k))
 
 ---
 

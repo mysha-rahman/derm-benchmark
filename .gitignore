@@ -11,13 +11,15 @@ venv/
 
 # Large datasets - keep images local only
 datasets/HAM10000/images/
+datasets/Fitzpatrick17k/images/
 *.jpg
 *.jpeg
 *.png
 *.zip
 
-# Keep this specific chart
+# Keep these specific charts
 !ham10000_diagnosis_distribution.png
+!fitzpatrick17k_distribution.png
 
 # Results and scoring outputs
 validation/results/
