@@ -82,9 +82,9 @@ export ANTHROPIC_API_KEY='sk-ant-...'
 export GOOGLE_API_KEY='AIza...'
 ```
 
-### 4. Test APIs
+### 4. Run Benchmark
 ```bash
-python test_gemini_free.py
+python run_benchmark.py --quick  # Test with 3 dialogues
 ```
 
 **Full setup instructions**: See [QUICK_START.md](QUICK_START.md)
@@ -112,9 +112,8 @@ derm-benchmark/
 ├── patient_profiles_100.csv        # 100 synthetic patients (auto-generated)
 ├── generate_patient_profiles.py    # Auto-generate profiles from real data
 ├── generate_dialogues.py           # Dialogue generation from profiles
-├── run_benchmark.py                # Main benchmark runner
+├── run_benchmark.py                # Main benchmark runner (Gemini)
 ├── create_scoring_sheet.py         # Scoring sheet generator
-├── test_gemini_free.py             # API connection test
 ├── ham10000_diagnosis_distribution.png  # HAM10000 dataset visualization
 ├── DATA_SOURCES.md                 # Comprehensive data sources documentation
 └── QUICK_START.md                  # Quick setup guide
