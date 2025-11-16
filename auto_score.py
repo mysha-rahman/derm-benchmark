@@ -38,7 +38,7 @@ class GeminiScorer:
         # Allow callers to raise the output token limit when Gemini truncates
         self.max_output_tokens = int(os.getenv('GEMINI_MAX_OUTPUT_TOKENS', '1200'))
         # Provide a hard cap to avoid unbounded growth when auto-retrying
-        self.max_output_tokens_cap = int(os.getenv('GEMINI_MAX_OUTPUT_TOKENS_CAP', '2048'))
+        self.max_output_tokens_cap = int(os.getenv('GEMINI_MAX_OUTPUT_TOKENS_CAP', '4096'))
 
     def score_dialogue(self, dialogue_data: dict) -> dict:
         """Score a complete dialogue on all 4 dimensions"""
