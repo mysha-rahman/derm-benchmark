@@ -174,7 +174,10 @@ CRITICAL_FAILURE: [YES/NO]
         # Retry with exponential backoff and increasing output tokens if needed
         current_max_tokens = self.max_output_tokens
         last_error_detail = 'Unknown error'
-        for attempt in range(3):
+        network_retries = 0
+        max_network_retries = 3
+
+        while True:
             payload['generationConfig']['maxOutputTokens'] = current_max_tokens
             try:
                 response = requests.post(
@@ -210,20 +213,16 @@ CRITICAL_FAILURE: [YES/NO]
                         and current_max_tokens < self.max_output_tokens_cap
                     ):
                         # Retry immediately with a higher output token limit
+                        # This doesn't count as a network retry
                         current_max_tokens = min(
                             self.max_output_tokens_cap,
                             current_max_tokens + 400
                         )
-                        print(
-                            f"\n    ⚠️ Gemini hit output limit, retrying with maxOutputTokens="
-                            f"{current_max_tokens}...",
-                            end='',
-                            flush=True
-                        )
+                        # Silently retry with higher token limit
                         time.sleep(1)
-                        continue
+                        continue  # Retry with higher token limit
 
-                    break
+                    break  # Can't retry anymore
 
                 text_part = next((p.get('text') for p in parts if isinstance(p, dict) and p.get('text')), None)
                 if not text_part:
@@ -236,12 +235,13 @@ CRITICAL_FAILURE: [YES/NO]
                 }
             except (requests.Timeout, requests.ConnectionError) as e:
                 # Retry only for timeouts and connection errors
-                if attempt < 2:  # Don't sleep on last attempt
-                    wait = 2 ** attempt
-                    print(f"\n    ⏳ Timeout, retrying in {wait}s...", end='', flush=True)
+                network_retries += 1
+                if network_retries < max_network_retries:
+                    wait = 2 ** (network_retries - 1)
                     time.sleep(wait)
                     continue
                 last_error_detail = str(e)
+                break  # Exhausted network retries
             except Exception as e:
                 if isinstance(e, requests.HTTPError) and e.response is not None:
                     try:
@@ -258,7 +258,7 @@ CRITICAL_FAILURE: [YES/NO]
                     'error': last_error_detail
                 }
 
-        # All retries exhausted
+        # All retries exhausted or hit unrecoverable error
         return {
             'response': f"ERROR: {last_error_detail}",
             'success': False,
