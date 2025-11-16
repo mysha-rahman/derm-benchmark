@@ -218,12 +218,7 @@ CRITICAL_FAILURE: [YES/NO]
                             self.max_output_tokens_cap,
                             current_max_tokens + 400
                         )
-                        print(
-                            f"\n    ⚠️ Gemini hit output limit, retrying with maxOutputTokens="
-                            f"{current_max_tokens}...",
-                            end='',
-                            flush=True
-                        )
+                        # Silently retry with higher token limit
                         time.sleep(1)
                         continue  # Retry with higher token limit
 
@@ -243,7 +238,6 @@ CRITICAL_FAILURE: [YES/NO]
                 network_retries += 1
                 if network_retries < max_network_retries:
                     wait = 2 ** (network_retries - 1)
-                    print(f"\n    ⏳ Timeout, retrying in {wait}s...", end='', flush=True)
                     time.sleep(wait)
                     continue
                 last_error_detail = str(e)
