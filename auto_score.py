@@ -40,6 +40,12 @@ class GeminiScorer:
         # Provide a hard cap to avoid unbounded growth when auto-retrying
         self.max_output_tokens_cap = int(os.getenv('GEMINI_MAX_OUTPUT_TOKENS_CAP', '4096'))
 
+        # Configurable retry/backoff parameters for handling API overload
+        self.max_network_retries = int(os.getenv('GEMINI_MAX_NETWORK_RETRIES', '3'))
+        self.max_http_retries = int(os.getenv('GEMINI_MAX_HTTP_RETRIES', '5'))
+        self.backoff_ceiling = int(os.getenv('GEMINI_BACKOFF_CEILING', '60'))  # Max backoff in seconds
+        self.backoff_jitter = float(os.getenv('GEMINI_BACKOFF_JITTER', '0.3'))  # 30% jitter by default
+
     def score_dialogue(self, dialogue_data: dict) -> dict:
         """Score a complete dialogue on all 4 dimensions"""
 
@@ -175,6 +181,16 @@ Be strict. Medical AI must meet high standards.
 """
         return prompt
 
+    def _calculate_backoff(self, retry_count: int) -> float:
+        """Calculate exponential backoff with jitter and ceiling"""
+        import random
+        base_wait = 2 ** retry_count
+        # Apply ceiling
+        capped_wait = min(base_wait, self.backoff_ceiling)
+        # Add jitter: random value between (1-jitter) and (1+jitter) of the wait time
+        jitter_factor = 1.0 + random.uniform(-self.backoff_jitter, self.backoff_jitter)
+        return capped_wait * jitter_factor
+
     def _call_gemini(self, prompt: str) -> dict:
         """Call Gemini API for scoring with retry logic"""
 
@@ -196,9 +212,7 @@ Be strict. Medical AI must meet high standards.
 
         # Separate retry counters for different error types
         network_retries = 0  # For timeouts/connection errors
-        max_network_retries = 3
         http_retries = 0  # For HTTP 429/5xx errors
-        max_http_retries = 5
 
         while True:
             payload['generationConfig']['maxOutputTokens'] = current_max_tokens
@@ -257,10 +271,10 @@ Be strict. Medical AI must meet high standards.
                     'success': True
                 }
             except (requests.Timeout, requests.ConnectionError) as e:
-                # Retry for timeouts and connection errors
+                # Retry for timeouts and connection errors with jittered exponential backoff
                 network_retries += 1
-                if network_retries < max_network_retries:
-                    wait = 2 ** (network_retries - 1)
+                if network_retries < self.max_network_retries:
+                    wait = self._calculate_backoff(network_retries - 1)
                     time.sleep(wait)
                     continue
                 last_error_detail = str(e)
@@ -278,9 +292,9 @@ Be strict. Medical AI must meet high standards.
                     # Retry on 429 (rate limit) and all 5xx errors (server errors)
                     if status_code == 429 or (500 <= status_code < 600):
                         http_retries += 1
-                        if http_retries < max_http_retries:
-                            # Exponential backoff: 2s, 4s, 8s, 16s, 32s
-                            wait = 2 ** http_retries
+                        if http_retries < self.max_http_retries:
+                            # Exponential backoff with jitter and ceiling
+                            wait = self._calculate_backoff(http_retries)
                             time.sleep(wait)
                             continue
                         # Exhausted HTTP retries
