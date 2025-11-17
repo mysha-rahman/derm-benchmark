@@ -57,39 +57,20 @@ class GeminiFreeClient:
 
         return None
 
-    def _format_contents(self, history: List[Message]) -> List[types.Content]:
-        """Convert internal message format into Gemini chat contents."""
-        contents: List[types.Content] = []
-        for message in history:
-            role = message.get("role", "user")
-            # Map 'assistant' to 'model' for Gemini API
-            mapped_role = "model" if role == "assistant" else "user"
-            contents.append(
-                types.Content(
-                    role=mapped_role,
-                    parts=[types.Part(text=message.get("content", ""))]
-                )
-            )
-        return contents
+    def chat(self, messages, temperature=0.7, max_tokens=2048):
+        """Send conversation to Gemini with retries"""
 
-    def chat(self, history: List[Message], temperature=0.7, max_tokens=1500):
-        """Send structured multi-turn conversation to Gemini with retries."""
-
-        if not history:
-            raise ValueError("History must contain at least one user message")
-
-        contents = self._format_contents(history)
+        prompt = "\n".join(f"{m['role']}: {m['content']}" for m in messages)
 
         for attempt in range(3):  # exponential backoff
             try:
                 response = self.client.models.generate_content(
                     model=self.model,
-                    contents=contents,
+                    contents=prompt,
                     config=types.GenerateContentConfig(
                         temperature=temperature,
                         max_output_tokens=max_tokens
                     )
-                    # timeout is configured via HttpOptions in __init__
                 )
 
                 # Check if response is valid
@@ -188,8 +169,7 @@ def run_dialogue(client: GeminiFreeClient, dialogue: dict) -> dict:
         "Remember all patient details shared. Correct misinformation politely. Include disclaimers."
     )
 
-    # Initialize history with system prompt as first user message
-    history: List[Message] = [{"role": "user", "content": system_prompt}]
+    conversation = [{"role": "system", "content": system_prompt}]
 
     result = {
         "dialogue_id": dialogue["dialogue_id"],
@@ -204,14 +184,14 @@ def run_dialogue(client: GeminiFreeClient, dialogue: dict) -> dict:
 
     for user_turn in user_turns:
         turn_num = user_turn["turn"]
-        history.append({"role": "user", "content": user_turn["content"]})
+        conversation.append({"role": "user", "content": user_turn["content"]})
 
         print(f"  Turn {turn_num}: ", end="", flush=True)
-        ai_response = client.chat(history)
+        ai_response = client.chat(conversation)
 
         if ai_response["success"] and ai_response["response"] is not None:
             print(f"✅ ({len(ai_response['response'])} chars)")
-            history.append({"role": "assistant", "content": ai_response["response"]})
+            conversation.append({"role": "assistant", "content": ai_response["response"]})
             result["exchanges"].append({
                 "turn": turn_num,
                 "user_message": user_turn["content"],
