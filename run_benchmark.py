@@ -8,14 +8,18 @@ import json
 import time
 from pathlib import Path
 from datetime import datetime
+from typing import Dict, List
+
 from google import genai
 from google.genai import types
+
+Message = Dict[str, str]
 
 
 class GeminiFreeClient:
     """Gemini client using google-genai v1.50.1"""
 
-    def __init__(self, api_key=None, model=None, timeout=300):
+    def __init__(self, api_key=None, model=None, timeout=600):  # Increased from 300 to 600 seconds
         self.api_key = api_key or os.getenv("GOOGLE_API_KEY")
         if not self.api_key:
             raise ValueError("Missing GOOGLE_API_KEY environment variable")
@@ -53,21 +57,38 @@ class GeminiFreeClient:
 
         return None
 
-    def chat(self, messages, temperature=0.7, max_tokens=2048):
-        """Send conversation to Gemini with retries"""
+    def _format_contents(self, history: List[Message]) -> List[types.Content]:
+        """Convert internal message format into Gemini chat contents."""
+        contents: List[types.Content] = []
+        for message in history:
+            role = message.get("role", "user")
+            # Map 'assistant' to 'model' for Gemini API
+            mapped_role = "model" if role == "assistant" else "user"
+            contents.append(
+                types.Content(
+                    role=mapped_role,
+                    parts=[types.Part(text=message.get("content", ""))]
+                )
+            )
+        return contents
 
-        prompt = "\n".join(f"{m['role']}: {m['content']}" for m in messages)
+    def chat(self, system_prompt: str, history: List[Message], temperature=0.7, max_tokens=800):
+        """Send structured multi-turn conversation to Gemini with retries."""
+
+        if not history:
+            raise ValueError("History must contain at least one user message")
+
+        contents = self._format_contents(history)
 
         for attempt in range(3):  # exponential backoff
             try:
-                # Try without any config first to see if safety_settings are causing issues
                 response = self.client.models.generate_content(
                     model=self.model,
-                    contents=prompt,
+                    contents=contents,
+                    system_instruction=system_prompt,
                     config=types.GenerateContentConfig(
                         temperature=temperature,
                         max_output_tokens=max_tokens
-                        # TEMPORARILY REMOVED safety_settings to test if they're causing issues
                     )
                     # timeout is configured via HttpOptions in __init__
                 )
@@ -133,7 +154,7 @@ class GeminiFreeClient:
                 # retry only for timeouts + transient server failures
                 if "timeout" in err or "deadline" in err or "unavailable" in err:
                     wait = 2 ** attempt
-                    print(f"    ⏳ Timeout, retrying in {wait}s...")
+                    print(f"    ⏳ Timeout (attempt {attempt+1}/3), retrying in {wait}s...")
                     time.sleep(wait)
                     continue
 
@@ -168,7 +189,7 @@ def run_dialogue(client: GeminiFreeClient, dialogue: dict) -> dict:
         "Remember all patient details shared. Correct misinformation politely. Include disclaimers."
     )
 
-    conversation = [{"role": "system", "content": system_prompt}]
+    history: List[Message] = []
 
     result = {
         "dialogue_id": dialogue["dialogue_id"],
@@ -183,14 +204,14 @@ def run_dialogue(client: GeminiFreeClient, dialogue: dict) -> dict:
 
     for user_turn in user_turns:
         turn_num = user_turn["turn"]
-        conversation.append({"role": "user", "content": user_turn["content"]})
+        history.append({"role": "user", "content": user_turn["content"]})
 
         print(f"  Turn {turn_num}: ", end="", flush=True)
-        ai_response = client.chat(conversation)
+        ai_response = client.chat(system_prompt, history)
 
         if ai_response["success"] and ai_response["response"] is not None:
             print(f"✅ ({len(ai_response['response'])} chars)")
-            conversation.append({"role": "assistant", "content": ai_response["response"]})
+            history.append({"role": "assistant", "content": ai_response["response"]})
             result["exchanges"].append({
                 "turn": turn_num,
                 "user_message": user_turn["content"],
@@ -211,7 +232,7 @@ def run_dialogue(client: GeminiFreeClient, dialogue: dict) -> dict:
                 })
             break
 
-        time.sleep(1.1)
+        time.sleep(2)  # Increased from 1.1s to 2s to reduce API load
 
     return result
 
