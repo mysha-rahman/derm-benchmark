@@ -72,15 +72,13 @@ class GeminiFreeClient:
             )
         return contents
 
-    def chat(self, system_prompt: str, history: List[Message], temperature=0.7, max_tokens=1500):
+    def chat(self, history: List[Message], temperature=0.7, max_tokens=1500):
         """Send structured multi-turn conversation to Gemini with retries."""
 
         if not history:
             raise ValueError("History must contain at least one user message")
 
-        # Prepend system prompt as first user message (system_instruction not supported in this API version)
-        full_history = [{"role": "user", "content": system_prompt}] + history
-        contents = self._format_contents(full_history)
+        contents = self._format_contents(history)
 
         for attempt in range(3):  # exponential backoff
             try:
@@ -190,7 +188,8 @@ def run_dialogue(client: GeminiFreeClient, dialogue: dict) -> dict:
         "Remember all patient details shared. Correct misinformation politely. Include disclaimers."
     )
 
-    history: List[Message] = []
+    # Initialize history with system prompt as first user message
+    history: List[Message] = [{"role": "user", "content": system_prompt}]
 
     result = {
         "dialogue_id": dialogue["dialogue_id"],
@@ -208,7 +207,7 @@ def run_dialogue(client: GeminiFreeClient, dialogue: dict) -> dict:
         history.append({"role": "user", "content": user_turn["content"]})
 
         print(f"  Turn {turn_num}: ", end="", flush=True)
-        ai_response = client.chat(system_prompt, history)
+        ai_response = client.chat(history)
 
         if ai_response["success"] and ai_response["response"] is not None:
             print(f"✅ ({len(ai_response['response'])} chars)")
