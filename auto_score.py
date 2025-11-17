@@ -46,6 +46,10 @@ class GeminiScorer:
         self.backoff_ceiling = int(os.getenv('GEMINI_BACKOFF_CEILING', '60'))  # Max backoff in seconds
         self.backoff_jitter = float(os.getenv('GEMINI_BACKOFF_JITTER', '0.3'))  # 30% jitter by default
 
+        # Multi-pass retry configuration for transient errors
+        self.retry_passes = int(os.getenv('GEMINI_RETRY_PASSES', '2'))  # Number of retry passes for transient errors
+        self.retry_cooldown = int(os.getenv('GEMINI_RETRY_COOLDOWN', '30'))  # Cooldown between passes in seconds
+
     def score_dialogue(self, dialogue_data: dict) -> dict:
         """Score a complete dialogue on all 4 dimensions"""
 
@@ -56,13 +60,19 @@ class GeminiScorer:
         response = self._call_gemini(prompt)
 
         if not response['success']:
+            # Distinguish between transient API errors and permanent failures
+            is_transient = response.get('is_transient', False)
+            flag_type = 'SCORING_ERROR_RETRYABLE' if is_transient else 'SCORING_ERROR_PERMANENT'
+
             return {
                 'error': response.get('error', 'Unknown error'),
                 'scores': {'correctness': 0, 'consistency': 0, 'misinfo_resistance': 0, 'safety': 0},
                 'total': 0,
-                'flags': ['SCORING_ERROR'],
+                'flags': [flag_type],
                 'reasoning': '',
-                'needs_review': True
+                'is_transient': is_transient,
+                # Only flag permanent errors for manual review, not transient API issues
+                'needs_review': not is_transient
             }
 
         # Parse scores from response
@@ -192,7 +202,14 @@ Be strict. Medical AI must meet high standards.
         return capped_wait * jitter_factor
 
     def _call_gemini(self, prompt: str) -> dict:
-        """Call Gemini API for scoring with retry logic"""
+        """Call Gemini API for scoring with retry logic
+
+        Returns dict with:
+            - success: bool
+            - response: str (response text or error message)
+            - error: str (error details if failed)
+            - is_transient: bool (True if error is retryable/temporary, should not flag for review)
+        """
 
         payload = {
             'contents': [{
@@ -209,6 +226,7 @@ Be strict. Medical AI must meet high standards.
         # Retry with exponential backoff and increasing output tokens if needed
         current_max_tokens = self.max_output_tokens
         last_error_detail = 'Unknown error'
+        is_transient_error = False  # Track if error is temporary/retryable
 
         # Separate retry counters for different error types
         network_retries = 0  # For timeouts/connection errors
@@ -268,7 +286,8 @@ Be strict. Medical AI must meet high standards.
 
                 return {
                     'response': text_part,
-                    'success': True
+                    'success': True,
+                    'is_transient': False
                 }
             except (requests.Timeout, requests.ConnectionError) as e:
                 # Retry for timeouts and connection errors with jittered exponential backoff
@@ -278,6 +297,7 @@ Be strict. Medical AI must meet high standards.
                     time.sleep(wait)
                     continue
                 last_error_detail = str(e)
+                is_transient_error = True  # Network errors are transient
                 break  # Exhausted network retries
             except requests.HTTPError as e:
                 # Handle HTTP errors with dedicated retry logic
@@ -297,32 +317,36 @@ Be strict. Medical AI must meet high standards.
                             wait = self._calculate_backoff(http_retries)
                             time.sleep(wait)
                             continue
-                        # Exhausted HTTP retries
+                        # Exhausted HTTP retries - these are transient (API overload/rate limit)
+                        is_transient_error = True
                         break
                     else:
-                        # Non-retryable HTTP error (4xx except 429)
+                        # Non-retryable HTTP error (4xx except 429) - these are permanent errors
                         return {
                             'response': f"ERROR: {last_error_detail}",
                             'success': False,
-                            'error': last_error_detail
+                            'error': last_error_detail,
+                            'is_transient': False
                         }
                 else:
                     last_error_detail = f"HTTP error without response: {str(e)}"
                     break
             except Exception as e:
-                # Other errors (don't retry)
+                # Other errors (don't retry) - these are permanent errors
                 last_error_detail = str(e)
                 return {
                     'response': f"ERROR: {last_error_detail}",
                     'success': False,
-                    'error': last_error_detail
+                    'error': last_error_detail,
+                    'is_transient': False
                 }
 
         # All retries exhausted or hit unrecoverable error
         return {
             'response': f"ERROR: {last_error_detail}",
             'success': False,
-            'error': last_error_detail
+            'error': last_error_detail,
+            'is_transient': is_transient_error
         }
 
     def _parse_scores(self, response_text: str) -> dict:
@@ -399,8 +423,13 @@ def find_latest_results():
     return max(json_files, key=lambda p: p.stat().st_mtime)
 
 
-def auto_score_results(results_file: Path):
-    """Automatically score all dialogues in results file"""
+def auto_score_results(results_file: Path, retry_failed_only: bool = False):
+    """Automatically score all dialogues in results file
+
+    Args:
+        results_file: Path to results JSON file
+        retry_failed_only: If True, only retry dialogues with retryable errors
+    """
 
     print("\n🤖 AUTOMATED SCORING (LLM-as-Judge)\n")
     print("=" * 70)
@@ -412,9 +441,34 @@ def auto_score_results(results_file: Path):
     results = data['results']
     metadata = data['metadata']
 
-    print(f"📂 Loaded: {results_file}")
-    print(f"📊 Dialogues to score: {len(results)}")
-    print(f"⏱️  Estimated time: {len(results) * 2 / 60:.1f} minutes\n")
+    # If retrying, identify which dialogues need rescoring
+    if retry_failed_only:
+        dialogues_to_score = []
+        already_scored = []
+        for result in results:
+            scores = result.get('auto_scores', {})
+            # Retry if there's a transient error
+            if scores.get('error') and scores.get('is_transient'):
+                # Remove old scoring data so we retry
+                result.pop('auto_scores', None)
+                dialogues_to_score.append(result)
+            else:
+                already_scored.append(result)
+
+        print(f"📂 Loaded: {results_file}")
+        print(f"🔄 RETRY MODE: Rescoring only failed dialogues")
+        print(f"📊 Already scored: {len(already_scored)}")
+        print(f"⏸️  To retry: {len(dialogues_to_score)}")
+        if len(dialogues_to_score) == 0:
+            print("\n✅ No dialogues need retrying!")
+            return results_file
+        print(f"⏱️  Estimated time: {len(dialogues_to_score) * 2 / 60:.1f} minutes\n")
+    else:
+        dialogues_to_score = results
+        already_scored = []
+        print(f"📂 Loaded: {results_file}")
+        print(f"📊 Dialogues to score: {len(results)}")
+        print(f"⏱️  Estimated time: {len(results) * 2 / 60:.1f} minutes\n")
 
     # Initialize scorer
     try:
@@ -422,7 +476,8 @@ def auto_score_results(results_file: Path):
         print(f"✅ Scorer initialized with model: {scorer.model}")
         if len(scorer.api_key) < 20:
             print(f"⚠️  WARNING: API key seems too short ({len(scorer.api_key)} chars)")
-        print(f"✅ API key found: {scorer.api_key[:10]}...{scorer.api_key[-4:]} ({len(scorer.api_key)} chars)\n")
+        print(f"✅ API key found: {scorer.api_key[:10]}...{scorer.api_key[-4:]} ({len(scorer.api_key)} chars)")
+        print(f"⚙️  Retry config: {scorer.retry_passes} passes, {scorer.retry_cooldown}s cooldown\n")
     except ValueError as e:
         print(f"❌ ERROR: {e}")
         print("\n💡 To fix:")
@@ -430,40 +485,91 @@ def auto_score_results(results_file: Path):
         print("   2. Get an API key from: https://ai.google.dev/")
         return None
 
-    # Score each dialogue
-    scored_results = []
-    flagged_count = 0
+    # Multi-pass scoring with automatic retries for transient errors
+    all_results = already_scored + dialogues_to_score
     first_error_shown = False
 
-    for i, result in enumerate(results, 1):
-        patient_label = result.get('patient_name') or 'Unknown Patient'
-        print(f"[{i}/{len(results)}] Scoring {patient_label}... ", end='', flush=True)
-
-        scores = scorer.score_dialogue(result)
-
-        # Add scores to result
-        result['auto_scores'] = scores
-
-        # Show first error details to help debugging
-        if not first_error_shown and 'error' in scores and scores.get('total', 0) == 0:
-            print(f"\n⚠️  FIRST ERROR DETAILS:")
-            print(f"   Error: {scores['error'][:500]}")
-            print(f"   This error is likely affecting all dialogues.\n")
-            first_error_shown = True
-
-        if scores.get('error'):
-            flagged_count += 1
-            print(f"    ❌ Scoring error: {scores['error'][:100]}")
-        elif scores['needs_review']:
-            flagged_count += 1
-            print(f"⚠️  FLAGGED (Score: {scores['total']}/12, Flags: {len(scores['flags'])})")
+    # Perform initial scoring pass plus retry passes
+    for pass_num in range(scorer.retry_passes + 1):  # +1 for initial pass
+        if pass_num == 0:
+            # Initial pass
+            to_score_this_pass = dialogues_to_score
+            print(f"🔄 INITIAL SCORING PASS\n")
         else:
-            print(f"✅ (Score: {scores['total']}/12)")
+            # Retry pass - only score dialogues with transient errors
+            to_score_this_pass = [
+                r for r in all_results
+                if r.get('auto_scores', {}).get('error') and r['auto_scores'].get('is_transient')
+            ]
 
-        scored_results.append(result)
+            if not to_score_this_pass:
+                print(f"\n✅ No transient errors remaining. Skipping retry pass {pass_num}.\n")
+                break
 
-        # Rate limiting - increased to reduce API load
-        time.sleep(3)
+            print(f"\n{'=' * 70}")
+            print(f"🔄 RETRY PASS {pass_num}/{scorer.retry_passes}")
+            print(f"   Retrying {len(to_score_this_pass)} dialogues with transient errors")
+            print(f"   Waiting {scorer.retry_cooldown}s cooldown for API recovery...")
+            print(f"{'=' * 70}\n")
+            time.sleep(scorer.retry_cooldown)
+
+            # Clear old scoring data for retry
+            for r in to_score_this_pass:
+                r.pop('auto_scores', None)
+
+        # Score dialogues in this pass
+        for i, result in enumerate(to_score_this_pass, 1):
+            patient_label = result.get('patient_name') or 'Unknown Patient'
+            total = len(to_score_this_pass)
+            print(f"[{i}/{total}] Scoring {patient_label}... ", end='', flush=True)
+
+            scores = scorer.score_dialogue(result)
+
+            # Add scores to result
+            result['auto_scores'] = scores
+
+            # Show first error details to help debugging (only on initial pass)
+            if pass_num == 0 and not first_error_shown and 'error' in scores and scores.get('total', 0) == 0:
+                print(f"\n⚠️  FIRST ERROR DETAILS:")
+                print(f"   Error: {scores['error'][:500]}")
+                if scores.get('is_transient'):
+                    print(f"   This is a TRANSIENT error (API overload/rate limit).")
+                    print(f"   Will retry up to {scorer.retry_passes} times after cooldown periods.")
+                else:
+                    print(f"   This is a PERMANENT error. Manual investigation needed.")
+                print(f"   This error is likely affecting all dialogues.\n")
+                first_error_shown = True
+
+            # Show result
+            if scores.get('error'):
+                if scores.get('is_transient'):
+                    print(f"    ⏸️  Retryable error: {scores['error'][:80]}")
+                else:
+                    print(f"    ❌ Permanent error: {scores['error'][:80]}")
+            elif scores.get('needs_review'):
+                print(f"⚠️  FLAGGED (Score: {scores['total']}/12, Flags: {len(scores['flags'])})")
+            else:
+                print(f"✅ (Score: {scores['total']}/12)")
+
+            # Rate limiting - increased to reduce API load
+            time.sleep(3)
+
+    # Recompute statistics from final results after all retry passes
+    scored_results = all_results
+    flagged_count = 0
+    retryable_errors = 0
+    permanent_errors = 0
+
+    for result in scored_results:
+        scores = result.get('auto_scores', {})
+        if scores.get('error'):
+            if scores.get('is_transient'):
+                retryable_errors += 1
+            else:
+                permanent_errors += 1
+                flagged_count += 1
+        elif scores.get('needs_review'):
+            flagged_count += 1
 
     # Save scored results
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
@@ -480,18 +586,27 @@ def auto_score_results(results_file: Path):
             'results': scored_results
         }, f, indent=2, ensure_ascii=False)
 
-    # Summary statistics
+    # Summary statistics (recomputed from final results after all retry passes)
     print("\n" + "=" * 70)
-    print("📊 SCORING COMPLETE")
+    print("📊 SCORING COMPLETE (after all retry passes)")
     print("=" * 70)
 
-    total_scores = [r['auto_scores']['total'] for r in scored_results if 'auto_scores' in r]
+    # Calculate scores only for successfully scored dialogues (exclude errors)
+    successfully_scored = [
+        r for r in scored_results
+        if 'auto_scores' in r and not r['auto_scores'].get('error')
+    ]
+    total_scores = [r['auto_scores']['total'] for r in successfully_scored]
     avg_score = sum(total_scores) / len(total_scores) if total_scores else 0
 
-    print(f"✅ Dialogues scored: {len(scored_results)}")
+    print(f"✅ Dialogues scored successfully: {len(successfully_scored)}/{len(scored_results)}")
+    if retryable_errors > 0:
+        print(f"⏸️  Retryable errors (API issues): {retryable_errors}")
+    if permanent_errors > 0:
+        print(f"❌ Permanent errors: {permanent_errors}")
     print(f"📈 Average score: {avg_score:.1f}/12")
     print(f"⚠️  Flagged for review: {flagged_count} ({flagged_count/len(scored_results)*100:.1f}%)")
-    print(f"✨ Auto-approved: {len(scored_results) - flagged_count}")
+    print(f"✨ Auto-approved: {len(successfully_scored) - flagged_count}")
     print(f"\n💾 Scored results saved: {output_file}")
 
     # Breakdown by score
@@ -506,7 +621,7 @@ def auto_score_results(results_file: Path):
         pct = count / len(total_scores) * 100 if total_scores else 0
         print(f"  {bin_name}: {count} ({pct:.1f}%)")
 
-    # Show flagged items
+    # Show flagged items (excluding retryable errors)
     if flagged_count > 0:
         print(f"\n⚠️  ITEMS NEEDING MANUAL REVIEW ({flagged_count}):")
         for r in scored_results:
@@ -515,10 +630,30 @@ def auto_score_results(results_file: Path):
                 flags_str = ', '.join(r['auto_scores']['flags'])
                 print(f"  • {patient_label} (Score: {r['auto_scores']['total']}/12) - {flags_str}")
 
+    # Show retryable errors separately
+    if retryable_errors > 0:
+        print(f"\n⏸️  RETRYABLE ERRORS ({retryable_errors}) - API overload/rate limit:")
+        for r in scored_results:
+            scores = r.get('auto_scores', {})
+            if scores.get('error') and scores.get('is_transient'):
+                patient_label = r.get('patient_name') or 'Unknown Patient'
+                print(f"  • {patient_label}")
+
     print("\n📋 Next Steps:")
-    print("  1. Review flagged dialogues manually")
-    print("  2. Run: python create_scoring_sheet.py (generates CSV with auto-scores)")
-    print("  3. Override any auto-scores you disagree with")
+    if retryable_errors > 0:
+        print(f"  ⏸️  RETRY NEEDED: {retryable_errors} dialogues still failed after {scorer.retry_passes} retry passes")
+        print(f"     API may still be overloaded. Options:")
+        print(f"     1. Wait longer and retry: python auto_score.py --retry {output_file}")
+        print(f"     2. Increase retry passes: export GEMINI_RETRY_PASSES=3")
+        print(f"     3. Increase cooldown: export GEMINI_RETRY_COOLDOWN=60")
+        print()
+    if flagged_count > 0:
+        print("  1. Review flagged dialogues manually")
+        print("  2. Run: python create_scoring_sheet.py (generates CSV with auto-scores)")
+        print("  3. Override any auto-scores you disagree with")
+    elif retryable_errors == 0:
+        print("  ✅ All dialogues auto-approved! No manual review needed.")
+        print("  Run: python create_scoring_sheet.py (generates CSV with scores)")
 
     return output_file
 
@@ -526,6 +661,11 @@ def auto_score_results(results_file: Path):
 def main():
     """Main execution"""
     import sys
+
+    # Check for --retry flag
+    retry_mode = '--retry' in sys.argv
+    if retry_mode:
+        sys.argv.remove('--retry')
 
     # Check if file was specified as argument
     if len(sys.argv) > 1:
@@ -544,7 +684,7 @@ def main():
             return
 
     # Auto-score
-    auto_score_results(results_file)
+    auto_score_results(results_file, retry_failed_only=retry_mode)
 
 
 if __name__ == '__main__':
