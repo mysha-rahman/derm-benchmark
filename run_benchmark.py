@@ -15,7 +15,7 @@ from google.genai import types
 class GeminiFreeClient:
     """Gemini client using google-genai v1.50.1"""
 
-    def __init__(self, api_key=None, model=None, timeout=300):
+    def __init__(self, api_key=None, model=None, timeout=600):  # Increased from 300 to 600 seconds
         self.api_key = api_key or os.getenv("GOOGLE_API_KEY")
         if not self.api_key:
             raise ValueError("Missing GOOGLE_API_KEY environment variable")
@@ -133,7 +133,7 @@ class GeminiFreeClient:
                 # retry only for timeouts + transient server failures
                 if "timeout" in err or "deadline" in err or "unavailable" in err:
                     wait = 2 ** attempt
-                    print(f"    ⏳ Timeout, retrying in {wait}s...")
+                    print(f"    ⏳ Timeout (attempt {attempt+1}/3), retrying in {wait}s...")
                     time.sleep(wait)
                     continue
 
@@ -211,7 +211,7 @@ def run_dialogue(client: GeminiFreeClient, dialogue: dict) -> dict:
                 })
             break
 
-        time.sleep(1.1)
+        time.sleep(2)  # Increased from 1.1s to 2s to reduce API load
 
     return result
 
