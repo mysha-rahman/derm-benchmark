@@ -4,14 +4,23 @@ Auto-Generate Realistic Patient Profiles from Real Datasets
 This script creates synthetic patient profiles that are clinically realistic by:
 1. Using Fitzpatrick17k for realistic condition distributions
 2. Using HAM10000 for realistic demographics (age/sex)
-3. Using clinical guidelines for realistic treatments
+3. Using datasets/Medical_Knowledge/All Diseases Data.xlsx for expanded conditions and treatments
+4. Using clinical guidelines for realistic treatments
 
-Uses only Python standard library (no pandas required).
+DATASET INTEGRATION:
+- Parses XLSX using standard library (zipfile + xml.etree)
+- Expands condition list beyond Fitzpatrick17k coverage
+- Injects evidence-based treatment guidance from medical knowledge base
+- All data sources documented for provenance tracking
+
+Uses only Python standard library (no pandas or openpyxl required).
 """
 
 import csv
 import random
 import json
+import zipfile
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 # Configuration
@@ -19,6 +28,139 @@ NUM_PROFILES = 100
 OUTPUT_FILE = 'patient_profiles_100.csv'
 FITZPATRICK_FILE = 'datasets/Fitzpatrick17k/fitzpatrick17k.csv'
 HAM_FILE = 'datasets/HAM10000/metadata/HAM10000_metadata.csv'
+MEDICAL_KNOWLEDGE_FILE = 'datasets/Medical_Knowledge/All Diseases Data.xlsx'
+
+
+def parse_xlsx_standard_library(xlsx_path):
+    """
+    Parse XLSX file using only Python standard library (zipfile + xml.etree).
+
+    XLSX files are ZIP archives containing XML files. This function extracts:
+    - Shared strings (text values)
+    - Worksheet data
+
+    Returns: List of rows, where each row is a list of cell values
+    """
+    with zipfile.ZipFile(xlsx_path, 'r') as zip_ref:
+        # Read shared strings (for text values)
+        shared_strings = []
+        try:
+            with zip_ref.open('xl/sharedStrings.xml') as f:
+                tree = ET.parse(f)
+                root = tree.getroot()
+                ns = {'main': 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'}
+                # Extract all text elements
+                for si in root.findall('.//main:si', ns):
+                    texts = [t.text for t in si.findall('.//main:t', ns) if t.text]
+                    shared_strings.append(''.join(texts))
+        except KeyError:
+            pass  # No shared strings in this file
+
+        # Read the first worksheet
+        with zip_ref.open('xl/worksheets/sheet1.xml') as f:
+            tree = ET.parse(f)
+            root = tree.getroot()
+            ns = {'main': 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'}
+
+            rows = []
+            for row_elem in root.findall('.//main:row', ns):
+                cells = []
+                for cell in row_elem.findall('.//main:c', ns):
+                    v = cell.find('main:v', ns)
+                    t = cell.get('t')
+
+                    if v is not None:
+                        if t == 's':  # String from shared strings
+                            cells.append(shared_strings[int(v.text)])
+                        else:
+                            cells.append(v.text)
+                    else:
+                        cells.append('')
+
+                rows.append(cells)
+
+            return rows
+
+
+def load_medical_knowledge_data():
+    """
+    Load conditions and treatments from All Diseases Data.xlsx.
+
+    Returns:
+    - conditions: List of condition names
+    - treatments: Dict mapping normalized condition name to treatment list
+    """
+    try:
+        rows = parse_xlsx_standard_library(MEDICAL_KNOWLEDGE_FILE)
+
+        # Skip header row
+        data_rows = rows[1:]
+
+        conditions = []
+        treatments = {}
+
+        for row in data_rows:
+            if len(row) < 5:
+                continue
+
+            condition_name = row[1] if len(row) > 1 else ''
+            treatment_text = row[4] if len(row) > 4 else ''
+
+            if not condition_name or not treatment_text:
+                continue
+
+            # Normalize condition name
+            normalized = condition_name.strip().title()
+            conditions.append(normalized)
+
+            # Extract treatment keywords from treatment text
+            # Look for common treatment patterns
+            treatment_list = []
+
+            # Common treatment patterns to extract
+            treatment_keywords = [
+                'topical', 'oral', 'systemic', 'corticosteroid', 'retinoid',
+                'antibiotic', 'antifungal', 'steroid', 'phototherapy', 'laser',
+                'immunosuppressant', 'biologic', 'excision', 'surgery', 'cryotherapy'
+            ]
+
+            treatment_lower = treatment_text.lower()
+            for keyword in treatment_keywords:
+                if keyword in treatment_lower:
+                    # Extract phrase containing keyword
+                    if 'topical' in keyword and 'topical' in treatment_lower:
+                        treatment_list.append('Topical corticosteroids')
+                    elif 'oral' in keyword and 'oral' in treatment_lower:
+                        if 'antibiotic' in treatment_lower:
+                            treatment_list.append('Oral antibiotics')
+                        elif 'corticosteroid' in treatment_lower or 'prednisone' in treatment_lower:
+                            treatment_list.append('Oral corticosteroids')
+                    elif 'retinoid' in keyword and 'retinoid' in treatment_lower:
+                        treatment_list.append('Topical retinoids')
+                    elif 'phototherapy' in keyword:
+                        treatment_list.append('Phototherapy')
+                    elif 'laser' in keyword:
+                        treatment_list.append('Laser therapy')
+                    elif 'excision' in keyword or 'surgery' in keyword:
+                        treatment_list.append('Surgical excision')
+                    elif 'cryotherapy' in keyword:
+                        treatment_list.append('Cryotherapy')
+
+            # Remove duplicates
+            treatment_list = list(set(treatment_list))
+
+            if treatment_list:
+                treatments[normalized.lower()] = treatment_list
+
+        print(f"  ✓ Loaded {len(conditions)} conditions from medical knowledge base")
+        print(f"  ✓ Extracted treatment info for {len(treatments)} conditions")
+
+        return conditions, treatments
+
+    except Exception as e:
+        print(f"  ⚠️  Could not load medical knowledge data: {e}")
+        return [], {}
+
 
 # Realistic names by region
 NAMES = {
@@ -127,19 +269,38 @@ def get_age_sex(ham_demographics):
         sex = random.choice(['Male', 'Female'])
         return age, sex
 
-def get_treatments_for_condition(condition):
-    """Get realistic treatments based on condition"""
+def get_treatments_for_condition(condition, extended_treatments=None):
+    """
+    Get realistic treatments based on condition.
+
+    Checks both hardcoded CONDITION_TREATMENTS and extended_treatments
+    from medical knowledge base.
+    """
     condition_lower = condition.lower()
+
+    # First check extended treatments from medical knowledge base
+    if extended_treatments and condition_lower in extended_treatments:
+        treatments = extended_treatments[condition_lower]
+        num_treatments = random.randint(1, min(3, len(treatments)))
+        selected = random.sample(treatments, num_treatments)
+        return ', '.join(selected)
+
+    # Fall back to hardcoded treatments
     for key in CONDITION_TREATMENTS:
         if key in condition_lower:
             num_treatments = random.randint(1, 3)
             treatments = CONDITION_TREATMENTS[key]
             selected = random.sample(treatments, min(num_treatments, len(treatments)))
             return ', '.join(selected)
+
     return 'Topical treatments'
 
-def generate_profile(profile_id, ham_demographics):
-    """Generate one realistic patient profile"""
+def generate_profile(profile_id, ham_demographics, extended_conditions=None, extended_treatments=None):
+    """
+    Generate one realistic patient profile.
+
+    Uses both hardcoded conditions and extended conditions from medical knowledge base.
+    """
 
     age, sex = get_age_sex(ham_demographics)
 
@@ -157,18 +318,27 @@ def generate_profile(profile_id, ham_demographics):
 
     # Skin type and conditions
     skin_type = random.choice(SKIN_TYPES)
-    primary_concern = random.choice(TOP_CONDITIONS)
+
+    # Combine hardcoded and extended conditions
+    all_conditions = TOP_CONDITIONS.copy()
+    if extended_conditions:
+        # Add unique extended conditions (avoid duplicates)
+        for cond in extended_conditions:
+            if cond not in all_conditions:
+                all_conditions.append(cond)
+
+    primary_concern = random.choice(all_conditions)
 
     # Secondary concern (different from primary)
-    available_conditions = [c for c in TOP_CONDITIONS if c != primary_concern]
+    available_conditions = [c for c in all_conditions if c != primary_concern]
     secondary_concern = random.choice(available_conditions) if available_conditions else 'None'
 
     # Allergies and sensitivities
     allergies = random.choice(ALLERGIES)
     drug_sensitivities = random.choice(SENSITIVITIES)
 
-    # Treatments based on condition
-    past_treatments = get_treatments_for_condition(primary_concern)
+    # Treatments based on condition (with extended treatments)
+    past_treatments = get_treatments_for_condition(primary_concern, extended_treatments)
 
     # Other attributes
     adverse_reactions = random.choice(ADVERSE_REACTIONS)
@@ -200,12 +370,20 @@ def main():
     else:
         print("  ⚠️  Using random demographics")
 
+    # Load medical knowledge data
+    print("\nLoading medical knowledge from All Diseases Data.xlsx...")
+    extended_conditions, extended_treatments = load_medical_knowledge_data()
+
+    print(f"\n📊 Total available conditions: "
+          f"{len(TOP_CONDITIONS)} (hardcoded) + {len(extended_conditions)} (extended) = "
+          f"{len(set(TOP_CONDITIONS + extended_conditions))} unique")
+
     print(f"\nGenerating {NUM_PROFILES} realistic profiles...\n")
 
     # Generate profiles
     profiles = []
     for i in range(1, NUM_PROFILES + 1):
-        profile = generate_profile(i, ham_demographics)
+        profile = generate_profile(i, ham_demographics, extended_conditions, extended_treatments)
         profiles.append(profile)
         if i % 10 == 0:
             print(f"  ✓ Generated {i}/{NUM_PROFILES} profiles")

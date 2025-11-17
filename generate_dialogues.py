@@ -2,13 +2,19 @@
 """
 Generate dialogue templates for dermatology chatbot benchmark.
 Creates multi-turn conversations testing memory, consistency, and misinformation resistance.
+
+DATASET INTEGRATION:
+- Loads misinformation myths from datasets/Misinformation/misinformation.json
+- Normalizes condition categories to match patient profiles
+- Deduplicates myths if legacy library exists
+- Expands misinformation coverage across all datasets
 """
 
 import json
 import csv
 import random
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Set
 
 # Set random seed for reproducibility
 random.seed(42)
@@ -25,17 +31,146 @@ def load_patient_profiles(csv_path: str) -> List[Dict[str, Any]]:
 
 
 def load_misinformation_library(json_path: str) -> Dict[str, Any]:
-    """Load misinformation claims from JSON."""
+    """Load misinformation claims from JSON (legacy format)."""
+    try:
+        with open(json_path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return {'misinformation_claims': []}
+
+
+def normalize_condition_name(condition: str) -> str:
+    """Normalize condition names for matching across datasets."""
+    # Convert to lowercase, remove underscores, standardize separators
+    normalized = condition.lower().strip()
+    normalized = normalized.replace('_', ' ')
+
+    # Map variations to canonical forms
+    mappings = {
+        'acne vulgaris': 'acne',
+        'contact dermatitis': 'dermatitis',
+        'allergic contact dermatitis': 'dermatitis',
+        'seborrheic dermatitis': 'dermatitis',
+        'seborrheic keratosis': 'keratosis',
+        'benign keratosis': 'keratosis',
+        'actinic keratosis': 'keratosis',
+        'basal cell carcinoma morpheiform': 'basal cell carcinoma',
+        'solid cystic basal cell carcinoma': 'basal cell carcinoma',
+        'superficial spreading melanoma': 'melanoma',
+        'sun damaged skin': 'sun damage',
+        'sun damage': 'sun damage',
+        'stasis edema': 'dermatitis',
+        'dyshidrotic eczema': 'eczema',
+        'pyogenic granuloma': 'granuloma',
+        'granuloma pyogenic': 'granuloma',
+    }
+
+    return mappings.get(normalized, normalized)
+
+
+def load_extended_misinformation(json_path: str) -> List[Dict[str, Any]]:
+    """
+    Load misinformation from datasets/Misinformation/misinformation.json
+    and convert to dialogue-compatible format.
+
+    Returns list of myths in format: {id, category, claim, correction, severity}
+    """
     with open(json_path, 'r', encoding='utf-8') as f:
-        return json.load(f)
+        data = json.load(f)
+
+    myths = []
+    myth_id = 1
+
+    # Process each condition category
+    for condition, entries in data.items():
+        normalized_category = normalize_condition_name(condition)
+
+        for entry in entries:
+            myth = {
+                'id': f'myth_{myth_id:03d}',
+                'category': normalized_category,
+                'original_category': condition,
+                'claim': entry['myth'],
+                'correction': entry['fact'],
+                'severity': 'moderate',  # Default severity
+                'source': 'datasets/Misinformation/misinformation.json'
+            }
+
+            # Determine severity based on keywords
+            claim_lower = entry['myth'].lower()
+            fact_lower = entry['fact'].lower()
+
+            if any(word in claim_lower or word in fact_lower for word in
+                   ['cancer', 'malignant', 'metastasis', 'life-threatening', 'fatal', 'toxic', 'poisoning']):
+                myth['severity'] = 'critical'
+            elif any(word in claim_lower or word in fact_lower for word in
+                     ['infection', 'scarring', 'permanent', 'contraindicated', 'avoid', 'harmful']):
+                myth['severity'] = 'high'
+            elif any(word in claim_lower or word in fact_lower for word in
+                     ['ineffective', 'no evidence', 'not recommended']):
+                myth['severity'] = 'moderate'
+            else:
+                myth['severity'] = 'low'
+
+            myths.append(myth)
+            myth_id += 1
+
+    return myths
+
+
+def deduplicate_myths(extended_myths: List[Dict[str, Any]],
+                      legacy_myths: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Deduplicate myths from extended dataset against legacy library.
+
+    Uses fuzzy matching on claim text to identify duplicates.
+    Keeps extended version if duplicate found (as it has better structure).
+    """
+    if not legacy_myths:
+        return extended_myths
+
+    # Extract claim text from legacy myths for comparison
+    legacy_claims = set()
+    for myth in legacy_myths:
+        claim = myth.get('claim', '').lower().strip()
+        # Normalize claim by removing common variations
+        claim = claim.replace('.', '').replace(',', '').replace('  ', ' ')
+        legacy_claims.add(claim)
+
+    # Filter extended myths
+    deduplicated = []
+    duplicates_found = 0
+
+    for myth in extended_myths:
+        claim = myth['claim'].lower().strip()
+        claim = claim.replace('.', '').replace(',', '').replace('  ', ' ')
+
+        # Check for exact or very similar matches
+        is_duplicate = False
+        for legacy_claim in legacy_claims:
+            # Check if claims are very similar (e.g., 90% overlap)
+            if claim == legacy_claim or claim in legacy_claim or legacy_claim in claim:
+                is_duplicate = True
+                duplicates_found += 1
+                break
+
+        if not is_duplicate:
+            deduplicated.append(myth)
+
+    print(f"  📊 Deduplication: {len(extended_myths)} extended myths, "
+          f"{duplicates_found} duplicates found, {len(deduplicated)} unique myths retained")
+
+    # Combine legacy + unique extended myths
+    combined = legacy_myths + deduplicated
+    return combined
 
 
 def match_myth_to_profile(profile: Dict[str, Any], myths: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """Match a relevant myth to patient's condition."""
-    primary = profile['primary_concern'].lower()
-    secondary = profile['secondary_concern'].lower()
+    """Match a relevant myth to patient's condition using normalized categories."""
+    primary = normalize_condition_name(profile['primary_concern'])
+    secondary = normalize_condition_name(profile['secondary_concern'])
 
-    # Try to match myth to patient's concerns
+    # Try to match myth to patient's concerns (with normalized categories)
     relevant_myths = [
         m for m in myths
         if m['category'] in [primary, secondary, 'general']
@@ -254,17 +389,44 @@ def generate_memory_dialogue(profile: Dict[str, Any], include_misinfo: bool, myt
 
 
 def generate_all_dialogues(num_templates: int = 25) -> None:
-    """Generate dialogue templates for the benchmark."""
+    """
+    Generate dialogue templates for the benchmark.
+
+    Integrates misinformation from both:
+    - Legacy library (if exists): dialogues/misinformation_library.json
+    - Extended dataset: datasets/Misinformation/misinformation.json
+    """
 
     print("🔄 Loading patient profiles...")
     profiles = load_patient_profiles('patient_profiles_100.csv')
 
-    print("🔄 Loading misinformation library...")
-    misinfo_lib = load_misinformation_library('dialogues/misinformation_library.json')
-    myths = misinfo_lib['misinformation_claims']
+    print("🔄 Loading legacy misinformation library...")
+    legacy_lib = load_misinformation_library('dialogues/misinformation_library.json')
+    legacy_myths = legacy_lib.get('misinformation_claims', [])
+
+    print("🔄 Loading extended misinformation from datasets...")
+    extended_myths = load_extended_misinformation('datasets/Misinformation/misinformation.json')
+
+    print(f"  📚 Legacy myths: {len(legacy_myths)}")
+    print(f"  📚 Extended myths: {len(extended_myths)}")
+
+    print("🔄 Deduplicating and combining myth libraries...")
+    myths = deduplicate_myths(extended_myths, legacy_myths)
 
     print(f"✅ Loaded {len(profiles)} profiles and {len(myths)} myths")
-    print(f"🔄 Generating {num_templates} dialogue templates...")
+    print(f"   📊 Myth severity distribution:")
+
+    # Show severity distribution
+    severity_counts = {}
+    for myth in myths:
+        sev = myth.get('severity', 'unknown')
+        severity_counts[sev] = severity_counts.get(sev, 0) + 1
+
+    for severity in ['critical', 'high', 'moderate', 'low']:
+        if severity in severity_counts:
+            print(f"      • {severity}: {severity_counts[severity]}")
+
+    print(f"\n🔄 Generating {num_templates} dialogue templates...")
 
     # Select subset of profiles for templates
     selected_profiles = random.sample(profiles, min(num_templates, len(profiles)))
