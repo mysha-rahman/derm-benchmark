@@ -193,8 +193,12 @@ Be strict. Medical AI must meet high standards.
         # Retry with exponential backoff and increasing output tokens if needed
         current_max_tokens = self.max_output_tokens
         last_error_detail = 'Unknown error'
-        network_retries = 0
+
+        # Separate retry counters for different error types
+        network_retries = 0  # For timeouts/connection errors
         max_network_retries = 3
+        http_retries = 0  # For HTTP 429/5xx errors
+        max_http_retries = 5
 
         while True:
             payload['generationConfig']['maxOutputTokens'] = current_max_tokens
@@ -253,7 +257,7 @@ Be strict. Medical AI must meet high standards.
                     'success': True
                 }
             except (requests.Timeout, requests.ConnectionError) as e:
-                # Retry only for timeouts and connection errors
+                # Retry for timeouts and connection errors
                 network_retries += 1
                 if network_retries < max_network_retries:
                     wait = 2 ** (network_retries - 1)
@@ -261,25 +265,39 @@ Be strict. Medical AI must meet high standards.
                     continue
                 last_error_detail = str(e)
                 break  # Exhausted network retries
-            except Exception as e:
-                if isinstance(e, requests.HTTPError) and e.response is not None:
+            except requests.HTTPError as e:
+                # Handle HTTP errors with dedicated retry logic
+                if e.response is not None:
+                    status_code = e.response.status_code
                     try:
                         error_json = e.response.json()
-                        status_code = e.response.status_code
                         last_error_detail = f"HTTP {status_code}: {error_json}"
-
-                        # Retry on 503 (service overloaded) or 429 (rate limit)
-                        if status_code in [503, 429]:
-                            network_retries += 1
-                            if network_retries < max_network_retries:
-                                wait = 2 ** network_retries  # Longer wait for overload
-                                time.sleep(wait)
-                                continue
                     except:
-                        last_error_detail = f"HTTP {e.response.status_code}: {e.response.text[:500]}"
+                        last_error_detail = f"HTTP {status_code}: {e.response.text[:500]}"
+
+                    # Retry on 429 (rate limit) and all 5xx errors (server errors)
+                    if status_code == 429 or (500 <= status_code < 600):
+                        http_retries += 1
+                        if http_retries < max_http_retries:
+                            # Exponential backoff: 2s, 4s, 8s, 16s, 32s
+                            wait = 2 ** http_retries
+                            time.sleep(wait)
+                            continue
+                        # Exhausted HTTP retries
+                        break
+                    else:
+                        # Non-retryable HTTP error (4xx except 429)
+                        return {
+                            'response': f"ERROR: {last_error_detail}",
+                            'success': False,
+                            'error': last_error_detail
+                        }
                 else:
-                    last_error_detail = str(e)
-                # Don't retry for other errors
+                    last_error_detail = f"HTTP error without response: {str(e)}"
+                    break
+            except Exception as e:
+                # Other errors (don't retry)
+                last_error_detail = str(e)
                 return {
                     'response': f"ERROR: {last_error_detail}",
                     'success': False,
