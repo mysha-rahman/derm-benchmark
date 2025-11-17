@@ -54,9 +54,30 @@ conditions, treatments = load_medical_knowledge_data()
 - **No external dependencies**: Uses Python standard library only
 
 ### Data Provenance:
-- Source: Clinical dermatology guidelines and medical literature
+- **Primary Source**: StatPearls - NCBI Bookshelf (https://www.ncbi.nlm.nih.gov/books/)
+- **Supplementary Sources**:
+  - American Academy of Dermatology (AAD) - Treatment guidelines (https://www.aad.org/)
+  - Mayo Clinic - Diagnostic and treatment information (https://www.mayoclinic.org/)
+  - DermNet NZ - Clinical dermatology reference (https://dermnetnz.org/)
+  - CDC - Parasitic and infectious disease information (https://www.cdc.gov/)
+  - PubMed Central (PMC) - Medical research articles
+
 - Format: Excel (.xlsx) for easy review and editing by medical experts
-- Structure: 7 columns × 150+ rows
-- Last updated: 2024
+- Structure: 7 columns × 113 conditions
+- Compilation method: Search condition name in StatPearls, extract clinical information
+- Last updated: November 2024
+
+### Source Methodology:
+For each condition in the dataset:
+1. Search condition name at https://www.ncbi.nlm.nih.gov/books/NBK430685/
+2. Review StatPearls clinical information
+3. Cross-reference with AAD, Mayo Clinic, or DermNet NZ for treatment protocols
+4. Extract structured information: symptoms, diagnosis, treatment, contraindications, notes
+
+### Citation:
+When using this dataset, please cite:
+- StatPearls [Internet]. Treasure Island (FL): StatPearls Publishing; 2024 Jan-. Available from: https://www.ncbi.nlm.nih.gov/books/NBK430685/
+- American Academy of Dermatology. Clinical guidelines and patient resources. Available at: https://www.aad.org/
+- Additional sources as appropriate for specific conditions
 
 See `DATASET_INTEGRATION.md` for full technical documentation.
