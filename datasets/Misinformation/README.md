@@ -87,10 +87,56 @@ basal cell carcinoma morpheiform → basal cell carcinoma
 ```
 
 ### Data Provenance:
-- Source: Common patient misconceptions and medical myths
-- Fact-checking: Evidence-based corrections from clinical literature
+- **Source Type**: Compiled from medical myth-debunking articles and clinical research
+- **Fact-checking**: Evidence-based corrections verified against clinical literature
+- **Primary Sources**: Dermatology clinics, medical journals, healthcare institutions
 - Format: JSON for programmatic access and version control
 - Structure: Nested dict (condition → list of myth/fact objects)
-- Last updated: 2024
+- Total entries: 185 myth/fact pairs across 82 conditions
+- Last updated: November 2024
+
+### Source Attribution:
+
+**Major Contributors:**
+- **Acne myths** (17 entries):
+  - Signature Dermatology: https://signaturederm.com/2024/06/05/debunking-common-myths-about-acne-what-you-really-meed-to-know/
+  - Texas Dermatology: https://texasdermatology.com/2024/06/05/debunking-common-myths-about-acne-what-you-really-need-to-know/
+  - Springs Dermatology: https://springsdermatologymd.com/article/23-top-10-myths-about-acne-and-acne-treatments-debunked
+  - University of Utah Healthcare: https://healthcare.utah.edu/the-scope/kids-zone/all/2024/02/debunking-old-wives-tales-5-myths-about-treating-acne
+  - PubMed Central: https://pmc.ncbi.nlm.nih.gov/articles/PMC7445635/
+  - Acne Support: https://www.acnesupport.org.uk/myths/
+  - NIHR Evidence: https://evidence.nihr.ac.uk/alert/misconceptions-acne-lead-to-underuse-effective-treatments-reliable-information-needed/
+  - NYC Dermatologist: https://www.dermatologist-nyc.com/blog/acne-myths-debunked-what-really-causes-breakouts-and-how-to-treat-them-46959/
+  - US Dermatology Partners: https://www.usdermatologypartners.com/blog/what-causes-acne-myths/
+  - CeraVe: https://www.cerave.com/skin-smarts/skin-concerns/acne/common-acne-myths
+
+**Other Conditions** (165 entries across 80+ conditions):
+- American Academy of Dermatology (AAD): https://www.aad.org/ - Multiple conditions
+- Mayo Clinic: https://www.mayoclinic.org/ - Multiple conditions
+- DermNet NZ: https://dermnetnz.org/ - Multiple conditions
+- Medical journals and research papers via PubMed/PMC
+
+### Compilation Methodology:
+1. **Research phase**: Review myth-debunking articles from reputable dermatology sources
+2. **Extraction**: Identify common patient misconceptions and corresponding evidence-based corrections
+3. **Verification**: Cross-reference facts against clinical guidelines (AAD, Mayo Clinic, etc.)
+4. **Severity classification**: Automatically classify based on risk keywords:
+   - Critical: Cancer-related, life-threatening (e.g., "black salve")
+   - High: Infection risk, permanent harm, scarring
+   - Moderate: Ineffective treatments, no evidence
+   - Low: Minor misconceptions
+
+### Citation:
+When using this dataset in research, please cite:
+- Individual sources as appropriate for specific conditions
+- General attribution: "Dermatology misinformation compiled from clinical myth-debunking resources including American Academy of Dermatology, Mayo Clinic, DermNet NZ, and peer-reviewed medical literature (2024)."
+
+### Full Source List:
+A complete list of URLs for all 82 conditions is available in the repository documentation. Key institutional sources include:
+- **American Academy of Dermatology (AAD)**: Primary source for 60+ conditions
+- **Mayo Clinic**: Diagnostic and treatment myth corrections for 20+ conditions
+- **DermNet NZ**: Clinical reference for rare and complex conditions
+- **PubMed Central (PMC)**: Peer-reviewed research articles
+- **CDC**: Parasitic and infectious disease information
 
 See `DATASET_INTEGRATION.md` for full technical documentation.

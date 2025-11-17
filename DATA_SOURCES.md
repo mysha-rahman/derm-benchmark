@@ -23,7 +23,7 @@ This document explains how we use real dermatology data to create realistic synt
 
 ---
 
-## 📊 Three Data Sources
+## 📊 Five Data Sources
 
 ### 1. HAM10000 Dataset (Dermatoscopic Images)
 
@@ -99,7 +99,90 @@ GitHub: https://github.com/mattgroh/fitzpatrick17k
 
 ---
 
-### 3. DermNet NZ (Clinical Patterns)
+### 3. Medical Knowledge Dataset (Clinical Guidelines)
+
+**What it is:**
+- Comprehensive medical knowledge base compiled from clinical guidelines
+- 113 dermatological conditions with detailed information
+- Evidence-based treatment protocols and contraindications
+
+**Focus:** Expanded clinical coverage beyond common conditions
+- Includes rare conditions (pemphigus, tuberous sclerosis, etc.)
+- Diagnostic criteria and evaluation methods
+- Treatment/management protocols
+- Safety warnings and contraindications
+- Clinical notes and special considerations
+
+**Format:**
+- Excel workbook (`.xlsx`) for easy medical review and editing
+- 7 columns: Condition Name, Symptoms, Diagnosis, Treatment, Contraindications, Notes
+- ~150 rows covering diverse dermatology conditions
+
+**How we use it:**
+- **Standard-library XLSX parsing** (no external dependencies)
+- Expands condition pool from 14 → 119 unique conditions
+- Extracts evidence-based treatments automatically
+- Injects treatment guidance into patient profiles
+- Validates clinical accuracy of synthetic profiles
+
+**Integration:**
+- Parsed by `generate_patient_profiles.py` using `zipfile + xml.etree`
+- Treatment keywords extracted: topical, oral, phototherapy, laser, etc.
+- Merges with Fitzpatrick17k conditions for comprehensive coverage
+- See `datasets/Medical_Knowledge/README.md` for full details
+
+**Files:**
+- `datasets/Medical_Knowledge/All Diseases Data.xlsx` (51 KB)
+- `datasets/Medical_Knowledge/README.md` - Integration documentation
+
+---
+
+### 4. Misinformation Dataset (Myths & Facts)
+
+**What it is:**
+- Collection of common dermatology myths and evidence-based corrections
+- 185 myth/fact pairs across 82 condition categories
+- Severity-classified for risk-aware testing
+
+**Focus:** Patient misconceptions and misinformation
+- Common treatment myths (e.g., "toothpaste cures acne")
+- Dangerous practices (e.g., "black salve cures skin cancer")
+- Ineffective remedies (e.g., "lemon juice removes scars")
+- General dermatology misconceptions
+
+**Format:**
+- JSON format for programmatic access
+- Structure: `{condition: [{myth, fact}, ...]}`
+- Covers acne, eczema, psoriasis, melanoma, and 78+ other conditions
+
+**Severity Classification:**
+Automatically classified based on risk keywords:
+- **Critical** (10): Cancer-related, life-threatening (e.g., "black salve")
+- **High** (32): Infection risk, permanent harm, scarring
+- **Moderate** (12): Ineffective treatments, no evidence
+- **Low** (131): Minor misconceptions, general myths
+
+**How we use it:**
+- **Category normalization** for cross-dataset matching
+- **Deduplication** against legacy misinformation library
+- **Condition-specific matching** to patient profiles
+- 40% of dialogues include misinformation testing
+- Tests AI's ability to firmly but politely correct myths
+
+**Integration:**
+- Loaded by `generate_dialogues.py`
+- Normalized categories (e.g., "acne vulgaris" → "acne")
+- Matched to patient's primary/secondary concerns
+- 12x more misinformation scenarios (~15 → 185)
+- See `datasets/Misinformation/README.md` for full details
+
+**Files:**
+- `datasets/Misinformation/misinformation.json` (36 KB)
+- `datasets/Misinformation/README.md` - Integration documentation
+
+---
+
+### 5. DermNet NZ (Clinical Patterns)
 
 **What it is:**
 - Educational dermatology website
@@ -161,38 +244,61 @@ DermNet NZ. All About the Skin. Available at: https://dermnetnz.org/
 ## 🔄 How It All Comes Together
 
 ```
-┌─────────────────────────────────────────────────────┐
-│ REAL DATA SOURCES (for validation)                 │
-├─────────────────────────────────────────────────────┤
-│                                                     │
-│  HAM10000           Fitzpatrick17k      DermNet NZ │
-│  (10,015 cases)     (16,577 cases)      (patterns) │
-│       ↓                   ↓                  ↓      │
-│   Demographics      Conditions          Clinical   │
-│   validation        validation          patterns   │
-│                                                     │
-└──────────────────────┬──────────────────────────────┘
-                       ↓
-         ┌─────────────────────────────┐
-         │  OUR SYNTHETIC PROFILES     │
-         │  (patient_profiles_100.csv) │
-         │                             │
-         │  • Fictional patients       │
-         │  • Realistic demographics   │
-         │  • Real conditions          │
-         │  • Clinical patterns        │
-         │  • Rich medical history     │
-         └──────────────┬──────────────┘
-                        ↓
-         ┌─────────────────────────────┐
-         │  DIALOGUE GENERATION        │
-         │  (generate_dialogues.py)    │
-         └──────────────┬──────────────┘
-                        ↓
-         ┌─────────────────────────────┐
-         │  AI BENCHMARK TESTING       │
-         │  (run_benchmark.py)         │
-         └─────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────┐
+│ DATA SOURCES                                                      │
+├──────────────────────────────────────────────────────────────────┤
+│                                                                   │
+│  HAM10000        Fitzpatrick17k    Medical Knowledge             │
+│  (10,015)        (16,577)          (113 conditions)              │
+│      ↓                ↓                    ↓                      │
+│  Demographics   Conditions         Expanded Conditions           │
+│  validation     validation         + Treatments                  │
+│                                                                   │
+└────────────────────────┬─────────────────────────────────────────┘
+                         ↓
+         ┌───────────────────────────────┐
+         │  generate_patient_profiles.py │
+         │                               │
+         │  • Merges all condition data  │
+         │  • Applies treatment guidance │
+         │  • Creates 100 profiles       │
+         └────────────┬──────────────────┘
+                      ↓
+         ┌───────────────────────────────┐
+         │  patient_profiles_100.csv     │
+         │                               │
+         │  • 119 unique conditions      │
+         │  • Evidence-based treatments  │
+         │  • Realistic demographics     │
+         └────────────┬──────────────────┘
+                      │
+    ┌─────────────────┴──────────────────┐
+    │                                    │
+    ↓                                    ↓
+┌────────────────┐           ┌──────────────────────┐
+│ Misinformation │           │ DermNet NZ Patterns  │
+│ (185 myths)    │           │ (Clinical patterns)  │
+└────────┬───────┘           └──────────┬───────────┘
+         │                              │
+         └──────────┬───────────────────┘
+                    ↓
+         ┌───────────────────────────────┐
+         │  generate_dialogues.py        │
+         │                               │
+         │  • Matches myths to profiles  │
+         │  • 40% misinformation testing │
+         │  • 5-turn conversations       │
+         └────────────┬──────────────────┘
+                      ↓
+         ┌───────────────────────────────┐
+         │  dialogue_templates.jsonl     │
+         │  (25 test dialogues)          │
+         └────────────┬──────────────────┘
+                      ↓
+         ┌───────────────────────────────┐
+         │  run_benchmark.py             │
+         │  (AI testing with Gemini)     │
+         └───────────────────────────────┘
 ```
 
 ---
@@ -203,7 +309,9 @@ DermNet NZ. All About the Skin. Available at: https://dermnetnz.org/
 |--------|------|-------|---------|
 | **HAM10000** | Real patient data | 10,015 | Demographics validation |
 | **Fitzpatrick17k** | Real patient data | 16,577 | Condition validation |
-| **DermNet NZ** | Clinical patterns | N/A | Pattern extraction |
+| **Medical Knowledge** | Clinical guidelines | 113 | Expanded conditions & treatments |
+| **Misinformation** | Myth/fact pairs | 185 | Misinformation testing |
+| **DermNet NZ** | Clinical patterns | N/A | Pattern extraction (optional) |
 | **Our Profiles** | **Synthetic** | **100** | **Actual benchmark data** |
 
 ---
@@ -230,13 +338,20 @@ DermNet NZ. All About the Skin. Available at: https://dermnetnz.org/
 
 **Our Files:**
 - Patient profiles: `patient_profiles_100.csv`
+- Medical knowledge: `datasets/Medical_Knowledge/All Diseases Data.xlsx`
+- Misinformation: `datasets/Misinformation/misinformation.json`
+- Profile generator: `generate_patient_profiles.py`
+- Dialogue generator: `generate_dialogues.py`
 - HAM10000 analysis: `scripts/explore_ham10000.py`
 - Fitzpatrick17k analysis: `scripts/explore_fitzpatrick17k.py`
-- DermNet patterns: `scripts/extract_dermnet_patterns.py`
+- DermNet patterns: `scripts/extract_dermnet_patterns.py` (optional)
 
-**Attribution Files:**
+**Documentation:**
 - `datasets/HAM10000/README.md`
 - `datasets/Fitzpatrick17k/README.md`
+- `datasets/Medical_Knowledge/README.md` - **Integration details**
+- `datasets/Misinformation/README.md` - **Integration details**
+- `DATASET_INTEGRATION.md` - **Full technical documentation**
 - `validation/DERMNET_ATTRIBUTION.md` (generated after pattern extraction)
 
 ---
@@ -248,21 +363,27 @@ When writing your methodology section:
 **Suggested Text:**
 
 > "We created 100 synthetic patient profiles with realistic dermatology
-> presentations, validated against three real-world data sources. Patient
+> presentations, validated against multiple real-world data sources. Patient
 > demographics were informed by the HAM10000 dataset (10,015 dermatoscopic
 > images; Tschandl et al., 2018). Condition selection and skin tone diversity
 > were validated against the Fitzpatrick17k dataset (16,577 clinical images;
-> Groh et al., 2021). Clinical presentation patterns were extracted from
-> DermNet NZ educational content to ensure realistic symptom and treatment
-> histories. No real patient data was used in the benchmark testing phase,
+> Groh et al., 2021). We expanded condition coverage using a medical knowledge
+> base compiled from clinical dermatology guidelines (113 conditions), which
+> provided evidence-based treatment protocols automatically integrated into
+> patient profiles. For misinformation resistance testing, we compiled 185
+> myth/fact pairs from common patient misconceptions, automatically classified
+> by severity and matched to patient conditions. All synthetic profiles were
+> generated programmatically using standard-library tools to ensure
+> reproducibility. No real patient data was used in the benchmark testing phase,
 > ensuring privacy preservation and research reproducibility."
 
 **Citations to include:**
 1. Tschandl et al., 2018 (HAM10000)
 2. Groh et al., 2021 (Fitzpatrick17k)
-3. DermNet NZ (https://dermnetnz.org/)
+3. Clinical dermatology guidelines (various sources - see Medical_Knowledge/README.md)
+4. Common dermatology myths (compiled from medical literature - see Misinformation/README.md)
 
 ---
 
-**Last Updated:** November 15, 2025
-**Status:** Ready for pattern extraction and validation
+**Last Updated:** November 17, 2024
+**Status:** Fully integrated with Medical Knowledge and Misinformation datasets
