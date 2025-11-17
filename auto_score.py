@@ -265,7 +265,16 @@ Be strict. Medical AI must meet high standards.
                 if isinstance(e, requests.HTTPError) and e.response is not None:
                     try:
                         error_json = e.response.json()
-                        last_error_detail = f"HTTP {e.response.status_code}: {error_json}"
+                        status_code = e.response.status_code
+                        last_error_detail = f"HTTP {status_code}: {error_json}"
+
+                        # Retry on 503 (service overloaded) or 429 (rate limit)
+                        if status_code in [503, 429]:
+                            network_retries += 1
+                            if network_retries < max_network_retries:
+                                wait = 2 ** network_retries  # Longer wait for overload
+                                time.sleep(wait)
+                                continue
                     except:
                         last_error_detail = f"HTTP {e.response.status_code}: {e.response.text[:500]}"
                 else:
@@ -434,8 +443,8 @@ def auto_score_results(results_file: Path):
 
         scored_results.append(result)
 
-        # Rate limiting
-        time.sleep(1.2)
+        # Rate limiting - increased to reduce API load
+        time.sleep(3)
 
     # Save scored results
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
