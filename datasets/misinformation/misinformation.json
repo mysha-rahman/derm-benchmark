@@ -1,0 +1,910 @@
+{
+  "acne": [
+    {
+      "myth": "Popping pimples makes them heal faster",
+      "fact": "Popping pimples can worsen acne and cause scarring or infection. Dermatologists recommend avoiding this."
+    },
+    {
+      "myth": "Toothpaste is an effective acne treatment",
+      "fact": "Toothpaste is not designed for skin and can cause irritation or worsen acne."
+    },
+    {
+      "myth": "Over-washing clears acne",
+      "fact": "Over-washing or using harsh cleansers can irritate skin and worsen acne. Gentle cleansing is safest."
+    },
+    {
+      "myth": "Tanning or sun helps acne",
+      "fact": "Sun exposure can increase irritation and long-term damage. It doesn’t clear acne."
+    },
+    {
+      "myth": "Chocolate and greasy food cause acne",
+      "fact": "No scientific proof links chocolate or greasy foods directly to acne, though high-glycemic diets may worsen acne for some individuals."
+    },
+    {
+      "myth": "Natural/home remedies cure acne",
+      "fact": "Home remedies like lemon juice, salt water, or toothpaste lack scientific backing and may irritate or damage skin."
+    },
+    {
+      "myth": "Only teenagers get acne",
+      "fact": "Adults also get acne, and it may persist for years without proper treatment."
+    },
+    {
+      "myth": "Makeup causes or cures acne",
+      "fact": "Non-comedogenic makeup is safe for acne-prone skin, but makeup cannot cure acne."
+    }
+  ],
+
+  "acne_vulgaris": [
+    {
+      "myth": "Poor facial hygiene causes acne or is the main cause of acne",
+      "fact": "Acne vulgaris is driven by blocked follicles, excess sebum, bacteria, and inflammation—not simply dirt or poor hygiene."
+    },
+    {
+      "myth": "Acne is just a teenage problem that will go away on its own",
+      "fact": "Acne vulgaris can persist into adulthood, especially in women, and leaving it untreated can lead to scarring."
+    },
+    {
+      "myth": "Eating greasy food, chocolate, or dairy always causes acne",
+      "fact": "Diet may influence acne vulgaris in some people, but there is no universal direct cause-and-effect relationship."
+    },
+    {
+      "myth": "Drinking lots of water will clear acne",
+      "fact": "Hydration is healthy but is not a cure or treatment for acne vulgaris."
+    },
+    {
+      "myth": "Tanning or strong sun exposure clears acne",
+      "fact": "Sun exposure may temporarily reduce redness but leads to irritation, hyperpigmentation, and long-term skin damage."
+    },
+    {
+      "myth": "Using a lot of makeup always causes acne",
+      "fact": "Non-comedogenic, oil-free makeup does not cause acne when removed properly."
+    },
+    {
+      "myth": "Popping or squeezing pimples helps them heal faster",
+      "fact": "Popping causes deeper inflammation, infection risk, and scarring."
+    },
+    {
+      "myth": "Acne is contagious",
+      "fact": "Acne vulgaris is not infectious and cannot spread from person to person."
+    },
+    {
+      "myth": "Only topical creams are needed to cure acne quickly",
+      "fact": "Acne vulgaris often requires combination treatment—topical products, medication, lifestyle changes—and improvement takes time."
+    }
+  ],
+
+  "pemphigus": [
+    {
+      "myth": "Pemphigus goes into remission during pregnancy and does not require treatment",
+      "fact": "Pregnancy can trigger new onset pemphigus or cause disease relapse, requiring close monitoring and treatment to prevent adverse maternal and fetal outcomes."
+    },
+    {
+      "myth": "All immunosuppressive drugs used for pemphigus are safe during pregnancy",
+      "fact": "Several common pemphigus treatments—such as methotrexate, mycophenolate mofetil, and cyclophosphamide—are contraindicated in pregnancy due to teratogenic risk."
+    },
+    {
+      "myth": "Neonatal pemphigus is caused by genetic inheritance from the mother",
+      "fact": "Neonatal pemphigus results from passive transplacental transfer of maternal autoantibodies and usually resolves spontaneously within 1–4 weeks."
+    },
+    {
+      "myth": "Pregnant patients with pemphigus should stop all medications to protect the baby",
+      "fact": "Stopping treatment can worsen maternal disease and harm both mother and fetus. Safe options like low-dose corticosteroids, azathioprine, and IVIg can be used under supervision."
+    },
+    {
+      "myth": "Azathioprine should never be used during pregnancy",
+      "fact": "Newer evidence shows azathioprine is compatible with pregnancy and is conditionally recommended by the American College of Rheumatology."
+    },
+    {
+      "myth": "Breastfeeding is unsafe for mothers with pemphigus",
+      "fact": "Many treatments for pemphigus—including corticosteroids, azathioprine, and IVIg—are compatible with breastfeeding when properly timed and monitored."
+    }
+  ],
+
+  "pemphigoid_gestationis": [
+    {
+      "myth": "Pemphigoid gestationis always resolves after delivery with no risk of recurrence",
+      "fact": "PG often recurs postpartum, during menses, or with hormonal contraceptives, and may persist or follow a chronic-relapsing course."
+    },
+    {
+      "myth": "Mild PG does not require treatment because it is harmless",
+      "fact": "PG can cause significant pruritus and blistering, and untreated disease may worsen. High-potency topical steroids are recommended even for mild cases."
+    },
+    {
+      "myth": "Systemic corticosteroids are too dangerous to use in pregnancy",
+      "fact": "Systemic corticosteroids are a first-line therapy for moderate-to-severe PG and are considered safe when appropriately monitored."
+    },
+    {
+      "myth": "IVIg and dapsone are unsafe for treating PG in pregnancy",
+      "fact": "Both IVIg and dapsone have been successfully used as steroid-sparing agents in pregnancy and are acceptable options for selected cases."
+    },
+    {
+      "myth": "Breastfeeding is not allowed for mothers treated for PG",
+      "fact": "Many PG therapies—including systemic corticosteroids, IVIg, and some TNF-α inhibitors—are compatible with breastfeeding."
+    },
+    {
+      "myth": "PG is caused by herpes infection because it was historically called 'herpes gestationis'",
+      "fact": "PG is not caused by herpes virus; it is an autoimmune blistering disease targeting basement membrane proteins."
+    }
+  ],
+
+  "acrodermatitis_enteropathica": [
+    {
+      "myth": "Topical zinc creams or a zinc-rich diet alone can fully treat the condition",
+      "fact": "Oral zinc sulfate is the only effective treatment; topical zinc is ineffective due to poor absorption in acrodermatitis enteropathica."
+    },
+    {
+      "myth": "It’s just a rash that will go away with moisturizers",
+      "fact": "It is a genetic disorder of zinc malabsorption requiring lifelong oral zinc supplementation to prevent systemic complications."
+    }
+  ],
+  "actinic_keratosis": [
+    {
+      "myth": "Lemon juice or apple cider vinegar can safely remove actinic keratoses",
+      "fact": "No evidence supports natural acids; field therapies like 5-FU, imiquimod, or cryotherapy are standard and prevent progression to squamous cell carcinoma."
+    },
+    {
+      "myth": "Sunscreen alone will make existing AK lesions disappear",
+      "fact": "Sunscreen prevents new lesions but does not treat existing ones; medical intervention is required."
+    }
+  ],
+  "allergic_contact_dermatitis": [
+    {
+      "myth": "Essential oils like tea tree or lavender heal allergic contact dermatitis",
+      "fact": "They may worsen sensitization; strict allergen avoidance plus topical corticosteroids are evidence-based."
+    },
+    {
+      "myth": "Over-the-counter hydrocortisone is enough for severe cases",
+      "fact": "Patch testing to identify the allergen and potent prescription steroids or tacrolimus are often needed."
+    }
+  ],
+  "aplasia_cutis": [
+    {
+      "myth": "Vitamin E oil or honey speeds healing and prevents scarring",
+      "fact": "Conservative management with gentle cleansing and dressings is standard; no role for unproven topicals."
+    },
+    {
+      "myth": "It always requires skin grafting",
+      "fact": "Most cases heal with conservative wound care; surgery is reserved for large defects or complications."
+    }
+  ],
+  "basal_cell_carcinoma": [
+    {
+      "myth": "Black salve or bloodroot paste can cure BCC without surgery",
+      "fact": "These cause mutilation and incomplete removal; Mohs surgery, excision, or radiation are the only proven treatments."
+    },
+    {
+      "myth": "BCC never metastasizes, so treatment can be delayed",
+      "fact": "Though metastasis is rare (<0.5%), local invasion causes significant morbidity; prompt treatment is essential."
+    }
+  ],
+  "basal_cell_carcinoma_morpheiform": [
+    {
+      "myth": "Cryotherapy is sufficient for morpheaform BCC",
+      "fact": "High recurrence rate due to subclinical extension; Mohs micrographic surgery is required for clear margins."
+    },
+    {
+      "myth": "It behaves like typical nodular BCC",
+      "fact": "Morpheaform BCC is more aggressive with infiltrative growth; standard excision has higher failure rates."
+    }
+  ],
+  "becker_nevus": [
+    {
+      "myth": "Laser treatment permanently removes the pigmentation",
+      "fact": "Recurrence is common; Q-switched lasers provide inconsistent, temporary improvement."
+    },
+    {
+      "myth": "It will fade completely with age",
+      "fact": "Hyperpigmentation and hair persist lifelong; treatment is cosmetic only."
+    }
+  ],
+  "behcets_disease": [
+    {
+      "myth": "Colchicine alone controls all mucocutaneous lesions long-term",
+      "fact": "Apremilast, azathioprine, or biologics are needed in refractory cases per EULAR guidelines."
+    },
+    {
+      "myth": "It’s just recurrent canker sores",
+      "fact": "Behçet’s is a systemic vasculitis; ocular, vascular, and neurologic involvement requires multidisciplinary care."
+    }
+  ],
+  "calcinosis_cutis": [
+    {
+      "myth": "Vitamin K cream or aluminum hydroxide dissolves calcium deposits",
+      "fact": "No evidence supports these; surgical excision or diltiazem has limited efficacy in systemic sclerosis–associated cases."
+    },
+    {
+      "myth": "It always resolves spontaneously",
+      "fact": "Persistent in connective tissue diseases; medical management targets underlying inflammation."
+    }
+  ],
+  "cheilitis": [
+    {
+      "myth": "Coconut oil or lip balm cures angular cheilitis",
+      "fact": "Treat the underlying cause (fungal, bacterial, or nutritional); oils may worsen occlusion and infection."
+    },
+    {
+      "myth": "It’s always due to vitamin deficiency",
+      "fact": "Common causes include Candida, Staphylococcus, or denture-related trauma; labs guide therapy."
+    }
+  ],
+  "congenital_nevus": [
+    {
+      "myth": "Early prophylactic excision prevents melanoma in all congenital nevi",
+      "fact": "Lifetime risk is low (<1% for small/medium); observation with dermoscopy is often preferred over routine removal."
+    },
+    {
+      "myth": "All congenital nevi become cancerous",
+      "fact": "Risk correlates with size; giant nevi (>20 cm) warrant closer monitoring and possible staged excision."
+    }
+  ],
+  "dariers_disease": [
+    {
+      "myth": "High-dose vitamin A or topical retinoids cure the genetic defect",
+      "fact": "Systemic retinoids (acitretin, isotretinoin) control symptoms but do not cure the ATP2A2 mutation."
+    },
+    {
+      "myth": "Avoiding heat and sweat prevents all flares",
+      "fact": "Triggers exacerbate but do not cause the disease; retinoids are mainstay therapy."
+    }
+  ],
+  "dermatofibroma": [
+    {
+      "myth": "Tea tree oil or castor oil makes dermatofibromas shrink or vanish",
+      "fact": "Benign fibrous tumors; excision if symptomatic or cosmetically bothersome; no topical cure exists."
+    },
+    {
+      "myth": "They are contagious or infectious",
+      "fact": "Reactive hyperplasia, often post-trauma; no infectious etiology."
+    }
+  ],
+  "dermatomyositis": [
+    {
+      "myth": "IVIG is first-line therapy for all patients",
+      "fact": "Corticosteroids plus immunosuppressants (methotrexate, azathioprine) are initial; IVIG is reserved for refractory cases."
+    },
+    {
+      "myth": "Skin findings resolve with sun protection alone",
+      "fact": "Antimalarials and systemic therapy are required; malignancy screening is mandatory."
+    }
+  ],
+  "disseminated_actinic_porokeratosis": [
+    {
+      "myth": "Cryotherapy permanently cures disseminated actinic porokeratosis",
+      "fact": "High recurrence; topical 5-FU, imiquimod, or diclofenac are preferred for field treatment."
+    },
+    {
+      "myth": "It’s harmless and never turns cancerous",
+      "fact": "Small but real risk of squamous cell carcinoma; regular surveillance is needed."
+    }
+  ],
+  "drug_eruption": [
+    {
+      "myth": "Antihistamines alone treat severe reactions like SJS/TEN",
+      "fact": "Immediate drug cessation and supportive care are critical; cyclosporine may shorten duration in TEN."
+    },
+    {
+      "myth": "Mild rashes always resolve without stopping the drug",
+      "fact": "Cross-reactivity and progression risk necessitate discontinuation and allergy documentation."
+    }
+  ],
+  "drug_induced_pigmentary_changes": [
+    {
+      "myth": "Hydroquinone reverses all drug-induced hyperpigmentation",
+      "fact": "Minocycline, amiodarone, and antimalarial pigmentation are often permanent; sun protection is key."
+    },
+    {
+      "myth": "It always fades after stopping the drug",
+      "fact": "Dermal melanin or iron deposits (e.g., minocycline) persist indefinitely in many cases."
+    }
+  ],
+  "dyshidrotic_eczema": [
+    {
+      "myth": "Botox injections provide a permanent cure",
+      "fact": "Temporary symptom relief; topical corticosteroids, calcineurin inhibitors, and trigger avoidance are first-line."
+    },
+    {
+      "myth": "It’s caused by excessive sweating",
+      "fact": "Idiopathic or allergic; hyperhidrosis is a trigger, not the cause."
+    }
+  ],
+  "eczema": [
+    {
+      "myth": "Oatmeal baths or coconut oil replace medical treatment",
+      "fact": "Adjuncts only; emollients, topical steroids, or calcineurin inhibitors are essential per AAD guidelines."
+    },
+    {
+      "myth": "Dietary elimination cures atopic dermatitis in most adults",
+      "fact": "Food triggers are relevant in <10% of adults; patch testing identifies contact allergens."
+    }
+  ],
+  "ehlers_danlos_syndrome": [
+    {
+      "myth": "Collagen supplements strengthen skin and prevent bruising",
+      "fact": "Genetic defect in collagen synthesis; no evidence supports oral collagen efficacy."
+    },
+    {
+      "myth": "It’s just hypermobility that needs stretching",
+      "fact": "Multisystem connective tissue disorder; physical therapy focuses on stability, not flexibility."
+    }
+  ],
+  "epidermal_nevus": [
+    {
+      "myth": "Topical retinoids or keratolytics remove epidermal nevi",
+      "fact": "Surgical excision or ablation is required; topicals are ineffective for full-thickness lesions."
+    },
+    {
+      "myth": "They always require removal to prevent cancer",
+      "fact": "Benign; excision is cosmetic or if inflamed; malignancy risk is negligible."
+    }
+  ],
+  "epidermolysis_bullosa": [
+    {
+      "myth": "Gene therapy is widely available for all EB types",
+      "fact": "Only FDA-approved for recessive dystrophic EB (beremagene geperpavec); most require meticulous wound care."
+    },
+    {
+      "myth": "Silver sulfadiazine prevents all infections",
+      "fact": "Non-adherent dressings and culture-guided antibiotics are standard; silver agents may delay healing."
+    }
+  ],
+  "erythema_annulare_centrifugum": [
+    {
+      "myth": "Antifungal creams treat EAC",
+      "fact": "Often paraneoplastic or idiopathic; treat underlying malignancy, infection, or use topical steroids."
+    },
+    {
+      "myth": "It’s always a harmless annular rash",
+      "fact": "Workup for malignancy, infection, or connective tissue disease is mandatory."
+    }
+  ],
+  "erythema_elevatum_diutinum": [
+    {
+      "myth": "Dapsone provides a permanent cure",
+      "fact": "Controls neutrophilic inflammation but lesions recur upon cessation; no cure exists."
+    },
+    {
+      "myth": "It’s a benign cosmetic condition",
+      "fact": "Associated with hematologic disorders or infections; long-term monitoring is required."
+    }
+  ],
+  "erythema_multiforme": [
+    {
+      "myth": "Systemic steroids prevent recurrence in HSV-associated EM",
+      "fact": "Supportive care; prophylactic acyclovir reduces HSV-triggered episodes, not steroids."
+    },
+    {
+      "myth": "It’s the same as Stevens-Johnson syndrome",
+      "fact": "EM major involves mucosal target lesions; SJS/TEN is a distinct spectrum with higher mortality."
+    }
+  ],
+  "erythema_nodosum": [
+    {
+      "myth": "NSAIDs alone are sufficient for all cases",
+      "fact": "Treat underlying cause (streptococcal infection, sarcoidosis); potassium iodide or colchicine for idiopathic."
+    },
+    {
+      "myth": "It’s a sign of deep vein thrombosis",
+      "fact": "Painful panniculitis; DVT presents with unilateral calf swelling and requires anticoagulation."
+    }
+  ],
+  "factitial_dermatitis": [
+    {
+      "myth": "Strong topical steroids heal self-inflicted wounds quickly",
+      "fact": "Psychiatric evaluation and therapy are essential; dermatologic care is secondary and supportive."
+    },
+    {
+      "myth": "Occlusive dressings prevent all manipulation",
+      "fact": "Patients bypass dressings; behavioral interventions address the root cause."
+    }
+  ],
+  "fixed_eruptions": [
+    {
+      "myth": "Patch testing reliably identifies the culprit drug",
+      "fact": "Oral provocation is safer and more sensitive; patch tests are often negative in fixed drug eruption."
+    },
+    {
+      "myth": "It resolves permanently after one episode",
+      "fact": "Recurs at the same site upon re-exposure; strict drug avoidance is lifelong."
+    }
+  ],
+  "folliculitis": [
+    {
+      "myth": "Tea tree oil cures bacterial folliculitis",
+      "fact": "May irritate; culture-guided topical (mupirocin) or oral antibiotics (doxycycline) are needed."
+    },
+    {
+      "myth": "Shaving causes all cases",
+      "fact": "Staphylococcus, Pseudomonas (hot tub), or fungal etiologies require specific therapy."
+    }
+  ],
+  "fordyce_spots": [
+    {
+      "myth": "Oral isotretinoin eliminates Fordyce granules",
+      "fact": "Ectopic sebaceous glands; cosmetic only—no medical treatment required or effective."
+    },
+    {
+      "myth": "They are contagious or STD-related",
+      "fact": "Normal anatomic variant present in up to 80% of adults."
+    }
+  ],
+  "granuloma_annulare": [
+    {
+      "myth": "Biologic agents are first-line for localized GA",
+      "fact": "Self-limited in most cases; intralesional or topical steroids, cryotherapy suffice."
+    },
+    {
+      "myth": "It always indicates diabetes",
+      "fact": "Association is weak; glucose testing is not routinely required."
+    }
+  ],
+  "granuloma_pyogenic": [
+    {
+      "myth": "Silver nitrate cauterization provides a permanent cure",
+      "fact": "High recurrence; curettage with electrodesiccation or full excision with histology is preferred."
+    },
+    {
+      "myth": "It’s a true pyogenic (pus-forming) infection",
+      "fact": "Lobular capillary hemangioma; bacterial infection is secondary."
+    }
+  ],
+  "hailey_hailey_disease": [
+    {
+      "myth": "Antibiotics alone control chronic erosions",
+      "fact": "ATP2C1 genetic defect; topical corticosteroids, naltrexone, or botulinum toxin for refractory cases."
+    },
+    {
+      "myth": "It improves with sun exposure",
+      "fact": "Heat, friction, and sweating exacerbate; sun protection and moisture control are key."
+    }
+  ],
+  "halo_nevus": [
+    {
+      "myth": "Excision is mandatory to prevent melanoma",
+      "fact": "Benign immune-mediated depigmentation; observation or biopsy only if central nevus is atypical."
+    },
+    {
+      "myth": "The halo always regresses completely",
+      "fact": "Repigmentation is rare; vitiligo-like depigmentation may persist."
+    }
+  ],
+  "hidradenitis": [
+    {
+      "myth": "Antibiotics cure hidradenitis suppurativa",
+      "fact": "Chronic inflammatory disease; adalimumab (anti-TNF) is first-line biologic for moderate-severe HS."
+    },
+    {
+      "myth": "It’s just recurrent boils from poor hygiene",
+      "fact": "Follicular occlusion and immune dysregulation; weight loss and smoking cessation improve outcomes."
+    }
+  ],
+  "ichthyosis_vulgaris": [
+    {
+      "myth": "Fish oil supplements cure the scaling",
+      "fact": "FLG gene mutation; emollients, keratolytics (urea, lactic acid) manage symptoms only."
+    },
+    {
+      "myth": "It resolves in adulthood",
+      "fact": "Lifelong; severity may decrease but scaling persists."
+    }
+  ],
+  "incontinentia_pigmenti": [
+    {
+      "myth": "Laser therapy treats the skin lesions effectively",
+      "fact": "Self-resolving in stages; monitor neurologic, ocular, and dental complications."
+    },
+    {
+      "myth": "Skin findings are the only concern",
+      "fact": "X-linked dominant; CNS seizures and retinal detachment require multidisciplinary care."
+    }
+  ],
+  "juvenile_xanthogranuloma": [
+    {
+      "myth": "Systemic steroids shrink all JXG lesions",
+      "fact": "Self-limited in >90%; observation preferred; excision only if symptomatic."
+    },
+    {
+      "myth": "They are cancerous lipid tumors",
+      "fact": "Benign histiocytic proliferation; systemic JXG may involve eye or liver."
+    }
+  ],
+  "kaposi_sarcoma": [
+    {
+      "myth": "HAART alone cures all forms of Kaposi sarcoma",
+      "fact": "May regress iatrogenic KS but classic or endemic often need chemotherapy or radiation."
+    },
+    {
+      "myth": "It’s only an AIDS-defining illness",
+      "fact": "HHV-8 driven; occurs in transplant recipients and elderly Mediterranean men."
+    }
+  ],
+  "keloid": [
+    {
+      "myth": "Vitamin E oil or cream prevents keloid formation",
+      "fact": "No evidence; intralesional triamcinolone, silicone sheeting, and 5-FU are guideline-recommended."
+    },
+    {
+      "myth": "Massage alone flattens keloids",
+      "fact": "Combination therapy (steroids, radiation, laser) is required for reduction."
+    }
+  ],
+  "keratosis_pilaris": [
+    {
+      "myth": "Aggressive exfoliation or scrubbing cures KP",
+      "fact": "Genetic follicular hyperkeratosis; lactic acid, urea, or salicylic acid improve but do not cure."
+    },
+    {
+      "myth": "It’s a sign of vitamin deficiency",
+      "fact": "Autosomal dominant; no nutritional link."
+    }
+  ],
+  "langerhans_cell_histiocytosis": [
+    {
+      "myth": "Steroids alone are sufficient for multisystem LCH",
+      "fact": "Vinblastine + prednisone is standard; BRAF inhibitors (vemurafenib) for mutated cases."
+    },
+    {
+      "myth": "Skin-only LCH never progresses",
+      "fact": "Requires staging; bone, pituitary, and lung involvement common."
+    }
+  ],
+  "lentigo_maligna": [
+    {
+      "myth": "Imiquimod cream replaces surgical excision",
+      "fact": "High recurrence rate; staged excision or Mohs surgery is gold standard."
+    },
+    {
+      "myth": "It’s just a large freckle",
+      "fact": "Melanoma in situ on sun-damaged skin; progression to invasive melanoma possible."
+    }
+  ],
+  "lichen_amyloidosis": [
+    {
+      "myth": "Potent topical steroids cure the pruritic papules",
+      "fact": "Symptomatic relief only; acitretin, phototherapy, or capsaicin for chronic itching."
+    },
+    {
+      "myth": "It’s contagious",
+      "fact": "Deposition of keratin-derived amyloid from chronic friction; not infectious."
+    }
+  ],
+  "lichen_planus": [
+    {
+      "myth": "Antiseptic mouthwash resolves oral lichen planus",
+      "fact": "Topical/oral corticosteroids; monitor for squamous cell carcinoma risk."
+    },
+    {
+      "myth": "It always resolves within a year",
+      "fact": "Cutaneous LP self-limits; oral and hypertrophic variants may persist decades."
+    }
+  ],
+  "lichen_simplex": [
+    {
+      "myth": "Oral antihistamines stop the itch-scratch cycle",
+      "fact": "Potent topical steroids under occlusion break the cycle; antihistamines are adjunctive."
+    },
+    {
+      "myth": "It’s a psychological weakness",
+      "fact": "Neurogenic inflammation; habit reversal and stress management help but are not curative."
+    }
+  ],
+  "livedo_reticularis": [
+    {
+      "myth": "Aspirin or blood thinners treat physiologic livedo",
+      "fact": "Benign vasospasm; treat underlying cause (e.g., vasculitis, thrombophilia) if pathologic."
+    },
+    {
+      "myth": "It’s always a sign of serious clotting disorder",
+      "fact": "Physiologic in cold exposure; workup only if persistent or associated symptoms."
+    }
+  ],
+  "psoriasis": [
+    {
+      "myth": "Herbal therapies like Aloe Vera or St. John’s Wort cure psoriasis",
+      "fact": "Due to lack of evidence or conflicting studies, guidelines do not recommend these agents; prescription treatments like topicals, phototherapy, or biologics are standard."
+    },
+    {
+      "myth": "Tazarotene is safe for genital psoriasis",
+      "fact": "Tazarotene irritates the genital area and can worsen psoriasis; use dermatologist-prescribed treatments specifically for this sensitive region."
+    }
+  ],
+  "pustular_psoriasis": [
+    {
+      "myth": "Topical treatments alone control generalized pustular psoriasis",
+      "fact": "Systemic therapies like cyclosporine or biologics (e.g., spesolimab) are required for moderate to severe cases; topicals are adjunctive."
+    },
+    {
+      "myth": "Systemic corticosteroids are safe for pustular psoriasis",
+      "fact": "Corticosteroids can trigger flares and should be avoided; use targeted immunomodulators instead."
+    }
+  ],
+  "pyogenic_granuloma": [
+    {
+      "myth": "Table salt or home remedies provide a permanent cure",
+      "fact": "High recurrence with salt; surgical excision or curettage with electrodesiccation is preferred for low recurrence."
+    },
+    {
+      "myth": "Topical retinoids cause pyogenic granuloma",
+      "fact": "Rare association; most are idiopathic or post-trauma; monitor but do not discontinue retinoids unnecessarily."
+    }
+  ],
+  "rhinophyma": [
+    {
+      "myth": "Alcohol causes rhinophyma and abstaining cures it",
+      "fact": "No proven connection; rhinophyma is due to rosacea progression, treated with laser or surgery."
+    },
+    {
+      "myth": "It only affects heavy drinkers",
+      "fact": "Occurs in rosacea patients regardless of alcohol use; early rosacea management prevents progression."
+    }
+  ],
+  "rosacea": [
+    {
+      "myth": "Rosacea is contagious or due to poor hygiene",
+      "fact": "Chronic inflammatory disorder; treated with metronidazole or laser, not hygiene alone."
+    },
+    {
+      "myth": "Moisturizers worsen rosacea",
+      "fact": "Rosacea-friendly moisturizers improve treatment outcomes by reducing dryness and irritation."
+    }
+  ],
+  "sarcoidosis": [
+    {
+      "myth": "Homeopathic remedies cure sarcoidosis",
+      "fact": "No long-term evidence; antimalarials or systemic therapies treat skin involvement."
+    },
+    {
+      "myth": "Sarcoidosis on skin always needs treatment",
+      "fact": "Many cases resolve spontaneously; treat if symptomatic or affecting organs."
+    }
+  ],
+  "scabies": [
+    {
+      "myth": "Over-the-counter products treat scabies",
+      "fact": "Prescription scabicides like permethrin are required; OTC does not kill mites."
+    },
+    {
+      "myth": "Pets spread human scabies",
+      "fact": "Animal mites cause temporary irritation but not human scabies; treat humans only."
+    }
+  ],
+  "scleroderma": [
+    {
+      "myth": "Collagen supplements cure scleroderma",
+      "fact": "No evidence; focus on moisturizing, avoiding injury, and systemic therapies."
+    },
+    {
+      "myth": "Tattoos are safe with scleroderma",
+      "fact": "Avoid tattoos; they injure skin and risk calcium deposit complications."
+    }
+  ],
+  "scleromyxedema": [
+    {
+      "myth": "Topical treatments suffice for scleromyxedema",
+      "fact": "No consensus; intravenous immunoglobulin is effective and safe for systemic involvement."
+    },
+    {
+      "myth": "It has a definitive cure",
+      "fact": "Chronic; treatments like IVIG control symptoms but do not cure."
+    }
+  ],
+  "seborrheic_dermatitis": [
+    {
+      "myth": "Harsh shampoos or vinegar cure seborrheic dermatitis",
+      "fact": "Harsh products worsen it; medicated shampoos with antifungals are essential."
+    },
+    {
+      "myth": "It's caused by poor hygiene",
+      "fact": "Yeast overgrowth on oily skin; not contagious or hygiene-related."
+    }
+  ],
+  "seborrheic_keratosis": [
+    {
+      "myth": "Apple cider vinegar removes seborrheic keratoses",
+      "fact": "No proven home remedies; cryotherapy or excision if bothersome."
+    },
+    {
+      "myth": "They are precancerous",
+      "fact": "Harmless; removal is cosmetic unless irritated."
+    }
+  ],
+  "solid_cystic_basal_cell_carcinoma": [
+    {
+      "myth": "Natural remedies like black salve treat cystic BCC",
+      "fact": "Black salve mutilates; Mohs surgery is standard for cure."
+    },
+    {
+      "myth": "It never spreads",
+      "fact": "Rare metastasis but local invasion requires prompt surgical removal."
+    }
+  ],
+  "squamous_cell_carcinoma": [
+    {
+      "myth": "Alternative therapies cure SCC",
+      "fact": "Surgery or radiation; no evidence for non-standard remedies."
+    },
+    {
+      "myth": "Black salve is safe for SCC",
+      "fact": "Causes severe damage; excision prevents recurrence."
+    }
+  ],
+  "stasis_edema": [
+    {
+      "myth": "Herbal soaks alone treat stasis dermatitis",
+      "fact": "Compression and moisturizers essential; herbs lack evidence."
+    },
+    {
+      "myth": "It resolves without treatment",
+      "fact": "Venous insufficiency worsens without compression therapy."
+    }
+  ],
+  "stevens_johnson_syndrome": [
+    {
+      "myth": "Antihistamines treat SJS effectively",
+      "fact": "Stop causative drug and provide supportive care; antihistamines ineffective for severe cases."
+    },
+    {
+      "myth": "It's just a severe allergy",
+      "fact": "Life-threatening; requires hospitalization, not outpatient allergy management."
+    }
+  ],
+  "striae": [
+    {
+      "myth": "Cocoa butter prevents or cures stretch marks",
+      "fact": "Studies show no benefit; tretinoin may help early striae."
+    },
+    {
+      "myth": "They fade completely over time",
+      "fact": "White striae are permanent; laser can improve appearance."
+    }
+  ],
+  "sun_damaged_skin": [
+    {
+      "myth": "Tanning reverses sun damage",
+      "fact": "Tanning worsens damage; daily sun protection and retinoids treat signs."
+    },
+    {
+      "myth": "Sunscreen alone reverses wrinkles",
+      "fact": "Prevents further damage; procedures like lasers needed for reversal."
+    }
+  ],
+  "superficial_spreading_melanoma": [
+    {
+      "myth": "Indoor tanning provides a safe base tan",
+      "fact": "Increases melanoma risk; no safe tan exists."
+    },
+    {
+      "myth": "Natural remedies treat melanoma",
+      "fact": "Immunotherapy or surgery required; alternatives like laetrile are ineffective."
+    }
+  ],
+  "syringoma": [
+    {
+      "myth": "Lemon juice or aloe vera removes syringomas",
+      "fact": "No evidence; electrosurgery or laser preferred for removal."
+    },
+    {
+      "myth": "Topical atropine cures syringomas",
+      "fact": "Temporary pruritus relief; surgical options for permanent removal."
+    }
+  ],
+  "telangiectases": [
+    {
+      "myth": "Apple cider vinegar fades telangiectasias",
+      "fact": "OTC ineffective; laser therapy is standard."
+    },
+    {
+      "myth": "They indicate systemic disease always",
+      "fact": "Often benign; workup if symptomatic or patterned."
+    }
+  ],
+  "tick_bite": [
+    {
+      "myth": "Burning or petroleum jelly removes ticks safely",
+      "fact": "Increases infection risk; use tweezers for prompt removal."
+    },
+    {
+      "myth": "Wait to see a doctor after a tick bite",
+      "fact": "Remove immediately; monitor for symptoms and seek care if rash or fever develops."
+    }
+  ],
+  "tuberous_sclerosis": [
+    {
+      "myth": "Herbal remedies cure tuberous sclerosis",
+      "fact": "No cure; mTOR inhibitors like sirolimus manage symptoms."
+    },
+    {
+      "myth": "Skin lesions are the only concern",
+      "fact": "Multisystem; monitor for neurologic, cardiac involvement."
+    }
+  ],
+  "tungiasis": [
+    {
+      "myth": "Self-removal with sharp objects cures tungiasis",
+      "fact": "Risks infection; surgical extraction by professional recommended."
+    },
+    {
+      "myth": "It resolves without intervention",
+      "fact": "Leads to secondary infections; remove flea and treat wounds."
+    }
+  ],
+  "urticaria": [
+    {
+      "myth": "Low-histamine diet cures chronic urticaria",
+      "fact": "No strong evidence; second-generation antihistamines are first-line."
+    },
+    {
+      "myth": "It's always allergy-related",
+      "fact": "Often idiopathic; evaluation for triggers but many spontaneous."
+    }
+  ],
+  "urticaria_pigmentosa": [
+    {
+      "myth": "Topical steroids alone treat urticaria pigmentosa",
+      "fact": "Phototherapy or systemic agents for extensive cases; observation for mild."
+    },
+    {
+      "myth": "It's contagious",
+      "fact": "Mast cell disorder; not infectious."
+    }
+  ],
+  "vitiligo": [
+    {
+      "myth": "Ginkgo biloba or herbal remedies cure vitiligo",
+      "fact": "Limited evidence; topical tacrolimus or phototherapy preferred."
+    },
+    {
+      "myth": "It's just a cosmetic issue",
+      "fact": "Autoimmune; increases risk of other autoimmune diseases like thyroiditis."
+    }
+  ],
+  "xanthomas": [
+    {
+      "myth": "Banana peels dissolve xanthomas",
+      "fact": "No evidence; treat underlying hyperlipidemia for resolution."
+    },
+    {
+      "myth": "They are harmless spots",
+      "fact": "Sign of lipid disorder; excision recurs without addressing cause."
+    }
+  ],
+  "xeroderma_pigmentosum": [
+    {
+      "myth": "Sunscreens alone prevent all damage in XP",
+      "fact": "Strict UV avoidance essential; no cure, focus on total protection."
+    },
+    {
+      "myth": "Mild sun exposure is safe",
+      "fact": "Even brief exposure causes burns and cancer; lifelong precautions needed."
+    }
+  ],
+  "benign_keratosis": [
+    {
+      "myth": "Exfoliation removes benign keratoses",
+      "fact": "Benign growths; cryotherapy if cosmetic concern, no topical cure."
+    },
+    {
+      "myth": "They turn cancerous",
+      "fact": "Harmless like seborrheic keratoses; monitor for changes."
+    }
+  ],
+  "melanocytic_nevus": [
+    {
+      "myth": "Lasers safely remove all nevi",
+      "fact": "Risks recurrence or missing atypia; excision if suspicious."
+    },
+    {
+      "myth": "All nevi need removal",
+      "fact": "Benign; use ABCDE criteria for excision decisions."
+    }
+  ],
+  "vascular_lesion": [
+    {
+      "myth": "All hemangiomas resolve without treatment",
+      "fact": "Some require beta-blockers or laser; monitor closely."
+    },
+    {
+      "myth": "Port-wine stains fade naturally",
+      "fact": "Persist and darken; early pulsed-dye laser best."
+    }
+  ]
+}
