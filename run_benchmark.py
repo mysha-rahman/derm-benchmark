@@ -72,7 +72,7 @@ class GeminiFreeClient:
             )
         return contents
 
-    def chat(self, system_prompt: str, history: List[Message], temperature=0.7, max_tokens=800):
+    def chat(self, system_prompt: str, history: List[Message], temperature=0.7, max_tokens=1500):
         """Send structured multi-turn conversation to Gemini with retries."""
 
         if not history:
