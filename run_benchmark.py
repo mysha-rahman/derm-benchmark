@@ -78,14 +78,15 @@ class GeminiFreeClient:
         if not history:
             raise ValueError("History must contain at least one user message")
 
-        contents = self._format_contents(history)
+        # Prepend system prompt as first user message (system_instruction not supported in this API version)
+        full_history = [{"role": "user", "content": system_prompt}] + history
+        contents = self._format_contents(full_history)
 
         for attempt in range(3):  # exponential backoff
             try:
                 response = self.client.models.generate_content(
                     model=self.model,
                     contents=contents,
-                    system_instruction=system_prompt,
                     config=types.GenerateContentConfig(
                         temperature=temperature,
                         max_output_tokens=max_tokens
