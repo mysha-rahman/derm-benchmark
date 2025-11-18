@@ -398,7 +398,7 @@ def generate_all_dialogues(num_templates: int = 25) -> None:
     """
 
     print("🔄 Loading patient profiles...")
-    profiles = load_patient_profiles('patient_profiles_100.csv')
+    profiles = load_patient_profiles('patient_profiles_1000.csv')
 
     print("🔄 Loading legacy misinformation library...")
     legacy_lib = load_misinformation_library('dialogues/misinformation_library.json')
@@ -487,5 +487,8 @@ def generate_all_dialogues(num_templates: int = 25) -> None:
 
 
 if __name__ == "__main__":
-    generate_all_dialogues(num_templates=25)
+    import sys
+    # Default to 1000 dialogues, but allow override from command line
+    num = int(sys.argv[1]) if len(sys.argv) > 1 else 1000
+    generate_all_dialogues(num_templates=num)
     print("\n✨ Done! Ready to test with Gemini API.")
