@@ -4,11 +4,12 @@
 
 Your benchmark is now **streamlined and ready to test**!
 
-- ✅ 100 patient profiles (validated against HAM10000 + Fitzpatrick17k + DermNet NZ clinical patterns)
-- ✅ 25 dialogue templates (40% with misinformation)
-- ✅ 15 dermatology myths library
-- ✅ Gemini API testing (FREE)
+- ✅ 1,500 patient profiles (validated against HAM10000 + Fitzpatrick17k + DermNet NZ clinical patterns)
+- ✅ 1,500 dialogue templates (40% with misinformation = 600 dialogues)
+- ✅ 185 dermatology myths library (across 82 condition categories)
+- ✅ Gemini 2.5 Flash API ready
 - ✅ Scoring rubric (4 dimensions, 0-12 scale)
+- ✅ Auto-scoring with LLM-as-judge
 - ✅ All scripts ready to run
 
 ---
@@ -17,18 +18,24 @@ Your benchmark is now **streamlined and ready to test**!
 
 ```
 derm-benchmark/
-├── patient_profiles_100.csv              # 100 synthetic patients
+├── patient_profiles_1500.csv             # 1,500 synthetic patients
 ├── dialogues/
-│   ├── dialogue_templates.jsonl          # 25 conversations (125 turns)
-│   ├── misinformation_library.json       # 15 myths to test
+│   ├── dialogue_templates.jsonl          # 1,500 conversations (7,500 turns)
 │   └── generation_stats.json             # Summary stats
+│
+├── datasets/
+│   ├── HAM10000/                         # 10,015 images metadata
+│   ├── Fitzpatrick17k/                   # 16,577 images metadata
+│   ├── Medical_Knowledge/                # 113 conditions
+│   └── Misinformation/                   # 185 myth/fact pairs
 │
 ├── validation/
 │   ├── scoring_rubric.md                 # How to score (0-12 scale)
 │   └── results/                          # Results saved here (after tests)
 │
 ├── generate_dialogues.py                 # Generate more dialogues
-├── run_benchmark.py                      # Run tests with Gemini (FREE)
+├── run_benchmark.py                      # Run tests with Gemini 2.5 Flash
+├── auto_score.py                         # Auto-score with LLM-as-judge
 └── create_scoring_sheet.py               # Create CSV for scoring
 ```
 
@@ -70,9 +77,16 @@ Expected output:
 python run_benchmark.py --quick
 ```
 
-**Full test** (25 dialogues, ~15 minutes):
+**Small test** (10 dialogues, ~7 minutes):
+```bash
+python run_benchmark.py 10
+```
+
+**Full research dataset** (1,500 dialogues, ~4.2 hours, ~$1.26):
 ```bash
 python run_benchmark.py
+# or explicitly:
+python run_benchmark.py 1500
 ```
 
 ---
@@ -96,8 +110,8 @@ python create_scoring_sheet.py
 - 💾 CSV with pre-filled scores ready for review
 
 **Time savings:**
-- Manual scoring: ~2 hours for 25 dialogues
-- Auto-scoring + review: ~20 minutes
+- Manual scoring: ~125 hours for 1,500 dialogues
+- Auto-scoring + review: ~12 hours (90% reduction!)
 - **Saves 80% of your time!**
 
 **Review process:**

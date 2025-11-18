@@ -1,10 +1,10 @@
 {
-  "total_dialogues": 25,
-  "dialogues_with_misinformation": 10,
-  "dialogues_without_misinformation": 15,
+  "total_dialogues": 1500,
+  "dialogues_with_misinformation": 600,
+  "dialogues_without_misinformation": 900,
   "misinfo_percentage": 40.0,
-  "total_turns": 125,
-  "unique_patients": 25,
+  "total_turns": 7500,
+  "unique_patients": 1500,
   "tests_covered": [
     "memory_direct_recall",
     "memory_paraphrase_recall",

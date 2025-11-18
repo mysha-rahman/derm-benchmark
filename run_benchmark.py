@@ -217,7 +217,7 @@ def run_dialogue(client: GeminiFreeClient, dialogue: dict) -> dict:
     return result
 
 
-def run_benchmark(num_dialogues: int = 25):
+def run_benchmark(num_dialogues: int = 1500, save_checkpoint_every: int = 100):
     print("=" * 70)
     print("🧪 DERMATOLOGY CHATBOT BENCHMARK")
     print("=" * 70)
@@ -237,15 +237,46 @@ def run_benchmark(num_dialogues: int = 25):
 
     dialogues = dialogues[:num_dialogues]
 
+    # Time estimates
+    estimated_time_minutes = (len(dialogues) * 5 * 2) / 60  # 5 turns * 2s delay
+    print(f"\n⏱️  Estimated time: {estimated_time_minutes:.0f} minutes ({estimated_time_minutes/60:.1f} hours)")
+    print(f"💾 Checkpoints saved every {save_checkpoint_every} dialogues")
     print(f"\n🚀 Running benchmark ({len(dialogues)} dialogues)\n")
 
     results = []
     start = time.time()
 
     for i, dialogue in enumerate(dialogues, 1):
-        print(f"[{i}/{len(dialogues)}] {dialogue['patient_name']} (ID: {dialogue['patient_id']})")
+        # Progress with ETA
+        elapsed = time.time() - start
+        if i > 1:
+            avg_time_per_dialogue = elapsed / (i - 1)
+            remaining = len(dialogues) - i
+            eta_seconds = remaining * avg_time_per_dialogue
+            eta_minutes = eta_seconds / 60
+            print(f"[{i}/{len(dialogues)}] {dialogue['patient_name']} | ETA: {eta_minutes:.0f}m")
+        else:
+            print(f"[{i}/{len(dialogues)}] {dialogue['patient_name']}")
+
         results.append(run_dialogue(client, dialogue))
         print()
+
+        # Save checkpoint every N dialogues
+        if i % save_checkpoint_every == 0:
+            checkpoint_file = Path("validation/results") / f"checkpoint_{i}_dialogues.json"
+            checkpoint_file.parent.mkdir(parents=True, exist_ok=True)
+            with open(checkpoint_file, "w", encoding="utf-8") as f:
+                json.dump({
+                    "metadata": {
+                        "model": client.model,
+                        "num_dialogues_completed": i,
+                        "total_dialogues": len(dialogues),
+                        "checkpoint": True,
+                        "timestamp": datetime.now().isoformat(),
+                    },
+                    "results": results
+                }, f, indent=2)
+            print(f"💾 Checkpoint saved: {i}/{len(dialogues)} dialogues completed\n")
 
     elapsed = time.time() - start
 
@@ -285,5 +316,10 @@ if __name__ == "__main__":
     import sys
     if len(sys.argv) > 1 and sys.argv[1] == "--quick":
         run_quick_test()
+    elif len(sys.argv) > 1 and sys.argv[1].isdigit():
+        # Allow custom number: python run_benchmark.py 100
+        num = int(sys.argv[1])
+        run_benchmark(num_dialogues=num)
     else:
-        run_benchmark(num_dialogues=25)
+        # Default: 1500 dialogues for full research dataset
+        run_benchmark(num_dialogues=1500)
