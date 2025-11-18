@@ -20,12 +20,12 @@
    ❌ API Error: Response missing text attribute
    ```
 
-3. **Try a different model** - Edit `run_benchmark.py` line 28:
+3. **Try a different model** - Edit `run_benchmark.py` line 32:
    ```python
-   # Try these models in order:
+   # Current default:
+   self.model = model or "models/gemini-2.5-flash"
+   # If issues with 2.5, try older models:
    self.model = model or "models/gemini-1.5-flash"  # More lenient
-   # or
-   self.model = model or "models/gemini-1.5-flash-latest"
    # or
    self.model = model or "models/gemini-pro"
    ```
@@ -42,10 +42,10 @@
 
 **Solutions**:
 
-1. **Use Gemini 1.5 Flash instead of 2.5** (less restrictive):
+1. **Currently using Gemini 2.5 Flash** (default). If issues persist with 2.5, try older 1.5:
    ```python
-   # In run_benchmark.py line 28:
-   self.model = model or "models/gemini-1.5-flash"
+   # In run_benchmark.py line 32:
+   self.model = model or "models/gemini-1.5-flash"  # Less restrictive fallback
    ```
 
 2. **Add safety settings** to bypass filters (use with caution):
@@ -139,7 +139,7 @@
 **Solution**:
 1. Content was blocked - see "Safety Filter" section above
 2. Check response structure by adding debug logging
-3. Try different model (Gemini 1.5 Flash)
+3. Currently using Gemini 2.5 Flash (can fallback to 1.5 if needed)
 
 ## Getting Help
 
@@ -169,14 +169,14 @@
 - [ ] API key is set (`echo $GOOGLE_API_KEY`)
 - [ ] Tested API connection (`python test_api.py`)
 - [ ] Not hitting rate limits (< 1,500 calls today)
-- [ ] Using Gemini 1.5 Flash (more lenient)
+- [ ] Using Gemini 2.5 Flash (default model)
 - [ ] Internet connection working
 - [ ] Tried with just 1-3 dialogues
 
 ## Still Stuck?
 
 The most common issue is **content filtering**. Try:
-1. Switch to Gemini 1.5 Flash
+1. Current default is Gemini 2.5 Flash (if issues persist, can fallback to 1.5 Flash)
 2. Test with just 1 dialogue
 3. Check if that specific patient profile triggers filters
 4. Modify patient descriptions to be less graphic

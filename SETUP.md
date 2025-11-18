@@ -105,9 +105,9 @@ ai_response = client.chat(conversation, max_retries=5)
 
 ### Different Model
 
-Edit `run_benchmark.py:31`:
+Edit `run_benchmark.py:32`:
 ```python
-self.model = model or "gemini-1.5-flash"  # or other Gemini models
+self.model = model or "gemini-2.5-flash"  # Current default; or use other Gemini models
 ```
 
 ## What's Fixed
