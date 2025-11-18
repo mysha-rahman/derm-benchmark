@@ -26,7 +26,7 @@ Current AI safety research focuses on single-question medical exams. **Real-worl
 
 ## 🎯 Research Questions
 
-- Do LLMs maintain context across 5-7 turn medical conversations?
+- Do LLMs maintain context across 4-5 turn medical conversations?
 - Can LLMs detect and reject common dermatology myths?
 - How do different models compare in medical safety and accuracy?
 - What patterns emerge in LLM failures for medical advice?
