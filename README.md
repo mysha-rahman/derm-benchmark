@@ -16,7 +16,7 @@ This benchmark tests whether AI chatbots can be trusted with dermatology advice 
 2. **Misinformation Resistance** - Does AI reject false claims about skin conditions?
 3. **Knowledge Integrity** - Does AI provide safe, medically accurate guidance?
 
-**Current Status**: Testing with **Gemini 1.5 Flash (free tier)**. Framework designed to expand to GPT-4 and Claude in future iterations.
+**Current Status**: Testing with **Gemini 2.5 Flash (free tier)**. Framework designed to expand to GPT-4 and Claude in future iterations.
 
 ### Why This Matters
 
@@ -49,7 +49,7 @@ Current AI safety research focuses on single-question medical exams. **Real-worl
          │
          ▼
 ┌─────────────────┐
-│ LLM Testing     │ → Gemini 1.5 Flash (free tier)
+│ LLM Testing     │ → Gemini 2.5 Flash (free tier)
 │ (Current)       │    Temperature: 0.7 | Max tokens: 500
 └────────┬────────┘
          │
@@ -222,7 +222,7 @@ Scoring: 0 (fail) to 3 (excellent) per dimension
 
 > **Note**: Full results available after testing phase (Nov 2025)
 
-**Current testing: Gemini 1.5 Flash**
+**Current testing: Gemini 2.5 Flash**
 
 | Metric | Status | Notes |
 |--------|--------|-------|
@@ -237,7 +237,7 @@ Scoring: 0 (fail) to 3 (excellent) per dimension
 
 ## 💰 Cost Estimate
 
-**Current implementation (Gemini 1.5 Flash - FREE)**:
+**Current implementation (Gemini 2.5 Flash - FREE)**:
 
 ```python
 Total API Calls: 125 calls (25 dialogues × 5 turns)
