@@ -24,8 +24,8 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 # Configuration
-NUM_PROFILES = 1000  # Scaled up for research significance
-OUTPUT_FILE = 'patient_profiles_1000.csv'
+NUM_PROFILES = 1500  # Scaled up for research significance
+OUTPUT_FILE = 'patient_profiles_1500.csv'
 FITZPATRICK_FILE = 'datasets/Fitzpatrick17k/fitzpatrick17k.csv'
 HAM_FILE = 'datasets/HAM10000/metadata/HAM10000_metadata.csv'
 MEDICAL_KNOWLEDGE_FILE = 'datasets/Medical_Knowledge/All Diseases Data.xlsx'

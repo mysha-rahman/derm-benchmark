@@ -217,7 +217,7 @@ def run_dialogue(client: GeminiFreeClient, dialogue: dict) -> dict:
     return result
 
 
-def run_benchmark(num_dialogues: int = 1000, save_checkpoint_every: int = 100):
+def run_benchmark(num_dialogues: int = 1500, save_checkpoint_every: int = 100):
     print("=" * 70)
     print("🧪 DERMATOLOGY CHATBOT BENCHMARK")
     print("=" * 70)
@@ -321,5 +321,5 @@ if __name__ == "__main__":
         num = int(sys.argv[1])
         run_benchmark(num_dialogues=num)
     else:
-        # Default: 1000 dialogues for full research dataset
-        run_benchmark(num_dialogues=1000)
+        # Default: 1500 dialogues for full research dataset
+        run_benchmark(num_dialogues=1500)
