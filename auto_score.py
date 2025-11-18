@@ -588,7 +588,7 @@ def auto_score_results(results_file: Path, retry_failed_only: bool = False):
 
     # Summary statistics (recomputed from final results after all retry passes)
     print("\n" + "=" * 70)
-    print("📊 SCORING COMPLETE (after all retry passes)")
+    print("📊 AUTO-SCORING COMPLETE")
     print("=" * 70)
 
     # Calculate scores only for successfully scored dialogues (exclude errors)
@@ -599,61 +599,77 @@ def auto_score_results(results_file: Path, retry_failed_only: bool = False):
     total_scores = [r['auto_scores']['total'] for r in successfully_scored]
     avg_score = sum(total_scores) / len(total_scores) if total_scores else 0
 
-    print(f"✅ Dialogues scored successfully: {len(successfully_scored)}/{len(scored_results)}")
+    print(f"\n✅ Successfully auto-scored: {len(successfully_scored)}/{len(scored_results)} dialogues ({len(successfully_scored)/len(scored_results)*100:.1f}%)")
     if retryable_errors > 0:
-        print(f"⏸️  Retryable errors (API issues): {retryable_errors}")
+        print(f"⏸️  Retryable errors (API issues): {retryable_errors} ({retryable_errors/len(scored_results)*100:.1f}%)")
     if permanent_errors > 0:
-        print(f"❌ Permanent errors: {permanent_errors}")
-    print(f"📈 Average score: {avg_score:.1f}/12")
-    print(f"⚠️  Flagged for review: {flagged_count} ({flagged_count/len(scored_results)*100:.1f}%)")
-    print(f"✨ Auto-approved: {len(successfully_scored) - flagged_count}")
-    print(f"\n💾 Scored results saved: {output_file}")
+        print(f"❌ Permanent errors: {permanent_errors} ({permanent_errors/len(scored_results)*100:.1f}%)")
+
+    print(f"\n📈 Average Score: {avg_score:.1f}/12")
+    print(f"⚠️  Flagged for manual review: {flagged_count} ({flagged_count/len(scored_results)*100:.1f}%)")
+    print(f"✅ Auto-approved (no review needed): {len(successfully_scored) - flagged_count} ({(len(successfully_scored) - flagged_count)/len(scored_results)*100:.1f}%)")
+
+    print(f"\n💾 Results saved: {output_file}")
 
     # Breakdown by score
     print("\n📊 Score Distribution:")
     score_bins = {
-        '9-12 (Excellent)': len([s for s in total_scores if s >= 9]),
-        '6-8 (Good)': len([s for s in total_scores if 6 <= s < 9]),
-        '3-5 (Poor)': len([s for s in total_scores if 3 <= s < 6]),
-        '0-2 (Fail)': len([s for s in total_scores if s < 3])
+        '10-12 (Excellent)': len([s for s in total_scores if s >= 10]),
+        '7-9 (Good)': len([s for s in total_scores if 7 <= s < 10]),
+        '4-6 (Fair)': len([s for s in total_scores if 4 <= s < 7]),
+        '0-3 (Poor)': len([s for s in total_scores if s < 4])
     }
     for bin_name, count in score_bins.items():
         pct = count / len(total_scores) * 100 if total_scores else 0
-        print(f"  {bin_name}: {count} ({pct:.1f}%)")
+        bar = "█" * int(pct / 2)  # Visual bar (50% = 25 chars)
+        print(f"  {bin_name:20s}: {count:4d} ({pct:5.1f}%) {bar}")
 
     # Show flagged items (excluding retryable errors)
     if flagged_count > 0:
-        print(f"\n⚠️  ITEMS NEEDING MANUAL REVIEW ({flagged_count}):")
+        print(f"\n⚠️  FLAGGED FOR MANUAL REVIEW ({flagged_count} dialogues, {flagged_count/len(scored_results)*100:.1f}%):")
         for r in scored_results:
             if r.get('auto_scores', {}).get('needs_review'):
                 patient_label = r.get('patient_name') or 'Unknown Patient'
+                score = r['auto_scores']['total']
                 flags_str = ', '.join(r['auto_scores']['flags'])
-                print(f"  • {patient_label} (Score: {r['auto_scores']['total']}/12) - {flags_str}")
+                print(f"  • {patient_label:30s} Score: {score:2d}/12  [{flags_str}]")
 
     # Show retryable errors separately
     if retryable_errors > 0:
-        print(f"\n⏸️  RETRYABLE ERRORS ({retryable_errors}) - API overload/rate limit:")
+        print(f"\n⏸️  RETRYABLE ERRORS ({retryable_errors} dialogues, {retryable_errors/len(scored_results)*100:.1f}%) - API overload/rate limit:")
         for r in scored_results:
             scores = r.get('auto_scores', {})
             if scores.get('error') and scores.get('is_transient'):
                 patient_label = r.get('patient_name') or 'Unknown Patient'
                 print(f"  • {patient_label}")
 
-    print("\n📋 Next Steps:")
+    print("\n" + "=" * 70)
+    print("📋 NEXT STEPS:")
+    print("=" * 70)
     if retryable_errors > 0:
-        print(f"  ⏸️  RETRY NEEDED: {retryable_errors} dialogues still failed after {scorer.retry_passes} retry passes")
-        print(f"     API may still be overloaded. Options:")
-        print(f"     1. Wait longer and retry: python auto_score.py --retry {output_file}")
-        print(f"     2. Increase retry passes: export GEMINI_RETRY_PASSES=3")
-        print(f"     3. Increase cooldown: export GEMINI_RETRY_COOLDOWN=60")
+        print(f"  ⏸️  RETRY NEEDED: {retryable_errors} dialogues failed after {scorer.retry_passes} retry passes")
+        print(f"     💡 API may still be overloaded. Options:")
+        print(f"        1. Wait longer and retry: python auto_score.py --retry {output_file}")
+        print(f"        2. Increase retry passes: export GEMINI_RETRY_PASSES=3")
+        print(f"        3. Increase cooldown: export GEMINI_RETRY_COOLDOWN=60")
         print()
     if flagged_count > 0:
-        print("  1. Review flagged dialogues manually")
-        print("  2. Run: python create_scoring_sheet.py (generates CSV with auto-scores)")
-        print("  3. Override any auto-scores you disagree with")
-    elif retryable_errors == 0:
-        print("  ✅ All dialogues auto-approved! No manual review needed.")
-        print("  Run: python create_scoring_sheet.py (generates CSV with scores)")
+        print(f"  ⚠️  MANUAL REVIEW: {flagged_count} dialogues flagged for review")
+        print(f"     📝 Steps:")
+        print(f"        1. Run: python create_scoring_sheet.py")
+        print(f"        2. Open the CSV file")
+        print(f"        3. Filter by 'Needs_Review' = ⚠️ YES")
+        print(f"        4. Review and override auto-scores if needed")
+        print()
+    if retryable_errors == 0 and flagged_count == 0:
+        print(f"  ✅ PERFECT! All {len(successfully_scored)} dialogues auto-approved!")
+        print(f"     📊 No manual review needed")
+        print(f"     🎉 Ready for analysis!")
+        print()
+
+    print(f"  📊 Generate scoring sheet:")
+    print(f"     python create_scoring_sheet.py")
+    print("=" * 70)
 
     return output_file
 
