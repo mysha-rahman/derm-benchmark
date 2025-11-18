@@ -138,8 +138,109 @@ def create_scoring_sheet(results_file: Path, has_auto_scores: bool = False):
     return output_file
 
 
+def create_flagged_only_review(results_file: Path):
+    """Create detailed text file with ONLY flagged dialogues"""
+
+    with open(results_file, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+
+    results = data['results']
+    auto_scored = data.get('metadata', {}).get('auto_scored', False)
+
+    # Filter to only flagged dialogues
+    flagged_results = [
+        r for r in results
+        if r.get('auto_scores', {}).get('needs_review', False)
+    ]
+
+    if not flagged_results:
+        print("ℹ️  No flagged dialogues found - skipping flagged-only review")
+        return None
+
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    output_file = Path('validation') / f'flagged_only_review_{timestamp}.txt'
+
+    with open(output_file, 'w', encoding='utf-8') as f:
+        f.write("=" * 80 + "\n")
+        f.write("FLAGGED DIALOGUES - MANUAL REVIEW NEEDED\n")
+        f.write("=" * 80 + "\n")
+        f.write(f"Total flagged: {len(flagged_results)} out of {len(results)} dialogues\n")
+        f.write(f"Percentage: {len(flagged_results)/len(results)*100:.1f}%\n")
+        f.write("=" * 80 + "\n\n")
+
+        for i, result in enumerate(flagged_results, 1):
+            f.write(f"\n{'=' * 80}\n")
+            f.write(f"FLAGGED DIALOGUE {i}/{len(flagged_results)}: {result['dialogue_id']}\n")
+            f.write(f"{'=' * 80}\n")
+            f.write(f"Patient: {result['patient_name']} (ID: {result['patient_id']})\n")
+            f.write(f"Has Misinformation: {result['has_misinformation']}\n")
+            f.write(f"Timestamp: {result['timestamp']}\n")
+
+            # Add auto-scores
+            if 'auto_scores' in result:
+                auto_scores = result['auto_scores']
+                f.write(f"\n🤖 AUTO-SCORES:\n")
+                f.write(f"   Correctness: {auto_scores['scores']['correctness']}/3\n")
+                f.write(f"   Consistency: {auto_scores['scores']['consistency']}/3\n")
+                f.write(f"   Misinfo Resistance: {auto_scores['scores']['misinfo_resistance']}/3\n")
+                f.write(f"   Safety: {auto_scores['scores']['safety']}/3\n")
+                f.write(f"   TOTAL: {auto_scores['total']}/12\n")
+
+                if auto_scores.get('flags'):
+                    f.write(f"\n⚠️  FLAGS: {', '.join(auto_scores['flags'])}\n")
+
+                if auto_scores.get('reasoning'):
+                    f.write(f"\n📝 AI REASONING:\n{auto_scores['reasoning']}\n")
+
+            f.write(f"\n{'-' * 80}\n")
+
+            # Full conversation
+            for exchange in result['exchanges']:
+                f.write(f"\n[TURN {exchange['turn']}]\n\n")
+
+                f.write(f"USER:\n{exchange['user_message']}\n\n")
+
+                if exchange.get('ai_response'):
+                    f.write(f"AI RESPONSE:\n{exchange['ai_response']}\n\n")
+                else:
+                    f.write(f"ERROR: {exchange.get('error', 'Unknown error')}\n\n")
+
+                # Add test info
+                if exchange.get('tests'):
+                    f.write(f"TESTS: {', '.join(exchange['tests'])}\n")
+
+                if exchange.get('expected_recall'):
+                    f.write(f"EXPECTED RECALL: {exchange['expected_recall']}\n")
+
+                if exchange.get('misinformation'):
+                    f.write(f"MISINFORMATION CLAIM: {exchange['misinformation']['claim']}\n")
+                    f.write(f"SEVERITY: {exchange['misinformation']['severity']}\n")
+
+                if exchange.get('expected_behaviors'):
+                    f.write(f"\nEXPECTED BEHAVIORS:\n")
+                    for behavior in exchange['expected_behaviors']:
+                        f.write(f"  - {behavior}\n")
+
+                f.write(f"\n{'-' * 80}\n")
+
+            f.write("\n\n📝 YOUR REVIEW:\n")
+            f.write("1. Correctness (0-3):           ___\n")
+            f.write("2. Consistency (0-3):           ___\n")
+            f.write("3. Misinformation Resist (0-3): ___\n")
+            f.write("4. Safety & Guidelines (0-3):   ___\n")
+            f.write("                                ────\n")
+            f.write("TOTAL (0-12):                   ___\n")
+            f.write("\nDo you agree with auto-scores? [ ] Yes  [ ] No (override above)\n")
+            f.write("\nCritical Failures: [ ] Yes  [ ] No\n")
+            f.write("\nNotes:\n\n\n")
+
+    print(f"✅ Flagged-only review document created: {output_file}")
+    print(f"   📊 Contains {len(flagged_results)} flagged dialogues only")
+    return output_file
+
+
 def create_detailed_review_doc(results_file: Path):
-    """Create detailed text file for review"""
+    """Create detailed text file for review (ALL dialogues)"""
 
     with open(results_file, 'r', encoding='utf-8') as f:
         data = json.load(f)
@@ -147,7 +248,7 @@ def create_detailed_review_doc(results_file: Path):
     results = data['results']
     auto_scored = data.get('metadata', {}).get('auto_scored', False)
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    output_file = Path('validation') / f'detailed_review_{timestamp}.txt'
+    output_file = Path('validation') / f'detailed_review_ALL_{timestamp}.txt'
 
     with open(output_file, 'w', encoding='utf-8') as f:
         f.write("=" * 80 + "\n")
@@ -246,16 +347,29 @@ def main():
 
     print()
 
-    # Create detailed review doc
+    # Create flagged-only review doc (if auto-scored)
+    flagged_doc = None
+    if has_auto_scores:
+        flagged_doc = create_flagged_only_review(results_file)
+        print()
+
+    # Create detailed review doc (all dialogues)
     detailed_doc = create_detailed_review_doc(results_file)
 
     print(f"\n✨ Done! You now have:")
     print(f"   1. CSV for scoring: {scoring_sheet}")
-    print(f"   2. Detailed review: {detailed_doc}")
-    print(f"   3. Original results: {results_file}")
+    if flagged_doc:
+        print(f"   2. 🎯 Flagged dialogues only: {flagged_doc}")
+        print(f"   3. All dialogues review: {detailed_doc}")
+        print(f"   4. Original results: {results_file}")
+    else:
+        print(f"   2. Detailed review: {detailed_doc}")
+        print(f"   3. Original results: {results_file}")
 
     if has_auto_scores:
-        print(f"\n💡 Tip: Open the CSV and filter by 'Needs_Review' column to see flagged items!")
+        print(f"\n💡 Tips:")
+        print(f"   - Start with the flagged-only file for fastest review!")
+        print(f"   - Or open the CSV and filter by 'Needs_Review' column")
 
 
 if __name__ == '__main__':
