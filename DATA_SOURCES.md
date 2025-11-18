@@ -261,11 +261,11 @@ DermNet NZ. All About the Skin. Available at: https://dermnetnz.org/
          │                               │
          │  • Merges all condition data  │
          │  • Applies treatment guidance │
-         │  • Creates 100 profiles       │
+         │  • Creates 1,500 profiles     │
          └────────────┬──────────────────┘
                       ↓
          ┌───────────────────────────────┐
-         │  patient_profiles_100.csv     │
+         │  patient_profiles_1500.csv    │
          │                               │
          │  • 119 unique conditions      │
          │  • Evidence-based treatments  │

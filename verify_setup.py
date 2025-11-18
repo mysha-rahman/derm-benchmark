@@ -44,7 +44,7 @@ def check_files():
     """Check if required files exist"""
     required_files = [
         "dialogues/dialogue_templates.jsonl",
-        "patient_profiles_100.csv",
+        "patient_profiles_1500.csv",
         "run_benchmark.py",
     ]
 
