@@ -61,13 +61,16 @@ def check_files():
 def check_syntax():
     """Check if run_benchmark.py has valid syntax"""
     try:
-        with open("run_benchmark.py", "r") as f:
+        with open("run_benchmark.py", "r", encoding="utf-8") as f:
             compile(f.read(), "run_benchmark.py", "exec")
         print("✅ run_benchmark.py syntax is valid")
         return True
     except SyntaxError as e:
         print(f"❌ Syntax error in run_benchmark.py: {e}")
         print(f"   Line {e.lineno}: {e.text}")
+        return False
+    except UnicodeDecodeError as e:
+        print(f"❌ Unicode error in run_benchmark.py: {e}")
         return False
 
 def main():
