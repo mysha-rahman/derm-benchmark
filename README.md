@@ -184,6 +184,10 @@ Fine-tune scoring behavior:
 export GEMINI_TEMPERATURE=0.0   # 0.0 = deterministic (same input = same score)
                                 # Higher values (e.g., 0.3) = more variation
 
+# Parse repair: retry with simpler prompt when parsing fails (default: true)
+export GEMINI_PARSE_REPAIR=true # true = auto-retry unparseable responses with JSON-only prompt
+                                # false = mark as retryable error instead
+
 # Dynamic rate limiting
 export GEMINI_BASE_DELAY=3.0    # Normal delay (default: 3.0s)
 export GEMINI_MIN_DELAY=1.0     # Fast delay when healthy (default: 1.0s)
