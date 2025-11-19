@@ -104,22 +104,40 @@ python create_scoring_sheet.py
 ```
 
 **What you get:**
-- ✅ All dialogues automatically scored (0-12 scale)
-- ⚠️ Flagged items needing human review (~20%)
-- 📊 Average scores and distribution
-- 💾 CSV with pre-filled scores ready for review
+- ✅ All dialogues automatically scored (0-12 scale) with **confidence levels**
+- ⚠️ Flagged items needing human review (~20-30%)
+  - 🔴 Critical failures (score=0)
+  - 🟡 Borderline cases (score=1)
+  - 🟣 Low confidence scores (LLM uncertain)
+- 📊 Enhanced analytics: performance by test type, metadata tracking
+- 💾 CSV with pre-filled scores, reasoning, and confidence indicators
+
+**New Features:**
+- ✅ **Structured JSON output** - More reliable parsing
+- ✅ **Few-shot calibration** - Consistent scoring with examples
+- ✅ **Dynamic rate limiting** - Adapts to API health (1-10s delay)
+- ✅ **Confidence tracking** - Know when LLM is uncertain
+- ✅ **Broadened flagging** - Catches borderline cases, not just critical failures
 
 **Time savings:**
 - Manual scoring: ~125 hours for 1,500 dialogues
-- Auto-scoring + review: ~12 hours (90% reduction!)
+- Auto-scoring + review: ~12-15 hours (88-90% reduction!)
 - **Saves 80% of your time!**
 
 **Review process:**
 1. Open `scoring_sheet_TIMESTAMP.csv`
 2. Filter by `Needs_Review` column = "⚠️ YES"
-3. Review only the ~5 flagged dialogues
-4. Override auto-scores if you disagree
-5. Approve the rest (~20 dialogues) instantly
+3. Review flagged dialogues (now includes borderline cases)
+4. Check confidence levels - prioritize low-confidence scores
+5. Override auto-scores if you disagree
+6. Approve high-confidence auto-approved items instantly
+
+**Optional: Fine-tune rate limiting**
+```bash
+export GEMINI_BASE_DELAY=3.0   # Normal delay (default)
+export GEMINI_MIN_DELAY=1.0    # Fast when healthy (default)
+export GEMINI_MAX_DELAY=10.0   # Slow during errors (default)
+```
 
 ---
 
