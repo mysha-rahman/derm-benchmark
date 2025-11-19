@@ -886,6 +886,34 @@ def auto_score_results(results_file: Path, retry_failed_only: bool = False):
 
     total_dialogues = len(all_results_including_failed)
 
+    # Calculate scores only for successfully scored dialogues (exclude errors)
+    successfully_scored = [
+        r for r in all_results
+        if 'auto_scores' in r and not r['auto_scores'].get('error')
+    ]
+    total_scores = [r['auto_scores']['total'] for r in successfully_scored]
+    avg_score = sum(total_scores) / len(total_scores) if total_scores else 0
+    auto_approved = len(successfully_scored) - flagged_count
+
+    # PROMINENT SUMMARY BOX
+    print("\n" + "┏" + "━" * 68 + "┓")
+    print(f"┃ {'SUMMARY':^66} ┃")
+    print("┣" + "━" * 68 + "┫")
+    print(f"┃  📝 Total dialogues:        {total_dialogues:>4}                                   ┃")
+    print(f"┃  ✅ Successfully scored:    {len(successfully_scored):>4} ({len(successfully_scored)/total_dialogues*100:>5.1f}%)                            ┃")
+    if failed_dialogues:
+        print(f"┃  ⏭️  Skipped (benchmark):   {len(failed_dialogues):>4} ({len(failed_dialogues)/total_dialogues*100:>5.1f}%)                            ┃")
+    if retryable_errors > 0:
+        print(f"┃  ⏸️  Retryable errors:      {retryable_errors:>4} ({retryable_errors/total_dialogues*100:>5.1f}%)                            ┃")
+    if permanent_errors > 0:
+        print(f"┃  ❌ Permanent errors:       {permanent_errors:>4} ({permanent_errors/total_dialogues*100:>5.1f}%)                            ┃")
+    print("┣" + "━" * 68 + "┫")
+    if successfully_scored:
+        print(f"┃  ⚠️  Flagged for review:    {flagged_count:>4} ({flagged_count/len(successfully_scored)*100:>5.1f}% of scored)                   ┃")
+        print(f"┃  ✅ Auto-approved:          {auto_approved:>4} ({auto_approved/len(successfully_scored)*100:>5.1f}% of scored)                   ┃")
+        print(f"┃  📈 Average score:          {avg_score:>4.1f}/12                                  ┃")
+    print("┗" + "━" * 68 + "┛")
+
     # Show metadata information
     print(f"\n📋 Benchmark Metadata:")
     print(f"   Model tested: {metadata.get('model', 'Unknown')}")
@@ -896,29 +924,6 @@ def auto_score_results(results_file: Path, retry_failed_only: bool = False):
         print(f"   Prompt version: {metadata.get('prompt_version')}")
     if metadata.get('seed'):
         print(f"   Random seed: {metadata.get('seed')}")
-
-    # Show failed dialogues first
-    if failed_dialogues:
-        print(f"\n⏭️  Skipped {len(failed_dialogues)}/{total_dialogues} dialogues (failed benchmark - API errors/timeouts)")
-
-    # Calculate scores only for successfully scored dialogues (exclude errors)
-    successfully_scored = [
-        r for r in all_results
-        if 'auto_scores' in r and not r['auto_scores'].get('error')
-    ]
-    total_scores = [r['auto_scores']['total'] for r in successfully_scored]
-    avg_score = sum(total_scores) / len(total_scores) if total_scores else 0
-
-    print(f"\n✅ Successfully auto-scored: {len(successfully_scored)}/{total_dialogues} dialogues ({len(successfully_scored)/total_dialogues*100:.1f}%)")
-    if retryable_errors > 0:
-        print(f"⏸️  Retryable errors (API issues): {retryable_errors} ({retryable_errors/total_dialogues*100:.1f}%)")
-    if permanent_errors > 0:
-        print(f"❌ Permanent errors: {permanent_errors} ({permanent_errors/total_dialogues*100:.1f}%)")
-
-    if successfully_scored:
-        print(f"\n📈 Average Score: {avg_score:.1f}/12 (of completed dialogues)")
-        print(f"⚠️  Flagged for manual review: {flagged_count} ({flagged_count/len(successfully_scored)*100:.1f}% of scored)")
-        print(f"✅ Auto-approved (no review needed): {len(successfully_scored) - flagged_count} ({(len(successfully_scored) - flagged_count)/len(successfully_scored)*100:.1f}% of scored)")
 
         # Breakdown by misinformation test type
         with_misinfo = [r for r in successfully_scored if r.get('has_misinformation')]
