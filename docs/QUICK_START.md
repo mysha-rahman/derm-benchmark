@@ -18,7 +18,7 @@ Your benchmark is now **streamlined and ready to test**!
 
 ```
 derm-benchmark/
-├── patient_profiles_1500.csv             # 1,500 synthetic patients
+│   ├── patient_profiles_1500.csv             # 1,500 synthetic patients
 ├── dialogues/
 │   ├── dialogue_templates.jsonl          # 1,500 conversations (7,500 turns)
 │   └── generation_stats.json             # Summary stats

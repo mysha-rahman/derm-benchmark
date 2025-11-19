@@ -398,7 +398,7 @@ def generate_all_dialogues(num_templates: int = 25) -> None:
     """
 
     print("🔄 Loading patient profiles...")
-    profiles = load_patient_profiles('patient_profiles_1500.csv')
+    profiles = load_patient_profiles('dialogues/patient_profiles_1500.csv')
 
     print("🔄 Loading legacy misinformation library...")
     legacy_lib = load_misinformation_library('dialogues/misinformation_library.json')

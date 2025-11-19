@@ -223,7 +223,8 @@ derm-benchmark/
 │   ├── Medical_Knowledge/          # 113 conditions with treatments
 │   └── Misinformation/             # 185 myth/fact pairs
 │
-├── 📂 dialogues/                    # Generated conversations
+├── 📂 dialogues/                    # Generated test data
+│   ├── patient_profiles_1500.csv   # 1,500 synthetic patients
 │   ├── dialogue_templates.jsonl    # 1,500 multi-turn conversations
 │   └── generation_stats.json       # Generation statistics
 │
@@ -231,7 +232,7 @@ derm-benchmark/
 │   ├── scoring_rubric.md           # Evaluation criteria (0-12 scale)
 │   └── results/                    # Benchmark results (auto-generated)
 │
-├── patient_profiles_1500.csv       # 1,500 synthetic patients
+├── .gitignore                       # Git ignore rules
 ├── README.md                        # ⭐ Main documentation (you are here!)
 ├── requirements.txt                 # Python dependencies
 └── LICENSE                          # MIT License
