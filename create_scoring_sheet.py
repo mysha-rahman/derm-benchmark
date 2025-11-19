@@ -35,10 +35,13 @@ def create_simple_summary(results_file: Path):
     with open(results_file, 'r', encoding='utf-8') as f:
         data = json.load(f)
 
-    results = data['results']
+    all_results = data['results']
     auto_scored = data.get('metadata', {}).get('auto_scored', False)
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
     output_file = Path('validation') / f'EASY_READ_SUMMARY_{timestamp}.txt'
+
+    # Filter out failed dialogues (from benchmark errors)
+    results = [r for r in all_results if is_dialogue_complete(r)]
 
     # Calculate statistics
     total = len(results)
@@ -234,6 +237,17 @@ def create_simple_summary(results_file: Path):
     return output_file
 
 
+def is_dialogue_complete(result: dict) -> bool:
+    """Check if a dialogue completed successfully (no errors/timeouts)"""
+    exchanges = result.get('exchanges', [])
+    if not exchanges:
+        return False
+    for exchange in exchanges:
+        if exchange.get('ai_response') is None or exchange.get('error'):
+            return False
+    return True
+
+
 def create_scoring_sheet(results_file: Path, has_auto_scores: bool = False):
     """Generate CSV scoring sheet from results"""
 
@@ -241,8 +255,15 @@ def create_scoring_sheet(results_file: Path, has_auto_scores: bool = False):
     with open(results_file, 'r', encoding='utf-8') as f:
         data = json.load(f)
 
-    results = data['results']
+    all_results = data['results']
     auto_scored = data.get('metadata', {}).get('auto_scored', False)
+
+    # Filter out failed dialogues (from benchmark errors)
+    results = [r for r in all_results if is_dialogue_complete(r)]
+    failed_count = len(all_results) - len(results)
+
+    if failed_count > 0:
+        print(f"\nℹ️  Excluding {failed_count} failed dialogues from scoring sheet (benchmark API errors)")
 
     # Create output CSV
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
@@ -349,8 +370,11 @@ def create_flagged_only_review(results_file: Path):
     with open(results_file, 'r', encoding='utf-8') as f:
         data = json.load(f)
 
-    results = data['results']
+    all_results = data['results']
     auto_scored = data.get('metadata', {}).get('auto_scored', False)
+
+    # Filter out failed dialogues first (from benchmark errors)
+    results = [r for r in all_results if is_dialogue_complete(r)]
 
     # Filter to only flagged dialogues
     flagged_results = [
@@ -495,8 +519,12 @@ def create_detailed_review_doc(results_file: Path):
     with open(results_file, 'r', encoding='utf-8') as f:
         data = json.load(f)
 
-    results = data['results']
+    all_results = data['results']
     auto_scored = data.get('metadata', {}).get('auto_scored', False)
+
+    # Filter out failed dialogues (from benchmark errors)
+    results = [r for r in all_results if is_dialogue_complete(r)]
+
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
     output_file = Path('validation') / f'detailed_review_ALL_{timestamp}.txt'
 
