@@ -1,172 +1,193 @@
-# Analysis Scripts
+# Main Workflow Scripts
 
-This directory contains scripts for exploring datasets and extracting clinical patterns.
-
----
-
-## 📊 Dataset Exploration Scripts
-
-### `explore_ham10000.py`
-Analyzes the HAM10000 dataset (10,015 dermatoscopic images).
-
-**Usage:**
-```bash
-python scripts/explore_ham10000.py
-```
-
-**Output:**
-- Dataset statistics
-- Diagnosis distribution chart (`ham10000_diagnosis_distribution.png`)
-- Demographics analysis
+This directory contains the core scripts for running the benchmark workflow.
 
 ---
 
-### `explore_fitzpatrick17k.py`
-Analyzes the Fitzpatrick17k dataset (16,577 clinical dermatology images).
+## 🚀 Main Workflow
+
+### 1. `run_benchmark.py`
+**Purpose:** Run the dermatology chatbot benchmark with Gemini 2.5 Flash.
 
 **Usage:**
 ```bash
-python scripts/explore_fitzpatrick17k.py
-```
+# Quick test (3 dialogues)
+python scripts/run_benchmark.py --quick
 
-**Requirements:**
-- pandas
-- matplotlib
+# Small test (10 dialogues)
+python scripts/run_benchmark.py 10
 
-**Output:**
-- Condition distribution statistics
-- Fitzpatrick skin tone analysis
-- Visualization (`fitzpatrick17k_distribution.png`)
-
----
-
-## 🔬 Clinical Pattern Extraction
-
-### `extract_dermnet_patterns.py`
-
-**Purpose:** Extracts clinical patterns from DermNet NZ educational content to inform synthetic patient profile creation.
-
-**Ethical Use:**
-- ✅ Extracts PATTERNS (e.g., "psoriasis commonly treated with topical corticosteroids")
-- ✅ Used to make synthetic profiles more realistic
-- ❌ Does NOT copy patient data or case descriptions verbatim
-- ✅ Properly attributes DermNet NZ in research
-
-**Usage:**
-```bash
-python scripts/extract_dermnet_patterns.py
-```
-
-**Requirements:**
-- requests
-- beautifulsoup4
-
-**Install dependencies:**
-```bash
-pip install requests beautifulsoup4
+# Full benchmark (1,500 dialogues)
+python scripts/run_benchmark.py
 ```
 
 **What it does:**
-1. Analyzes DermNet NZ topic pages for conditions matching our benchmark
-2. Extracts patterns for:
-   - Common treatments (e.g., topical corticosteroids, retinoids)
-   - Typical symptoms (e.g., itching, redness, scaling)
-   - Age group associations
-   - Body location patterns
-3. Saves results to `validation/dermnet_patterns.json`
-4. Creates attribution file `validation/DERMNET_ATTRIBUTION.md`
+- Loads dialogue templates from `dialogues/dialogue_templates.jsonl`
+- Runs conversations with Gemini 2.5 Flash API
+- Saves results to `validation/results/gemini_results_TIMESTAMP.json`
 
-**Rate Limiting:**
-- 3-second delay between requests (respectful to DermNet servers)
-- Analyzes ~8 conditions by default
-- Takes approximately 30-60 seconds to complete
+**Requirements:**
+- `GOOGLE_API_KEY` environment variable
+- Valid Gemini API key (get free at https://makersuite.google.com/app/apikey)
+
+**Output:**
+- JSON file with all conversation results
+- Metadata (model, timestamp, number of dialogues, cost)
+- Individual dialogue transcripts with AI responses
+
+---
+
+### 2. `auto_score.py`
+**Purpose:** Automatically score benchmark results using LLM-as-judge pattern.
+
+**Usage:**
+```bash
+# Auto-score latest results
+python scripts/auto_score.py
+
+# Auto-score specific results file
+python scripts/auto_score.py validation/results/gemini_results_20251119.json
+
+# Retry only failed dialogues
+python scripts/auto_score.py --retry
+```
+
+**What it does:**
+- Loads benchmark results
+- Uses Gemini as judge to score each conversation (0-12 scale)
+- Scores 4 dimensions: Correctness, Consistency, Misinformation Resistance, Safety
+- Flags dialogues needing manual review
+- Saves scored results to `validation/results/scored_results_TIMESTAMP.json`
+
+**Features:**
+- ✅ Structured JSON output with confidence scores
+- ✅ Few-shot calibration for consistent scoring
+- ✅ Dynamic rate limiting (adapts to API health)
+- ✅ Broadened flagging (catches borderline cases)
+- ✅ Auto-awards misinformation resistance when N/A
+
+**Configuration (Optional):**
+```bash
+export GEMINI_BASE_DELAY=3.0   # Normal delay (default: 3.0s)
+export GEMINI_MIN_DELAY=1.0    # Fast when healthy (default: 1.0s)
+export GEMINI_MAX_DELAY=10.0   # Slow during errors (default: 10.0s)
+```
+
+**Output:**
+- Scored results JSON
+- Summary statistics
+- Flagging breakdown
+- Performance analytics by test type
+
+---
+
+### 3. `create_scoring_sheet.py`
+**Purpose:** Generate easy-to-read scoring sheets from auto-scored results.
+
+**Usage:**
+```bash
+# Generate sheets from latest scored results
+python scripts/create_scoring_sheet.py
+
+# Generate sheets from specific file
+python scripts/create_scoring_sheet.py validation/results/scored_results_20251119.json
+```
+
+**What it does:**
+- Loads auto-scored results
+- Creates 4 output files for different review purposes:
+  1. **EASY_READ_SUMMARY** - Plain language overview
+  2. **scoring_sheet.csv** - Excel-ready spreadsheet
+  3. **flagged_only_review.txt** - Only problematic conversations
+  4. **detailed_review_ALL.txt** - Complete record
 
 **Output Files:**
-- `validation/dermnet_patterns.json` - Extracted clinical patterns
-- `validation/DERMNET_ATTRIBUTION.md` - Proper attribution text
-
-**Example Pattern:**
-```json
-{
-  "psoriasis": {
-    "count": 1,
-    "common_treatments": {
-      "topical corticosteroids": 1,
-      "emollients": 1,
-      "phototherapy": 1
-    },
-    "common_symptoms": {
-      "scaling": 1,
-      "inflammation": 1,
-      "redness": 1
-    },
-    "age_patterns": {
-      "adults": 1
-    },
-    "typical_locations": {
-      "scalp": 1,
-      "trunk": 1
-    }
-  }
-}
-```
-
-**Using Patterns in Synthetic Profiles:**
-
-The extracted patterns help ensure our synthetic patient profiles reflect real clinical presentations:
-
-```python
-# Example: Use patterns to create realistic synthetic patient
-if patient['condition'] == 'psoriasis':
-    # Pattern shows psoriasis commonly uses topical corticosteroids
-    patient['past_treatments'] = "Topical corticosteroids, emollients"
-    patient['symptoms'] = "Red, scaly patches"
-    patient['typical_location'] = "Scalp and trunk"
-```
-
-**Attribution Required:**
-
-When publishing research using these patterns, include:
-
-```
-Clinical patterns informed by DermNet NZ educational content.
-DermNet NZ. All About the Skin. Available at: https://dermnetnz.org/
-(Accessed: November 2025)
-```
+- `validation/EASY_READ_SUMMARY_TIMESTAMP.txt`
+- `validation/scoring_sheet_TIMESTAMP.csv`
+- `validation/flagged_only_review_TIMESTAMP.txt`
+- `validation/detailed_review_ALL_TIMESTAMP.txt`
 
 ---
 
-## 📋 Notes
+## 🛠️ Utility Scripts
 
-### Installation of Dependencies
+### `verify_setup.py`
+**Purpose:** Verify that your environment is set up correctly.
 
-If you need to run the exploration scripts:
+**Usage:**
+```bash
+python scripts/verify_setup.py
+```
+
+**What it checks:**
+- Python version (3.8+)
+- Required packages installed
+- Dataset files present
+- Dialogue templates exist
+- API key configured
+
+---
+
+### `test_api.py`
+**Purpose:** Test Gemini API connection and functionality.
+
+**Usage:**
+```bash
+python scripts/test_api.py
+```
+
+**What it does:**
+- Tests API key validity
+- Sends a simple test query
+- Verifies response parsing
+- Shows sample output
+
+---
+
+## 📖 Complete Workflow Example
 
 ```bash
-pip install pandas matplotlib seaborn requests beautifulsoup4
+# 1. Verify setup
+python scripts/verify_setup.py
+
+# 2. Run quick benchmark test (2 min)
+python scripts/run_benchmark.py --quick
+
+# 3. Auto-score results (1 min)
+python scripts/auto_score.py
+
+# 4. Generate scoring sheets
+python scripts/create_scoring_sheet.py
+
+# 5. Review flagged conversations
+#    Open: validation/flagged_only_review_TIMESTAMP.txt
+#    Review: validation/scoring_sheet_TIMESTAMP.csv
 ```
-
-### Ethical Considerations
-
-1. **DermNet NZ Pattern Extraction:**
-   - We extract patterns to understand clinical presentations
-   - We do NOT copy content verbatim
-   - We respect rate limits (3s delays)
-   - We properly attribute the source
-
-2. **Dataset Usage:**
-   - HAM10000 and Fitzpatrick17k are used under their respective licenses
-   - All datasets are properly cited in our research
-
-3. **Synthetic Profiles:**
-   - We use patterns to CREATE synthetic profiles
-   - No real patient data is copied
-   - All profiles are fictional but clinically realistic
 
 ---
 
-## 🔗 Resources
+## 💡 Tips
 
-- **DermNet NZ**: https://dermnetnz.org/
-- **HAM10000**: https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/DBW86T
-- **Fitzpatrick17k**: https://github.com/mattgroh/fitzpatrick17k
+**For Class Demo:**
+1. Use `--quick` mode for fast demonstration (3 dialogues, ~2 min)
+2. Show the EASY_READ_SUMMARY for plain language results
+3. Open CSV in Excel/Google Sheets for visual review
+4. Focus on flagged_only_review to show the hybrid approach
+
+**Time Estimates:**
+- Quick test (3 dialogues): ~5 minutes total
+- Small test (10 dialogues): ~15 minutes total
+- Full benchmark (1,500 dialogues): ~4.5 hours total
+
+**Cost Estimates (Gemini free tier):**
+- Quick test: $0.00 (FREE)
+- Small test: $0.00 (FREE)
+- Full benchmark: ~$1.26 (paid tier required)
+
+---
+
+## 📚 Related Documentation
+
+- [Quick Start Guide](../docs/QUICK_START.md) - Step-by-step setup
+- [Main README](../README.md) - Project overview
+- [Troubleshooting](../docs/TROUBLESHOOTING.md) - Common issues
