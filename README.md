@@ -178,8 +178,13 @@ Auto-scores are:
 
 ### Configuration (Optional)
 
-Fine-tune dynamic rate limiting:
+Fine-tune scoring behavior:
 ```bash
+# Temperature controls scoring consistency (default: 0.0)
+export GEMINI_TEMPERATURE=0.0   # 0.0 = deterministic (same input = same score)
+                                # Higher values (e.g., 0.3) = more variation
+
+# Dynamic rate limiting
 export GEMINI_BASE_DELAY=3.0    # Normal delay (default: 3.0s)
 export GEMINI_MIN_DELAY=1.0     # Fast delay when healthy (default: 1.0s)
 export GEMINI_MAX_DELAY=10.0    # Slow delay during errors (default: 10.0s)
