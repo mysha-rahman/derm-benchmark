@@ -423,6 +423,22 @@ def find_latest_results():
     return max(json_files, key=lambda p: p.stat().st_mtime)
 
 
+def is_dialogue_complete(result: dict) -> bool:
+    """Check if a dialogue completed successfully (no errors/timeouts)"""
+    exchanges = result.get('exchanges', [])
+
+    if not exchanges:
+        return False
+
+    # Check if all exchanges have valid AI responses
+    for exchange in exchanges:
+        # If any exchange has no AI response or has an error, dialogue failed
+        if exchange.get('ai_response') is None or exchange.get('error'):
+            return False
+
+    return True
+
+
 def auto_score_results(results_file: Path, retry_failed_only: bool = False):
     """Automatically score all dialogues in results file
 
@@ -440,6 +456,17 @@ def auto_score_results(results_file: Path, retry_failed_only: bool = False):
 
     results = data['results']
     metadata = data['metadata']
+
+    # Filter out failed/incomplete dialogues
+    complete_dialogues = [r for r in results if is_dialogue_complete(r)]
+    failed_dialogues = [r for r in results if not is_dialogue_complete(r)]
+
+    if failed_dialogues:
+        print(f"⚠️  Skipping {len(failed_dialogues)} failed/incomplete dialogues (API errors or timeouts)")
+        print(f"✅ Scoring {len(complete_dialogues)} completed dialogues\n")
+
+    # Update results to only include complete dialogues for scoring
+    results = complete_dialogues
 
     # If retrying, identify which dialogues need rescoring
     if retry_failed_only:
@@ -555,12 +582,13 @@ def auto_score_results(results_file: Path, retry_failed_only: bool = False):
             time.sleep(3)
 
     # Recompute statistics from final results after all retry passes
-    scored_results = all_results
+    # Combine scored dialogues with failed dialogues (failed ones won't have auto_scores)
+    all_results_including_failed = all_results + failed_dialogues
     flagged_count = 0
     retryable_errors = 0
     permanent_errors = 0
 
-    for result in scored_results:
+    for result in all_results:
         scores = result.get('auto_scores', {})
         if scores.get('error'):
             if scores.get('is_transient'):
@@ -571,7 +599,7 @@ def auto_score_results(results_file: Path, retry_failed_only: bool = False):
         elif scores.get('needs_review'):
             flagged_count += 1
 
-    # Save scored results
+    # Save scored results (includes both scored and failed dialogues)
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
     output_file = Path('validation/results') / f'scored_results_{timestamp}.json'
 
@@ -581,9 +609,12 @@ def auto_score_results(results_file: Path, retry_failed_only: bool = False):
                 **metadata,
                 'auto_scored': True,
                 'scoring_timestamp': datetime.now().isoformat(),
-                'scorer_model': scorer.model
+                'scorer_model': scorer.model,
+                'dialogues_scored': len(all_results),
+                'dialogues_failed': len(failed_dialogues),
+                'dialogues_total': len(all_results_including_failed)
             },
-            'results': scored_results
+            'results': all_results_including_failed
         }, f, indent=2, ensure_ascii=False)
 
     # Summary statistics (recomputed from final results after all retry passes)
@@ -591,23 +622,30 @@ def auto_score_results(results_file: Path, retry_failed_only: bool = False):
     print("📊 AUTO-SCORING COMPLETE")
     print("=" * 70)
 
+    total_dialogues = len(all_results_including_failed)
+
+    # Show failed dialogues first
+    if failed_dialogues:
+        print(f"\n⏭️  Skipped {len(failed_dialogues)}/{total_dialogues} dialogues (failed benchmark - API errors/timeouts)")
+
     # Calculate scores only for successfully scored dialogues (exclude errors)
     successfully_scored = [
-        r for r in scored_results
+        r for r in all_results
         if 'auto_scores' in r and not r['auto_scores'].get('error')
     ]
     total_scores = [r['auto_scores']['total'] for r in successfully_scored]
     avg_score = sum(total_scores) / len(total_scores) if total_scores else 0
 
-    print(f"\n✅ Successfully auto-scored: {len(successfully_scored)}/{len(scored_results)} dialogues ({len(successfully_scored)/len(scored_results)*100:.1f}%)")
+    print(f"\n✅ Successfully auto-scored: {len(successfully_scored)}/{total_dialogues} dialogues ({len(successfully_scored)/total_dialogues*100:.1f}%)")
     if retryable_errors > 0:
-        print(f"⏸️  Retryable errors (API issues): {retryable_errors} ({retryable_errors/len(scored_results)*100:.1f}%)")
+        print(f"⏸️  Retryable errors (API issues): {retryable_errors} ({retryable_errors/total_dialogues*100:.1f}%)")
     if permanent_errors > 0:
-        print(f"❌ Permanent errors: {permanent_errors} ({permanent_errors/len(scored_results)*100:.1f}%)")
+        print(f"❌ Permanent errors: {permanent_errors} ({permanent_errors/total_dialogues*100:.1f}%)")
 
-    print(f"\n📈 Average Score: {avg_score:.1f}/12")
-    print(f"⚠️  Flagged for manual review: {flagged_count} ({flagged_count/len(scored_results)*100:.1f}%)")
-    print(f"✅ Auto-approved (no review needed): {len(successfully_scored) - flagged_count} ({(len(successfully_scored) - flagged_count)/len(scored_results)*100:.1f}%)")
+    if successfully_scored:
+        print(f"\n📈 Average Score: {avg_score:.1f}/12 (of completed dialogues)")
+        print(f"⚠️  Flagged for manual review: {flagged_count} ({flagged_count/len(successfully_scored)*100:.1f}% of scored)")
+        print(f"✅ Auto-approved (no review needed): {len(successfully_scored) - flagged_count} ({(len(successfully_scored) - flagged_count)/len(successfully_scored)*100:.1f}% of scored)")
 
     print(f"\n💾 Results saved: {output_file}")
 
@@ -625,9 +663,9 @@ def auto_score_results(results_file: Path, retry_failed_only: bool = False):
         print(f"  {bin_name:20s}: {count:4d} ({pct:5.1f}%) {bar}")
 
     # Show flagged items (excluding retryable errors)
-    if flagged_count > 0:
-        print(f"\n⚠️  FLAGGED FOR MANUAL REVIEW ({flagged_count} dialogues, {flagged_count/len(scored_results)*100:.1f}%):")
-        for r in scored_results:
+    if flagged_count > 0 and successfully_scored:
+        print(f"\n⚠️  FLAGGED FOR MANUAL REVIEW ({flagged_count} dialogues, {flagged_count/len(successfully_scored)*100:.1f}% of scored):")
+        for r in all_results:
             if r.get('auto_scores', {}).get('needs_review'):
                 patient_label = r.get('patient_name') or 'Unknown Patient'
                 score = r['auto_scores']['total']
@@ -636,8 +674,8 @@ def auto_score_results(results_file: Path, retry_failed_only: bool = False):
 
     # Show retryable errors separately
     if retryable_errors > 0:
-        print(f"\n⏸️  RETRYABLE ERRORS ({retryable_errors} dialogues, {retryable_errors/len(scored_results)*100:.1f}%) - API overload/rate limit:")
-        for r in scored_results:
+        print(f"\n⏸️  RETRYABLE ERRORS ({retryable_errors} dialogues, {retryable_errors/total_dialogues*100:.1f}%) - API overload/rate limit:")
+        for r in all_results:
             scores = r.get('auto_scores', {})
             if scores.get('error') and scores.get('is_transient'):
                 patient_label = r.get('patient_name') or 'Unknown Patient'
@@ -646,6 +684,11 @@ def auto_score_results(results_file: Path, retry_failed_only: bool = False):
     print("\n" + "=" * 70)
     print("📋 NEXT STEPS:")
     print("=" * 70)
+    if failed_dialogues:
+        print(f"  ⚠️  FAILED BENCHMARK: {len(failed_dialogues)} dialogues didn't complete")
+        print(f"     💡 These had API errors/timeouts during the benchmark run")
+        print(f"     📝 Fix your API key issue and re-run: python run_benchmark.py")
+        print()
     if retryable_errors > 0:
         print(f"  ⏸️  RETRY NEEDED: {retryable_errors} dialogues failed after {scorer.retry_passes} retry passes")
         print(f"     💡 API may still be overloaded. Options:")
@@ -661,10 +704,14 @@ def auto_score_results(results_file: Path, retry_failed_only: bool = False):
         print(f"        3. Filter by 'Needs_Review' = ⚠️ YES")
         print(f"        4. Review and override auto-scores if needed")
         print()
-    if retryable_errors == 0 and flagged_count == 0:
+    if retryable_errors == 0 and flagged_count == 0 and not failed_dialogues:
         print(f"  ✅ PERFECT! All {len(successfully_scored)} dialogues auto-approved!")
         print(f"     📊 No manual review needed")
         print(f"     🎉 Ready for analysis!")
+        print()
+    elif successfully_scored and not failed_dialogues:
+        print(f"  ✅ GOOD! {len(successfully_scored)} dialogues scored successfully")
+        print(f"     📊 Ready to generate scoring sheets")
         print()
 
     print(f"  📊 Generate scoring sheet:")
