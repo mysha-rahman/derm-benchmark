@@ -810,6 +810,16 @@ def auto_score_results(results_file: Path, retry_failed_only: bool = False):
                     print(f"   Will retry up to {scorer.retry_passes} times after cooldown periods.")
                 else:
                     print(f"   This is a PERMANENT error. Manual investigation needed.")
+
+                # Show what Gemini actually returned (first 800 chars)
+                if 'PARSING_FAILED' in scores.get('error', ''):
+                    gemini_response = scores.get('reasoning', '')[:800]
+                    print(f"\n   📝 GEMINI RESPONSE (first 800 chars):")
+                    print(f"   {'-'*66}")
+                    for line in gemini_response.split('\n')[:15]:  # First 15 lines
+                        print(f"   {line}")
+                    print(f"   {'-'*66}")
+
                 print(f"   This error is likely affecting all dialogues.\n")
                 first_error_shown = True
 
