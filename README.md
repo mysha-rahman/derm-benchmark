@@ -90,19 +90,19 @@ export GOOGLE_API_KEY='AIza...'
 ### 4. Run Benchmark & Auto-Score
 ```bash
 # Quick test with 3 dialogues
-python run_benchmark.py --quick
+python scripts/run_benchmark.py --quick
 
 # Full benchmark with 1,500 dialogues (~4.2 hours)
-python run_benchmark.py
+python scripts/run_benchmark.py
 
 # Auto-score results (saves 80% of time!)
-python auto_score.py
+python scripts/auto_score.py
 
 # Generate scoring sheet with pre-filled scores
-python create_scoring_sheet.py
+python scripts/create_scoring_sheet.py
 ```
 
-**Full setup instructions**: See [QUICK_START.md](QUICK_START.md)
+**Full setup instructions**: See [docs/QUICK_START.md](docs/QUICK_START.md)
 
 ---
 
@@ -114,8 +114,8 @@ python create_scoring_sheet.py
 
 ### How It Works
 
-1. **Run Benchmark**: `python run_benchmark.py` (~4.2 hours for 1,500 dialogues)
-2. **Auto-Score**: `python auto_score.py` (~7 min for 1,500 dialogues with adaptive rate limiting)
+1. **Run Benchmark**: `python scripts/run_benchmark.py` (~4.2 hours for 1,500 dialogues)
+2. **Auto-Score**: `python scripts/auto_score.py` (~7 min for 1,500 dialogues with adaptive rate limiting)
    - Uses Gemini as judge (LLM-as-judge pattern)
    - **Structured JSON output** with fallback regex parsing for reliability
    - Scores all 4 dimensions (0-3 each) with **confidence levels** (low/medium/high)
@@ -191,31 +191,67 @@ export GEMINI_MAX_DELAY=10.0    # Slow delay during errors (default: 10.0s)
 
 ```
 derm-benchmark/
-├── datasets/
-│   ├── HAM10000/              # 10,015 skin lesion images (reference)
-│   ├── Fitzpatrick17k/        # 16,577 dermatology images with skin tone data
-│   ├── Medical_Knowledge/     # 113 dermatological conditions with treatments
-│   └── Misinformation/        # 185 myth/fact pairs across 82 conditions
-├── dialogues/                 # Conversation templates
-│   ├── dialogue_templates.jsonl        # 1,500 multi-turn conversations
-│   └── generation_stats.json           # Generation summary
-├── validation/                # Scoring system
-│   ├── scoring_rubric.md      # Evaluation criteria (0-12 scale)
-│   └── results/               # Test outputs (generated after tests)
-├── scripts/                   # Analysis tools
-│   ├── explore_ham10000.py         # HAM10000 dataset exploration
-│   ├── explore_fitzpatrick17k.py   # Fitzpatrick17k dataset exploration
-│   └── extract_dermnet_patterns.py # DermNet NZ pattern extraction
-├── patient_profiles_1500.csv       # 1,500 synthetic patients (auto-generated)
-├── generate_patient_profiles.py    # Auto-generate profiles from real data
-├── generate_dialogues.py           # Dialogue generation from profiles
-├── run_benchmark.py                # Main benchmark runner (Gemini)
-├── auto_score.py                   # 🆕 Automated scoring (LLM-as-judge)
-├── create_scoring_sheet.py         # Scoring sheet generator (supports auto-scores)
-├── ham10000_diagnosis_distribution.png  # HAM10000 dataset visualization
-├── DATA_SOURCES.md                 # Comprehensive data sources documentation
-└── QUICK_START.md                  # Quick setup guide
+├── 📂 scripts/                      # Main workflow scripts
+│   ├── run_benchmark.py            # ⭐ Run the benchmark
+│   ├── auto_score.py               # ⭐ Auto-score results (LLM-as-judge)
+│   ├── create_scoring_sheet.py    # ⭐ Generate scoring sheets
+│   ├── verify_setup.py             # Setup verification
+│   ├── test_api.py                 # API connection test
+│   └── README.md                   # Scripts documentation
+│
+├── 📂 generation/                   # Data generation scripts
+│   ├── generate_patient_profiles.py  # Create synthetic patients
+│   ├── generate_dialogues.py        # Create conversation templates
+│   └── README.md                    # Generation documentation
+│
+├── 📂 analysis/                     # Dataset exploration
+│   ├── explore_ham10000.py         # HAM10000 analysis
+│   ├── explore_fitzpatrick17k.py   # Fitzpatrick17k analysis
+│   ├── extract_dermnet_patterns.py # DermNet NZ pattern extraction
+│   └── README.md                    # Analysis documentation
+│
+├── 📂 docs/                         # Documentation
+│   ├── QUICK_START.md              # Quick setup guide
+│   ├── SETUP.md                    # Detailed setup
+│   ├── TROUBLESHOOTING.md          # Common issues
+│   ├── DATA_SOURCES.md             # Dataset documentation
+│   └── DATASET_INTEGRATION.md      # Dataset integration guide
+│
+├── 📂 datasets/                     # Datasets (auto-downloaded)
+│   ├── HAM10000/                   # 10,015 skin lesion images
+│   ├── Fitzpatrick17k/             # 16,577 clinical images
+│   ├── Medical_Knowledge/          # 113 conditions with treatments
+│   └── Misinformation/             # 185 myth/fact pairs
+│
+├── 📂 dialogues/                    # Generated conversations
+│   ├── dialogue_templates.jsonl    # 1,500 multi-turn conversations
+│   └── generation_stats.json       # Generation statistics
+│
+├── 📂 validation/                   # Scoring & results
+│   ├── scoring_rubric.md           # Evaluation criteria (0-12 scale)
+│   └── results/                    # Benchmark results (auto-generated)
+│
+├── patient_profiles_1500.csv       # 1,500 synthetic patients
+├── README.md                        # ⭐ Main documentation (you are here!)
+├── requirements.txt                 # Python dependencies
+└── LICENSE                          # MIT License
 ```
+
+### 🎯 Key Folders for Class Demo
+
+**Start Here:**
+1. `scripts/run_benchmark.py` - Run the test
+2. `scripts/auto_score.py` - Score results
+3. `scripts/create_scoring_sheet.py` - Generate reports
+4. `validation/results/` - See outputs here
+
+**Documentation:**
+- `docs/QUICK_START.md` - Step-by-step guide
+- `README.md` - Project overview (this file)
+
+**Data Generation (Advanced):**
+- `generation/` - Create new patients/dialogues
+- `analysis/` - Explore datasets
 
 ---
 

@@ -45,7 +45,9 @@ def check_files():
     required_files = [
         "dialogues/dialogue_templates.jsonl",
         "patient_profiles_1500.csv",
-        "run_benchmark.py",
+        "scripts/run_benchmark.py",
+        "scripts/auto_score.py",
+        "scripts/create_scoring_sheet.py",
     ]
 
     all_exist = True
@@ -59,19 +61,31 @@ def check_files():
     return all_exist
 
 def check_syntax():
-    """Check if run_benchmark.py has valid syntax"""
-    try:
-        with open("run_benchmark.py", "r", encoding="utf-8") as f:
-            compile(f.read(), "run_benchmark.py", "exec")
-        print("✅ run_benchmark.py syntax is valid")
-        return True
-    except SyntaxError as e:
-        print(f"❌ Syntax error in run_benchmark.py: {e}")
-        print(f"   Line {e.lineno}: {e.text}")
-        return False
-    except UnicodeDecodeError as e:
-        print(f"❌ Unicode error in run_benchmark.py: {e}")
-        return False
+    """Check if scripts have valid syntax"""
+    scripts_to_check = [
+        "scripts/run_benchmark.py",
+        "scripts/auto_score.py",
+        "scripts/create_scoring_sheet.py"
+    ]
+
+    all_valid = True
+    for script_path in scripts_to_check:
+        try:
+            with open(script_path, "r", encoding="utf-8") as f:
+                compile(f.read(), script_path, "exec")
+            print(f"✅ {script_path} syntax is valid")
+        except SyntaxError as e:
+            print(f"❌ Syntax error in {script_path}: {e}")
+            print(f"   Line {e.lineno}: {e.text}")
+            all_valid = False
+        except UnicodeDecodeError as e:
+            print(f"❌ Unicode error in {script_path}: {e}")
+            all_valid = False
+        except FileNotFoundError:
+            print(f"❌ File not found: {script_path}")
+            all_valid = False
+
+    return all_valid
 
 def main():
     print("=" * 70)

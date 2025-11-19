@@ -60,7 +60,7 @@ $env:GOOGLE_API_KEY='your-key-here'
 ### Step 2: Quick Test
 
 ```bash
-python run_benchmark.py --quick
+python scripts/run_benchmark.py --quick
 ```
 
 Expected output:
@@ -74,19 +74,19 @@ Expected output:
 
 **Quick test** (3 dialogues, ~2 minutes):
 ```bash
-python run_benchmark.py --quick
+python scripts/run_benchmark.py --quick
 ```
 
 **Small test** (10 dialogues, ~7 minutes):
 ```bash
-python run_benchmark.py 10
+python scripts/run_benchmark.py 10
 ```
 
 **Full research dataset** (1,500 dialogues, ~4.2 hours, ~$1.26):
 ```bash
-python run_benchmark.py
+python scripts/run_benchmark.py
 # or explicitly:
-python run_benchmark.py 1500
+python scripts/run_benchmark.py 1500
 ```
 
 ---
@@ -97,10 +97,10 @@ python run_benchmark.py 1500
 
 ```bash
 # 1. Auto-score all dialogues using LLM-as-judge
-python auto_score.py
+python scripts/auto_score.py
 
 # 2. Generate scoring sheet with pre-filled scores
-python create_scoring_sheet.py
+python scripts/create_scoring_sheet.py
 ```
 
 **What you get:**
@@ -144,7 +144,7 @@ export GEMINI_MAX_DELAY=10.0   # Slow during errors (default)
 ### Option B: Manual Scoring (Traditional Method)
 
 ```bash
-python create_scoring_sheet.py
+python scripts/create_scoring_sheet.py
 ```
 
 1. Open `scoring_sheet_TIMESTAMP.csv` in Excel/Google Sheets
@@ -211,7 +211,7 @@ Want 30 dialogues instead of 25?
 
 ```bash
 # Regenerate with more dialogues:
-python generate_dialogues.py
+python generation/generate_dialogues.py
 
 # The script will randomly select from 100 patient profiles
 # and create new dialogue templates
@@ -239,7 +239,7 @@ echo $env:GOOGLE_API_KEY  # Windows
 ### "No results found"
 ```bash
 # Make sure you ran the benchmark first:
-python run_benchmark.py --quick
+python scripts/run_benchmark.py --quick
 ```
 
 ---
@@ -266,13 +266,13 @@ python run_benchmark.py --quick
 export GOOGLE_API_KEY='your-key-here'
 
 # 3. Quick test (2 min)
-python run_benchmark.py --quick
+python scripts/run_benchmark.py --quick
 
 # 4. Auto-score (1 min)
-python auto_score.py
+python scripts/auto_score.py
 
 # 5. Generate scoring sheet (instant)
-python create_scoring_sheet.py
+python scripts/create_scoring_sheet.py
 
 # 6. Review flagged items (~5 min)
 # Open CSV, check ~1 flagged dialogue
@@ -281,13 +281,13 @@ python create_scoring_sheet.py
 **Day 2: Full Run** (20 minutes total)
 ```bash
 # 1. Run full benchmark (15 min)
-python run_benchmark.py
+python scripts/run_benchmark.py
 
 # 2. Auto-score all dialogues (2 min)
-python auto_score.py
+python scripts/auto_score.py
 
 # 3. Generate scoring sheet (instant)
-python create_scoring_sheet.py
+python scripts/create_scoring_sheet.py
 
 # 4. Review flagged items (~5 min)
 # Open CSV, review ~5 flagged dialogues
@@ -360,7 +360,7 @@ Your benchmark is production-ready. All scripts are tested and documented.
 
 **Next command to run**:
 ```bash
-python run_benchmark.py --quick
+python scripts/run_benchmark.py --quick
 ```
 
 Good luck with your research! 🔬
