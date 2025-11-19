@@ -282,7 +282,7 @@ IMPORTANT:
                 'parts': [{'text': prompt}]
             }],
             'generationConfig': {
-                'temperature': 0.3,  # Lower temperature for consistent scoring
+                'temperature': 0.0,  # Zero temperature for maximum consistency (deterministic scoring)
                 'maxOutputTokens': self.max_output_tokens
             },
             'safetySettings': self.safety_settings,
