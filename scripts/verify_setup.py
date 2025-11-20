@@ -10,7 +10,7 @@ import os
 def check_python_version():
     """Check Python version is 3.8+"""
     if sys.version_info < (3, 8):
-        print("❌ Python 3.8+ required. You have:", sys.version)
+        print("❌ Python 3.8+ required. Detected:", sys.version)
         return False
     print(f"✅ Python {sys.version_info.major}.{sys.version_info.minor} detected")
     return True
@@ -110,7 +110,7 @@ def main():
 
     print("=" * 70)
     if all(results):
-        print("✅ ALL CHECKS PASSED! You're ready to run the benchmark!")
+        print("✅ ALL CHECKS PASSED! Setup complete.")
         print("=" * 70)
         print("\nNext step:")
         print("  python run_benchmark.py --quick")
