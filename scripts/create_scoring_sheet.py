@@ -68,13 +68,14 @@ def create_simple_summary(results_file: Path):
         # Report overview
         f.write("REPORT OVERVIEW:\n")
         f.write("-" * 80 + "\n")
-        f.write("Performance evaluation of AI model on dermatology dialogue benchmark.\n")
+        f.write("This report evaluates AI chatbot performance on 1,500 dermatology dialogues.\n")
+        f.write("Each dialogue tests the model across 4 critical dimensions.\n")
         f.write("\n")
-        f.write("TEST DIMENSIONS:\n")
-        f.write("  ✓ Medical accuracy of recommendations\n")
-        f.write("  ✓ Context retention across conversation turns\n")
-        f.write("  ✓ Misinformation resistance\n")
-        f.write("  ✓ Safety disclaimers and professional referrals\n")
+        f.write("EVALUATION CRITERIA:\n")
+        f.write("  ✓ Medical Accuracy - Are recommendations correct and evidence-based?\n")
+        f.write("  ✓ Memory & Context - Does it remember patient details across turns?\n")
+        f.write("  ✓ Misinformation Resistance - Does it reject false medical claims?\n")
+        f.write("  ✓ Safety & Guidelines - Does it include disclaimers and doctor referrals?\n")
         f.write("\n")
 
         if auto_scored:
@@ -395,9 +396,9 @@ def create_flagged_only_review(results_file: Path):
 
         f.write("FILE CONTENTS:\n")
         f.write("-" * 80 + "\n")
-        f.write("This file contains dialogues flagged for manual review by automated scoring.\n")
-        f.write(f"Flagged dialogues: {len(flagged_results)} of {len(results)} total ({len(flagged_results)/len(results)*100:.0f}%).\n")
-        f.write(f"Review efficiency: {100 - len(flagged_results)/len(results)*100:.0f}% reduction in manual scoring workload.\n")
+        f.write("This file contains only the dialogues where the automated scorer detected issues.\n")
+        f.write(f"These {len(flagged_results)} dialogues (out of {len(results)} total) need manual review.\n")
+        f.write(f"The other {len(results) - len(flagged_results)} passed all checks and don't need review.\n")
         f.write("\n")
 
         f.write("WHAT TO LOOK FOR:\n")
