@@ -76,10 +76,10 @@ def test_api():
             print(f"✅ API Response: {extracted_text}")
             print()
             print("=" * 70)
-            print("✅ SUCCESS! Your API is working correctly!")
+            print("✅ SUCCESS! API connection verified.")
             print("=" * 70)
             print()
-            print("You can now run the benchmark:")
+            print("Ready to run benchmark:")
             print("  python run_benchmark.py --quick")
             return True
         else:
