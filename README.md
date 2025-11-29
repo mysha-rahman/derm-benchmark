@@ -85,7 +85,7 @@ pip install -r requirements.txt
 export GOOGLE_API_KEY='AIza...'
 ```
 
-> **Note**: For the full benchmark, we used **Paid Tier 1** with Google's free monthly credits (actual cost: $0). Free tier has a 250 requests/day limit, which would take ~36 days to complete the benchmark. To test GPT-4 or Claude, see [multi-model setup](#) (future).
+> **Note**: For the full benchmark, we used **Paid Tier 1** with Google's free monthly credits (actual cost: $0). Free tier has a 250 requests/day limit, which would take ~6 days to complete the benchmark. To test GPT-4 or Claude, see [multi-model setup](#) (future).
 
 ### 4. Run Benchmark & Auto-Score
 ```bash
@@ -397,7 +397,7 @@ Rate Limits (Paid Tier 1):
 > **Important**: We used **Paid Tier 1** with Google's free monthly credits, so actual out-of-pocket cost was **$0.00**. The credits cover usage, and no billing occurs unless you exceed the credit amount.
 
 **Free tier limitations** (NOT recommended for full benchmark):
-- **Daily limit: 250 requests/day** → Would take **~36 days** to complete 9,000 API calls
+- **Daily limit: 250 requests/day** → Would take **~6 days** to complete 9,000 API calls
 - Free tier is suitable only for quick tests (10-25 dialogues max per day)
 - Recommendation: Use Paid Tier 1 with free credits for the full benchmark
 
