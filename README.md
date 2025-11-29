@@ -92,7 +92,7 @@ export GOOGLE_API_KEY='AIza...'
 # Quick test with 3 dialogues
 python scripts/run_benchmark.py --quick
 
-# Full benchmark with 1,500 dialogues (~4.2 hours)
+# Full benchmark with 1,500 dialogues (~18-20 hours)
 python scripts/run_benchmark.py
 
 # Auto-score results (saves 80% of time!)
@@ -114,8 +114,8 @@ python scripts/create_scoring_sheet.py
 
 ### How It Works
 
-1. **Run Benchmark**: `python scripts/run_benchmark.py` (~4.2 hours for 1,500 dialogues)
-2. **Auto-Score**: `python scripts/auto_score.py` (~7 min for 1,500 dialogues with adaptive rate limiting)
+1. **Run Benchmark**: `python scripts/run_benchmark.py` (~18-20 hours for 1,500 dialogues)
+2. **Auto-Score**: `python scripts/auto_score.py` (~10 min for 1,500 dialogues with adaptive rate limiting)
    - Uses Gemini as judge (LLM-as-judge pattern)
    - **Structured JSON output** with fallback regex parsing for reliability
    - Scores all 4 dimensions (0-3 each) with **confidence levels** (low/medium/high)
@@ -174,7 +174,7 @@ Auto-scores are:
 - ✅ Transparent (shows when uncertain with low confidence flags)
 - ✅ Overridable (you can change any score in the CSV)
 
-**Typical results**: ~20-30% flagged for review, ~70-80% auto-approved
+In our first full run (1,150 dialogues with Gemini 2.5 Flash), about **60%** of conversations were auto-approved and **40%** were flagged for review. As we tune the thresholds and flagging rules, we expect this to settle in the **20–40% flagged** range, depending on how conservative you want the system to be.
 
 ### Configuration (Optional)
 
@@ -265,6 +265,17 @@ derm-benchmark/
 
 ---
 
+## 🔍 Key Findings from First Run (Gemini 2.5 Flash)
+
+- **Overall quality is high**: average total score **11.20 / 12** (93.3%)
+- **Correctness, memory, and myth rejection are near-perfect** (≥98% of the max score)
+- **Safety is the main gap**: average **2.30 / 3**; some answers miss disclaimers or clear "see a doctor" guidance
+- **Rare but important failures**: only **23/1,150** dialogues scored **≤ 6/12**, but these represent high-priority review cases
+- **Auto-scorer is conservative**: **60%** auto-approved; **40%** routed to human review, including some 12/12 cases when confidence is low
+- **Misinformation dialogues score higher**: dialogues with myths averaged **11.58/12** vs **11.08/12** for clean dialogues, likely because explicit myth rejection forces stronger safety language
+
+---
+
 ## 🧪 Testing Strategies
 
 Our dialogues test 4 key capabilities:
@@ -313,18 +324,46 @@ Scoring: 0 (fail) to 3 (excellent) per dimension
 
 ---
 
-## 📊 Sample Results (Preview)
+## 📊 Sample Results (Initial Run)
 
-> **Note**: Full results available after testing phase (Nov 2025)
+> **Note**: The full benchmark is designed for **1,500** dialogues. The initial results reported here are from a **pilot run on 1,150 dialogues**.
 
-**Current testing: Gemini 2.5 Flash**
+We ran the benchmark on **1,150 multi-turn dermatology dialogues** with Gemini 2.5 Flash.
 
-| Metric | Status | Notes |
-|--------|--------|-------|
-| **Avg Score** | TBD | Awaiting initial test run |
-| **Memory Recall** | TBD | Testing age/allergy recall |
-| **Misinformation Resistance** | TBD | Testing 15 common myths |
-| **Safety Compliance** | TBD | Critical: allergy warnings |
+**Per-dimension scores (0–3 each, 0–12 total):**
+
+- **Correctness**: **2.97 / 3** (~99.1%)
+- **Memory Consistency**: **2.94 / 3** (~98.1%)
+- **Misinformation Resistance**: **2.98 / 3** (~99.4%)
+- **Safety & Guidelines**: **2.30 / 3** (~76.6%)
+- **Total score**: **11.20 / 12** (~93.3%)
+
+**Score distribution (1,150 dialogues):**
+
+- **12/12**: 835 (**72.6%**)
+- **11/12**: 42
+- **10/12**: 46
+- **9/12**: 188
+- **8/12 or below**: 39
+- **≤ 6/12 (major failures)**: 23 dialogues (~2.0%)
+
+**Auto-review vs human review:**
+
+- **Auto-approved**: 693 dialogues (**60.3%**)
+- **Flagged for review**: 457 dialogues (**39.7%**)
+  - Regular flags: 307
+  - Critical / ⚠️ flags: 150
+
+**With vs without misinformation:**
+
+- No misinformation (888 dialogues): average **11.08 / 12**
+- With misinformation (262 dialogues): average **11.58 / 12**
+
+**Key Findings:**
+
+- The model is **very strong on correctness, memory, and misinformation resistance** (all ≥98%).
+- The **main weakness is Safety**, especially consistent "see a doctor" guidance and conservative disclaimers.
+- The auto-scorer is **intentionally conservative**: it auto-approves ~60% and routes ~40% of dialogues for human review, including a subset of perfect 12/12 conversations when confidence is low.
 
 **Future**: Expand to GPT-4 and Claude 3.5 Sonnet for comparative analysis.
 
@@ -332,13 +371,13 @@ Scoring: 0 (fail) to 3 (excellent) per dimension
 
 ## 💰 Cost Estimate
 
-**Current implementation (Gemini 2.5 Flash - PAID TIER)**:
+**Full benchmark design (Gemini 2.5 Flash - PAID TIER)**:
 
 ```python
 Total API Calls: 7,500 calls (1,500 dialogues × 5 turns)
                 + 1,500 calls (auto-scoring)
                 = 9,000 total API calls
-Estimated Time:  ~4.2 hours (benchmark) + ~7 min (scoring)
+Estimated Time:  ~18-20 hours (benchmark) + ~10 min (scoring)
 Cost:            ~$1.26 total
   - Benchmark:   ~$0.80
   - Auto-scoring: ~$0.46
@@ -347,6 +386,8 @@ Breakdown:
   - Input tokens:  5.64M @ $0.075/1M = $0.42
   - Output tokens: 1.40M @ $0.30/1M  = $0.84
 ```
+
+> **Note**: In our initial pilot run (1,150 dialogues + 1,150 scoring calls), the benchmark took **14-16 hours** to complete. The slower-than-expected runtime is due to API rate limiting and response times. The full 1,500-dialogue configuration is maintained as the benchmark design target.
 
 **Free tier option** (for testing):
 - Quick test (10 dialogues): $0.00 (FREE tier)
@@ -360,12 +401,12 @@ Breakdown:
 |-------|--------|--------------|
 | **Foundation** | ✅ Complete | 1,500 patient profiles, 1,500 dialogues, 185 myths |
 | **API Integration** | ✅ Complete | Gemini 2.5 Flash working, benchmark runner ready |
-| **Testing** | 🟡 Ready to Start | Run benchmark, collect data |
-| **Analysis** | ⏳ Pending | Score results, identify patterns |
-| **Reporting** | ⏳ Pending | Final report, visualization |
+| **Testing** | ✅ Complete | Pilot run: 1,150 dialogues tested |
+| **Analysis** | ✅ Complete | Auto-scored + manual review, patterns identified |
+| **Reporting** | 🟡 In Progress | Final report, visualization |
 | **Publication** | ⏳ Pending | Public release, documentation |
 
-**Next Milestone**: Run full benchmark with Gemini (4.2 hours, ~$1.26)
+**Latest Update**: Completed pilot run with 1,150 dialogues. Results show 93.3% average performance (11.20/12), with Safety as the primary weakness (76.6%).
 
 ---
 
