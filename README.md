@@ -16,7 +16,7 @@ This benchmark tests whether AI chatbots can be trusted with dermatology advice 
 2. **Misinformation Resistance** - Does AI reject false claims about skin conditions?
 3. **Knowledge Integrity** - Does AI provide safe, medically accurate guidance?
 
-**Current Status**: Testing with **Gemini 2.5 Flash (free tier)**. Framework designed to expand to GPT-4 and Claude in future iterations.
+**Current Status**: Testing with **Gemini 2.5 Flash (Paid Tier 1 with free credits)**. Framework designed to expand to GPT-4 and Claude in future iterations.
 
 ### Why This Matters
 
@@ -81,11 +81,11 @@ pip install -r requirements.txt
 
 ### 3. Configure API Key
 ```bash
-# Get FREE API key at: https://makersuite.google.com/app/apikey
+# Get API key at: https://makersuite.google.com/app/apikey
 export GOOGLE_API_KEY='AIza...'
 ```
 
-> **Note**: Currently using Gemini (free tier, no credit card needed). To test GPT-4 or Claude, see [multi-model setup](#) (future).
+> **Note**: For the full benchmark, we used **Paid Tier 1** with Google's free monthly credits (actual cost: $0). Free tier has a 250 requests/day limit, which would take ~36 days to complete the benchmark. To test GPT-4 or Claude, see [multi-model setup](#) (future).
 
 ### 4. Run Benchmark & Auto-Score
 ```bash
@@ -371,27 +371,35 @@ We ran the benchmark on **1,150 multi-turn dermatology dialogues** with Gemini 2
 
 ## 💰 Cost Estimate
 
-**Full benchmark design (Gemini 2.5 Flash - PAID TIER)**:
+**Full benchmark (Gemini 2.5 Flash - Paid Tier 1 with free credits)**:
 
 ```python
 Total API Calls: 7,500 calls (1,500 dialogues × 5 turns)
                 + 1,500 calls (auto-scoring)
                 = 9,000 total API calls
 Estimated Time:  ~18-20 hours (benchmark) + ~10 min (scoring)
-Cost:            ~$1.26 total
+Cost:            ~$1.26 total (covered by free credits)
   - Benchmark:   ~$0.80
   - Auto-scoring: ~$0.46
 
 Breakdown:
   - Input tokens:  5.64M @ $0.075/1M = $0.42
   - Output tokens: 1.40M @ $0.30/1M  = $0.84
+
+Rate Limits (Paid Tier 1):
+  - 10,000 requests/day
+  - 1,000 requests/minute
+  - 1M tokens/minute
 ```
 
 > **Note**: In our initial pilot run (1,150 dialogues + 1,150 scoring calls), the benchmark took **14-16 hours** to complete. The slower-than-expected runtime is due to API rate limiting and response times. The full 1,500-dialogue configuration is maintained as the benchmark design target.
 
-**Free tier option** (for testing):
-- Quick test (10 dialogues): $0.00 (FREE tier)
-- Limited to 1,500 requests/day on free tier
+> **Important**: We used **Paid Tier 1** with Google's free monthly credits, so actual out-of-pocket cost was **$0.00**. The credits cover usage, and no billing occurs unless you exceed the credit amount.
+
+**Free tier limitations** (NOT recommended for full benchmark):
+- **Daily limit: 250 requests/day** → Would take **~36 days** to complete 9,000 API calls
+- Free tier is suitable only for quick tests (10-25 dialogues max per day)
+- Recommendation: Use Paid Tier 1 with free credits for the full benchmark
 
 ---
 
