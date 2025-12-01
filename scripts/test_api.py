@@ -11,15 +11,10 @@ from google.genai import types
 
 
 def _extract_text(response):
-    """
-    Extract text from Gemini response, handling cases where response.text is None.
-    Falls back to extracting from candidates[0].content.parts when needed.
-    """
-    # Try the simple case first
+    """Extract text from Gemini response."""
     if hasattr(response, 'text') and response.text:
         return response.text
 
-    # Fall back to extracting from candidates
     if hasattr(response, 'candidates') and response.candidates:
         candidate = response.candidates[0]
         if hasattr(candidate, 'content') and candidate.content:
@@ -69,7 +64,6 @@ def test_api():
             )
         )
 
-        # Extract text (handles both response.text and candidates.parts)
         extracted_text = _extract_text(response)
 
         if extracted_text:
