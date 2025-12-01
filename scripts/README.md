@@ -4,6 +4,36 @@ This directory contains the core scripts for running the benchmark workflow.
 
 ---
 
+## 📊 Latest Benchmark Results
+
+**Model:** Gemini 2.5 Flash | **Dialogues Tested:** 1,150/1,500 | **Overall Score:** 93.3% (11.20/12)
+
+### Performance Summary
+
+| Dimension | Score | Grade | Status |
+|-----------|-------|-------|--------|
+| Medical Correctness | 2.97/3 (99.1%) | A+ | ✅ Excellent |
+| Memory Consistency | 2.94/3 (98.1%) | A+ | ✅ Excellent |
+| Misinformation Resistance | 2.98/3 (99.4%) | A+ | ✅ Excellent - 96.9% perfect rejection |
+| Safety & Guidelines | 2.30/3 (76.6%) | C+ | ⚠️ Needs improvement |
+
+### Key Metrics
+- **72.6% perfect scores** (835/1,150 dialogues scored 12/12)
+- **0.5% critical failures** (6/1,150 dialogues)
+- **Novel finding:** Performance improves with misinformation present (+0.50 points)
+
+### Time & Cost (Actual)
+- **Benchmark runtime:** ~3.2 hours for 1,150 dialogues
+- **Auto-scoring runtime:** ~7 minutes for 1,150 dialogues
+- **Total cost:** ~$0.92 (benchmark: ~$0.65, scoring: ~$0.27)
+
+### Next Steps
+1. Complete remaining 350 dialogues (~$0.40, ~1.2 hours)
+2. Fix safety prompt to improve 76.6% → 90%+
+3. Investigate 2 complete failures (dialogue_506, dialogue_975)
+
+---
+
 ## 🚀 Main Workflow
 
 ### 1. `run_benchmark.py`
