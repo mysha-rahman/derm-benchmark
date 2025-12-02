@@ -407,9 +407,9 @@ Time Comparison:
 
 | Member | Role | Focus |
 |--------|------|-------|
-| **Mysha Rahman** | Technical Lead | API integration, infrastructure |
-| **Hanim Syed** | Dialogue Design | Misinformation library, conversation templates |
-| **Syarifah Syed** | Data Validation | Patient profiles, scoring rubric |
+| **Mysha Rahman** | Technical Lead | API integration, Infrastructure, Conversation templates, Benchmsrk & Auto Scoring |
+| **Hanim Syed** | Dialogue Design | Misinformation library,  Manual scoring |
+| **Syarifah Syed** | Data Validation | Patient profiles, Vizualization |
 
 ---
 
