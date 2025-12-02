@@ -407,7 +407,7 @@ Time Comparison:
 
 | Member | Role | Focus |
 |--------|------|-------|
-| **Mysha Rahman** | Technical Lead | API integration, Infrastructure, Conversation templates, Benchmsrk & Auto Scoring |
+| **Mysha Rahman** | Technical Lead | API integration, Infrastructure, Conversation templates, Benchmark & Auto Scoring |
 | **Hanim Syed** | Dialogue Design | Misinformation library,  Manual scoring |
 | **Syarifah Syed** | Data Validation | Patient profiles, Vizualization |
 
