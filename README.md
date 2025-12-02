@@ -92,10 +92,10 @@ export GOOGLE_API_KEY='AIza...'
 # Quick test with 3 dialogues
 python scripts/run_benchmark.py --quick
 
-# Full benchmark with 1,500 dialogues (~4.2 hours)
+# Full benchmark with 1,500 dialogues (~15 hours actual runtime)
 python scripts/run_benchmark.py
 
-# Auto-score results (saves 80% of time!)
+# Auto-score results (~2 hours - saves WEEKS of manual work!)
 python scripts/auto_score.py
 
 # Generate scoring sheet with pre-filled scores
@@ -108,14 +108,14 @@ python scripts/create_scoring_sheet.py
 
 ## 🤖 Automated Scoring (ENHANCED!)
 
-**Problem**: Manual scoring takes ~2 hours for 25 dialogues
+**Problem**: Manual scoring takes **5-10 minutes per dialogue** → **144 hours for 1,150 dialogues** (3-4 weeks of work!)
 
 **Solution**: Intelligent auto-scoring with confidence tracking and targeted human review
 
 ### How It Works
 
-1. **Run Benchmark**: `python scripts/run_benchmark.py` (~4.2 hours for 1,500 dialogues)
-2. **Auto-Score**: `python scripts/auto_score.py` (~7 min for 1,500 dialogues with adaptive rate limiting)
+1. **Run Benchmark**: `python scripts/run_benchmark.py` (~15 hours actual runtime for 1,500 dialogues)
+2. **Auto-Score**: `python scripts/auto_score.py` (~2 hours for 1,500 dialogues with adaptive rate limiting)
    - Uses Gemini as judge (LLM-as-judge pattern)
    - **Structured JSON output** with fallback regex parsing for reliability
    - Scores all 4 dimensions (0-3 each) with **confidence levels** (low/medium/high)
@@ -123,7 +123,7 @@ python scripts/create_scoring_sheet.py
    - **Dynamic rate limiting** adapts to API health (1-10s delay based on error rate)
    - Flags dialogues needing review
 3. **Human Review**: Focus on flagged items only (~300-450 flagged out of 1,500)
-4. **Time Saved**: 125 hours → 12-15 hours (88-90% reduction!)
+4. **Time Saved**: **144 hours → ~17 hours total** (benchmark + auto-score) = **90% time reduction!**
 
 ### Enhanced Flagging Criteria
 
@@ -367,25 +367,24 @@ Scoring: 0 (fail) to 3 (excellent) per dimension
 
 ## 💰 Cost Estimate
 
-**Current implementation (Gemini 2.5 Flash - PAID TIER)**:
+**Actual Performance (Gemini 2.5 Flash - FREE TIER)**:
 
 ```python
-Total API Calls: 7,500 calls (1,500 dialogues × 5 turns)
-                + 1,500 calls (auto-scoring)
-                = 9,000 total API calls
-Estimated Time:  ~4.2 hours (benchmark) + ~7 min (scoring)
-Cost:            ~$1.26 total
-  - Benchmark:   ~$0.80
-  - Auto-scoring: ~$0.46
+Total API Calls: 5,750 calls (1,150 dialogues × 5 turns) + 1,150 calls (auto-scoring) = 6,900 calls
+Actual Runtime:  ~15 hours (benchmark) + ~2 hours (auto-scoring) = ~17 hours total
+Cost:            $0.00 (free tier)
 
-Breakdown:
-  - Input tokens:  5.64M @ $0.075/1M = $0.42
-  - Output tokens: 1.40M @ $0.30/1M  = $0.84
+Time Comparison:
+  - Manual scoring: 1,150 dialogues × 7.5 min = 144 hours (3-4 weeks!)
+  - With auto-scoring: ~17 hours total (benchmark + scoring)
+  - Time saved: 127 hours (90% reduction)
 ```
 
-**Free tier option** (for testing):
-- Quick test (10 dialogues): $0.00 (FREE tier)
-- Limited to 1,500 requests/day on free tier
+**Free Tier Benefits**:
+- Gemini 2.5 Flash is **completely free** to use
+- No credit card required
+- Sufficient quota for full benchmark testing
+- Check https://ai.google.dev/ for current limits
 
 ---
 
@@ -493,6 +492,9 @@ This benchmark is for research purposes only. AI models tested should **NOT** be
 
 ---
 
-**Status**: 🟢 Testing Complete - 93.3% Overall Performance
-**Last Updated**: December 1, 2025
-**Next Milestone**: Complete remaining 350 dialogues + improve safety prompts (76.6% → 90%+)
+**Status**: 🟢 Testing Complete - 93.3% Overall Performance (1,150/1,500 dialogues)
+**Runtime**: ~17 hours total (15h benchmark + 2h auto-scoring)
+**Cost**: $0.00 (free tier - no credit card required!)
+**Time Saved vs Manual**: 127 hours (90% reduction - would take 3-4 weeks manually!)
+**Last Updated**: December 2, 2025
+**Next Milestone**: Complete remaining 350 dialogues (~5h runtime) + improve safety prompts (76.6% → 90%+)

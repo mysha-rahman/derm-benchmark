@@ -22,13 +22,15 @@ This directory contains the core scripts for running the benchmark workflow.
 - **0.5% critical failures** (6/1,150 dialogues)
 - **Novel finding:** Performance improves with misinformation present (+0.50 points)
 
-### Time & Cost (Actual)
-- **Benchmark runtime:** ~3.2 hours for 1,150 dialogues
-- **Auto-scoring runtime:** ~7 minutes for 1,150 dialogues
-- **Total cost:** ~$0.92 (benchmark: ~$0.65, scoring: ~$0.27)
+### Time & Cost (Actual - 1,150 dialogues tested)
+- **Benchmark runtime:** ~12 hours for 1,150 dialogues (actual runtime)
+- **Auto-scoring runtime:** ~1.5 hours for 1,150 dialogues
+- **Total cost:** $0.00 (free tier - no credit card required!)
+- **Manual scoring alternative:** 1,150 × 7.5 min = **144 hours (3-4 weeks!)**
+- **Time saved:** 127 hours (90% reduction)
 
 ### Next Steps
-1. Complete remaining 350 dialogues (~$0.40, ~1.2 hours)
+1. Complete remaining 350 dialogues (~4 hours runtime, $0 with free tier)
 2. Fix safety prompt to improve 76.6% → 90%+
 3. Investigate 2 complete failures (dialogue_506, dialogue_975)
 

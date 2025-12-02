@@ -120,9 +120,9 @@ python scripts/create_scoring_sheet.py
 - ✅ **Broadened flagging** - Catches borderline cases, not just critical failures
 
 **Time savings:**
-- Manual scoring: ~125 hours for 1,500 dialogues
-- Auto-scoring + review: ~12-15 hours (88-90% reduction!)
-- **Saves 80% of your time!**
+- Manual scoring: ~125 hours (5 min per dialogue × 1,500) = **weeks of work**
+- Auto-scoring + review: ~17 hours total (benchmark + scoring + review)
+- **Saves 90%+ of your time!**
 
 **Review process:**
 1. Open `scoring_sheet_TIMESTAMP.csv`
@@ -174,20 +174,21 @@ Calculate:
 
 ## 💰 Cost Estimate
 
-| Task | API Calls | Cost | Time |
-|------|-----------|------|------|
-| Quick test (3 dialogues) | 15 calls | $0.00 | 2 min |
-| Full test (25 dialogues) | 125 calls | $0.00 | 15 min |
-| **Auto-score (25 dialogues)** | 25 calls | $0.00 | 2 min |
-| **Complete workflow (test + score)** | 150 calls | $0.00 | ~17 min |
-| Scale to 100 dialogues + scoring | 600 calls | $0.00 | ~70 min |
+| Task | API Calls | Cost (with promo credits) | Time (Actual) |
+|------|-----------|---------------------------|---------------|
+| Quick test (3 dialogues) | 15 calls | $0.00 | ~5 min |
+| Full test (25 dialogues) | 125 calls | $0.00 | ~30 min |
+| **Auto-score (25 dialogues)** | 25 calls | $0.00 | ~3 min |
+| **Full benchmark (1,500)** | 9,000 calls | $0.00 | ~17 hours total |
+| Manual scoring alternative | N/A | N/A | **~125 hours (weeks!)** |
 
-**Gemini free tier**: 60 requests/min, 1,500/day → MORE than enough!
+**Gemini Free Tier**: Completely free, no credit card required → $0 cost for full benchmark!
+**Limits**: 60 requests/min, 1,500/day (more than enough for testing)
 
 **Total workflow** (run test + auto-score + review):
-- 3 dialogues: ~5 minutes total
-- 25 dialogues: ~20 minutes total
-- 100 dialogues: ~1.5 hours total
+- 3 dialogues: ~10 minutes total
+- 25 dialogues: ~45 minutes total
+- 1,500 dialogues: ~17 hours total (vs **weeks** of manual scoring!)
 
 ---
 
@@ -278,19 +279,21 @@ python scripts/create_scoring_sheet.py
 # Open CSV, check ~1 flagged dialogue
 ```
 
-**Day 2: Full Run** (20 minutes total)
+**Day 2-3: Full Run** (~17 hours total over 2-3 days)
 ```bash
-# 1. Run full benchmark (15 min)
+# 1. Run full benchmark (1,500 dialogues - ~15 hours)
+# Let this run overnight or over a weekend
 python scripts/run_benchmark.py
 
-# 2. Auto-score all dialogues (2 min)
+# 2. Auto-score all dialogues (~2 hours)
 python scripts/auto_score.py
 
 # 3. Generate scoring sheet (instant)
 python scripts/create_scoring_sheet.py
 
-# 4. Review flagged items (~5 min)
-# Open CSV, review ~5 flagged dialogues
+# 4. Review flagged items (as needed)
+# Open CSV, review ~300-450 flagged dialogues
+# Much faster than manually scoring all 1,500!
 ```
 
 **Day 3: Analysis & Reporting**

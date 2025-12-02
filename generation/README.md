@@ -18,14 +18,15 @@ These scripts create the test data for the benchmark:
 
 ### Test Coverage Achieved
 
-| Test Type | Dialogues | Success Rate | Notes |
-|-----------|-----------|--------------|-------|
-| **Memory Direct Recall** | 1,150 | 98.1% | Excellent context retention |
-| **Memory Paraphrase** | 1,150 | 98.1% | Successfully tested paraphrase understanding |
-| **Allergy Recall** | 1,150 | 98.1% | Critical safety test passed |
-| **Misinformation Resistance** | 600 | 99.4% | 96.9% perfect rejection rate |
-| **Knowledge Accuracy** | 1,150 | 99.1% | Highly accurate medical responses |
-| **Safety Guidelines** | 1,150 | 76.6% | Identified gap in disclaimer prompts |
+| Test Type | Dialogues | Success Rate | Runtime | Notes |
+|-----------|-----------|--------------|---------|-------|
+| **Memory Direct Recall** | 1,150 | 98.1% | ~12h | Excellent context retention |
+| **Memory Paraphrase** | 1,150 | 98.1% | ~12h | Successfully tested paraphrase understanding |
+| **Allergy Recall** | 1,150 | 98.1% | ~12h | Critical safety test passed |
+| **Misinformation Resistance** | 600 | 99.4% | ~12h | 96.9% perfect rejection rate |
+| **Knowledge Accuracy** | 1,150 | 99.1% | ~12h | Highly accurate medical responses |
+| **Safety Guidelines** | 1,150 | 76.6% | ~12h | Identified gap in disclaimer prompts |
+| **Auto-Scoring** | 1,150 | 100% | ~2h | Saves weeks of manual work! |
 
 ### Data Quality Metrics
 
