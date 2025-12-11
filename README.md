@@ -82,7 +82,9 @@ pip install -r requirements.txt
 ### 3. Configure API Key
 ```bash
 # Get API key at: https://makersuite.google.com/app/apikey
-export GOOGLE_API_KEY='AIza...'
+
+$env:GOOGLE_API_KEY = "AIza............."
+echo $env:GOOGLE_API_KEY
 ```
 
 > **Note**: For the full benchmark, we used **Paid Tier 1** with Google's free monthly credits (actual cost: $0). Free tier has a 1,500 requests/day limit, which would take ~6 days to complete the benchmark. To test GPT-4 or Claude, see [multi-model setup](#) (future).
