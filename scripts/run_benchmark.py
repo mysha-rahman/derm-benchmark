@@ -33,13 +33,7 @@ class GeminiFreeClient:
         self.timeout = timeout
 
     def _extract_text(self, response):
-        """
-        Extract text from Gemini response, handling cases where response.text is None.
-        Falls back to extracting from candidates[0].content.parts when needed.
-
-        This handles MAX_TOKENS and other cases where response.text isn't populated.
-        """
-        # Try the simple case first
+        """Extract text from Gemini response."""
         if hasattr(response, 'text') and response.text:
             return response.text
 
@@ -62,7 +56,7 @@ class GeminiFreeClient:
 
         prompt = "\n".join(f"{m['role']}: {m['content']}" for m in messages)
 
-        for attempt in range(3):  # exponential backoff
+        for attempt in range(3):
             try:
                 response = self.client.models.generate_content(
                     model=self.model,
@@ -91,15 +85,12 @@ class GeminiFreeClient:
                         # Print finish_reason for debugging
                         if reason != 'STOP' and reason != '1':  # 1 is FinishReason.STOP
                             print(f"DEBUG: finish_reason={reason}")
-                        # Gemini blocks with finish_reason = SAFETY, RECITATION, or OTHER
                         if 'SAFETY' in reason.upper() or 'RECITATION' in reason.upper() or 'OTHER' in reason.upper():
-                            # Get safety ratings if available
                             safety_info = ""
                             if hasattr(candidate, 'safety_ratings'):
                                 safety_info = f" Safety ratings: {candidate.safety_ratings}"
                             raise ValueError(f"Content blocked during generation (finish_reason: {reason}){safety_info}")
 
-                # Extract text using helper (handles response.text or candidates.parts)
                 extracted_text = self._extract_text(response)
 
                 if not extracted_text:
@@ -119,7 +110,6 @@ class GeminiFreeClient:
                 }
 
             except AttributeError as e:
-                # This happens when response.text doesn't exist
                 full_error = f"Response missing text attribute: {str(e)}"
                 print(f"❌ API Error: {full_error}")
                 return {
@@ -131,14 +121,12 @@ class GeminiFreeClient:
                 err = str(e).lower()
                 full_error = str(e)
 
-                # retry only for timeouts + transient server failures
                 if "timeout" in err or "deadline" in err or "unavailable" in err:
                     wait = 2 ** attempt
                     print(f"    ⏳ Timeout (attempt {attempt+1}/3), retrying in {wait}s...")
                     time.sleep(wait)
                     continue
 
-                # final failure (no retry) - print actual error for debugging
                 print(f"❌ API Error: {full_error}")
                 return {
                     "response": None,
@@ -146,7 +134,6 @@ class GeminiFreeClient:
                     "error": full_error
                 }
 
-        # All retries exhausted
         print(f"❌ Timeout after 3 retries")
         return {
             "response": None,
@@ -212,7 +199,7 @@ def run_dialogue(client: GeminiFreeClient, dialogue: dict) -> dict:
                 })
             break
 
-        time.sleep(2)  # Increased from 1.1s to 2s to reduce API load
+        time.sleep(2)
 
     return result
 
@@ -237,8 +224,7 @@ def run_benchmark(num_dialogues: int = 1500, save_checkpoint_every: int = 100):
 
     dialogues = dialogues[:num_dialogues]
 
-    # Time estimates
-    estimated_time_minutes = (len(dialogues) * 5 * 2) / 60  # 5 turns * 2s delay
+    estimated_time_minutes = (len(dialogues) * 5 * 2) / 60
     print(f"\n⏱️  Estimated time: {estimated_time_minutes:.0f} minutes ({estimated_time_minutes/60:.1f} hours)")
     print(f"💾 Checkpoints saved every {save_checkpoint_every} dialogues")
     print(f"\n🚀 Running benchmark ({len(dialogues)} dialogues)\n")
@@ -261,7 +247,6 @@ def run_benchmark(num_dialogues: int = 1500, save_checkpoint_every: int = 100):
         results.append(run_dialogue(client, dialogue))
         print()
 
-        # Save checkpoint every N dialogues
         if i % save_checkpoint_every == 0:
             checkpoint_file = Path("validation/results") / f"checkpoint_{i}_dialogues.json"
             checkpoint_file.parent.mkdir(parents=True, exist_ok=True)
@@ -317,9 +302,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "--quick":
         run_quick_test()
     elif len(sys.argv) > 1 and sys.argv[1].isdigit():
-        # Allow custom number: python run_benchmark.py 100
         num = int(sys.argv[1])
         run_benchmark(num_dialogues=num)
     else:
-        # Default: 1500 dialogues for full research dataset
         run_benchmark(num_dialogues=1500)

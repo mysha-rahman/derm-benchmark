@@ -1,17 +1,6 @@
-"""
-Extract Clinical Patterns from DermNet NZ Cases
-
-This script analyzes DermNet NZ case studies to understand common clinical patterns,
-which inform the creation of realistic synthetic patient profiles.
-
-ETHICAL USE:
-- We extract PATTERNS (e.g., "psoriasis patients often use topical corticosteroids")
-- We DO NOT copy patient data or case descriptions verbatim
-- We properly attribute DermNet NZ in our research
-- We respect rate limits (2-3 second delays between requests)
+"""Extract clinical patterns from DermNet NZ to inform synthetic patient profiles.
 
 Source: DermNet NZ (https://dermnetnz.org/)
-Attribution: DermNet NZ. All About the Skin. Available at: https://dermnetnz.org/
 """
 
 import requests
@@ -22,16 +11,7 @@ from pathlib import Path
 from collections import defaultdict
 
 def scrape_dermnet_case_patterns(max_cases=50, delay=3):
-    """
-    Extract clinical patterns from DermNet NZ cases to inform synthetic profile creation.
-
-    Args:
-        max_cases: Maximum number of cases to analyze
-        delay: Seconds to wait between requests (be respectful!)
-
-    Returns:
-        Dictionary of clinical patterns
-    """
+    """Extract clinical patterns from DermNet NZ cases."""
 
     print("=" * 60)
     print("DERMNET NZ PATTERN EXTRACTION")
@@ -92,7 +72,6 @@ def scrape_dermnet_case_patterns(max_cases=50, delay=3):
             soup = BeautifulSoup(response.content, 'html.parser')
             content = soup.get_text().lower()
 
-            # Extract patterns (NOT copying content, just analyzing presence)
             condition_key = topic.replace('-', ' ')
             patterns['conditions'][condition_key]['count'] += 1
 

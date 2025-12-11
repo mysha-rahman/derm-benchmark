@@ -1,20 +1,4 @@
-"""
-Auto-Generate Realistic Patient Profiles from Real Datasets
-
-This script creates synthetic patient profiles that are clinically realistic by:
-1. Using Fitzpatrick17k for realistic condition distributions
-2. Using HAM10000 for realistic demographics (age/sex)
-3. Using datasets/Medical_Knowledge/All Diseases Data.xlsx for expanded conditions and treatments
-4. Using clinical guidelines for realistic treatments
-
-DATASET INTEGRATION:
-- Parses XLSX using standard library (zipfile + xml.etree)
-- Expands condition list beyond Fitzpatrick17k coverage
-- Injects evidence-based treatment guidance from medical knowledge base
-- All data sources documented for provenance tracking
-
-Uses only Python standard library (no pandas or openpyxl required).
-"""
+"""Generate synthetic patient profiles from real dermatology datasets."""
 
 import csv
 import random
@@ -32,15 +16,7 @@ MEDICAL_KNOWLEDGE_FILE = 'datasets/Medical_Knowledge/All Diseases Data.xlsx'
 
 
 def parse_xlsx_standard_library(xlsx_path):
-    """
-    Parse XLSX file using only Python standard library (zipfile + xml.etree).
-
-    XLSX files are ZIP archives containing XML files. This function extracts:
-    - Shared strings (text values)
-    - Worksheet data
-
-    Returns: List of rows, where each row is a list of cell values
-    """
+    """Parse XLSX file using zipfile and xml.etree."""
     with zipfile.ZipFile(xlsx_path, 'r') as zip_ref:
         # Read shared strings (for text values)
         shared_strings = []
@@ -83,13 +59,7 @@ def parse_xlsx_standard_library(xlsx_path):
 
 
 def load_medical_knowledge_data():
-    """
-    Load conditions and treatments from All Diseases Data.xlsx.
-
-    Returns:
-    - conditions: List of condition names
-    - treatments: Dict mapping normalized condition name to treatment list
-    """
+    """Load conditions and treatments from All Diseases Data.xlsx."""
     try:
         rows = parse_xlsx_standard_library(MEDICAL_KNOWLEDGE_FILE)
 
@@ -270,12 +240,7 @@ def get_age_sex(ham_demographics):
         return age, sex
 
 def get_treatments_for_condition(condition, extended_treatments=None):
-    """
-    Get realistic treatments based on condition.
-
-    Checks both hardcoded CONDITION_TREATMENTS and extended_treatments
-    from medical knowledge base.
-    """
+    """Get treatments for condition from hardcoded list or extended data."""
     condition_lower = condition.lower()
 
     # First check extended treatments from medical knowledge base
@@ -296,11 +261,7 @@ def get_treatments_for_condition(condition, extended_treatments=None):
     return 'Topical treatments'
 
 def generate_profile(profile_id, ham_demographics, extended_conditions=None, extended_treatments=None):
-    """
-    Generate one realistic patient profile.
-
-    Uses both hardcoded conditions and extended conditions from medical knowledge base.
-    """
+    """Generate one patient profile."""
 
     age, sex = get_age_sex(ham_demographics)
 

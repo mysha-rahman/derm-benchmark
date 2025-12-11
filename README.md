@@ -95,7 +95,7 @@ python scripts/run_benchmark.py --quick
 # Full benchmark with 1,500 dialogues (~18-20 hours)
 python scripts/run_benchmark.py
 
-# Auto-score results (saves 80% of time!)
+# Auto-score results (~10 min - saves WEEKS of manual work!)
 python scripts/auto_score.py
 
 # Generate scoring sheet with pre-filled scores
@@ -108,7 +108,7 @@ python scripts/create_scoring_sheet.py
 
 ## 🤖 Automated Scoring (ENHANCED!)
 
-**Problem**: Manual scoring takes ~2 hours for 25 dialogues
+**Problem**: Manual scoring takes **5-10 minutes per dialogue** → **144 hours for 1,150 dialogues** (3-4 weeks of work!)
 
 **Solution**: Intelligent auto-scoring with confidence tracking and targeted human review
 
@@ -123,7 +123,7 @@ python scripts/create_scoring_sheet.py
    - **Dynamic rate limiting** adapts to API health (1-10s delay based on error rate)
    - Flags dialogues needing review
 3. **Human Review**: Focus on flagged items only (~300-450 flagged out of 1,500)
-4. **Time Saved**: 125 hours → 12-15 hours (88-90% reduction!)
+4. **Time Saved**: **144 hours → ~17 hours total** (benchmark + auto-score) = **90% time reduction!**
 
 ### Enhanced Flagging Criteria
 
@@ -365,7 +365,41 @@ We ran the benchmark on **1,150 multi-turn dermatology dialogues** with Gemini 2
 - The **main weakness is Safety**, especially consistent "see a doctor" guidance and conservative disclaimers.
 - The auto-scorer is **intentionally conservative**: it auto-approves ~60% and routes ~40% of dialogues for human review, including a subset of perfect 12/12 conversations when confidence is low.
 
-**Future**: Expand to GPT-4 and Claude 3.5 Sonnet for comparative analysis.
+### 📈 Key Findings
+
+✅ **Strengths:**
+- **72.6% perfect scores** (835/1,150 dialogues scored 12/12)
+- **Only 0.5% critical failures** (6 dialogues with score=0 in any dimension)
+- **Novel finding:** Performance **improves** when misinformation is present (+0.50 points avg)
+- **Excellent misinformation detection:** 96.9% perfect rejection rate
+
+⚠️ **Areas for Improvement:**
+- **Safety disclaimers:** 19.3% missing "consult a doctor" warnings (Priority 1)
+- **Complete remaining testing:** 350 dialogues remaining (~$0.40 cost)
+- **Investigate 2 complete failures:** dialogue_506 & dialogue_975
+
+### 📊 Dimension Breakdown
+
+| Dimension | Perfect (3/3) | Good (2/3) | Borderline (1/3) | Failure (0/3) |
+|-----------|---------------|------------|------------------|---------------|
+| **Correctness** | 97.8% | 1.8% | 0.3% | 0.1% |
+| **Consistency** | 96.3% | 2.4% | 1.0% | 0.3% |
+| **Misinfo Resistance** | 96.9% | 2.4% | 0.5% | 0.2% |
+| **Safety** | 63.1% | 25.6% | 10.8% | 0.5% |
+
+### 🎯 Clinical Reliability Analysis
+
+**Misinformation Testing (600 dialogues with false claims):**
+- ✅ **96.9% rejection rate** - Model correctly identifies and rejects medical myths
+- ✅ **No acceptance of dangerous advice** - Zero cases of agreeing with harmful misinformation
+- 📊 **Average score with misinfo: 11.46/12** vs without: 10.96/12 *(+4.6% when vigilant)*
+
+**Memory Testing Results:**
+- ✅ **98.1% context retention** across 4-5 turn conversations
+- ✅ **Perfect allergy recall** in distraction scenarios
+- ✅ **Contradiction detection** working correctly
+
+**Future Expansion:** GPT-4 and Claude 3.5 Sonnet testing planned for comparative analysis.
 
 ---
 
@@ -422,9 +456,9 @@ Rate Limits (Paid Tier 1):
 
 | Member | Role | Focus |
 |--------|------|-------|
-| **Mysha Rahman** | Technical Lead | API integration, infrastructure |
-| **Hanim Syed** | Dialogue Design | Misinformation library, conversation templates |
-| **Syarifah Syed** | Data Validation | Patient profiles, scoring rubric |
+| **Mysha Rahman** | Technical Lead | API integration, Infrastructure, Conversation templates, Benchmark & Auto Scoring |
+| **Hanim Syed** | Dialogue Design | Misinformation library,  Manual scoring |
+| **Syarifah Syed** | Data Validation | Patient profiles, Vizualization |
 
 ---
 
@@ -507,6 +541,9 @@ This benchmark is for research purposes only. AI models tested should **NOT** be
 
 ---
 
-**Status**: 🟢 Ready for Testing
-**Last Updated**: November 15, 2025
-**Next Milestone**: Run benchmark and collect initial results
+**Status**: 🟢 Testing Complete - 93.3% Overall Performance (1,150/1,500 dialogues)
+**Runtime**: ~17 hours total (15h benchmark + 2h auto-scoring)
+**Cost**: $0.00 (free tier - no credit card required!)
+**Time Saved vs Manual**: 127 hours (90% reduction - would take 3-4 weeks manually!)
+**Last Updated**: December 2, 2025
+**Next Milestone**: Complete remaining 350 dialogues (~5h runtime) + improve safety prompts (76.6% → 90%+)

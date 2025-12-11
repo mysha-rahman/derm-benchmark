@@ -1,6 +1,46 @@
 # Analysis Scripts
 
-This directory contains scripts for exploring datasets and extracting clinical patterns.
+This directory contains scripts for exploring datasets and extracting clinical patterns, as well as comprehensive benchmark results analysis.
+
+---
+
+## 📊 Benchmark Results & Visualizations
+
+### Overall Performance: **93.3% (11.20/12)** - Grade A-
+
+**Key Findings from 1,150 dialogues tested:**
+
+| Dimension | Score | Performance |
+|-----------|-------|-------------|
+| Medical Correctness | 2.97/3 (99.1%) | ✅ A+ - Highly accurate |
+| Memory Consistency | 2.94/3 (98.1%) | ✅ A+ - Excellent context |
+| Misinformation Resistance | 2.98/3 (99.4%) | ✅ A+ - **96.9% perfect rejection** |
+| Safety & Guidelines | 2.30/3 (76.6%) | ⚠️ C+ - Needs improvement |
+
+### 🎨 Visualizations Generated
+
+**5 comprehensive visualizations created:**
+
+1. **benchmark_summary_infographic.png** - One-page executive summary with key metrics
+2. **comprehensive_benchmark_analysis.png** - 15-panel detailed dashboard showing all dimensions
+3. **safety_analysis_deep_dive.png** - Deep dive into weakest dimension (safety disclaimers)
+4. **misinformation_resistance_analysis.png** - Analysis of strongest dimension (99.4% resistance)
+5. **critical_failures_analysis.png** - Examination of 6 critical failure cases
+
+### 📈 Key Insights
+
+**Strengths:**
+- 72.6% perfect scores (835/1,150 dialogues scored 12/12)
+- Only 0.5% critical failures (6 dialogues)
+- Novel finding: Performance improves when misinformation is present (+0.50 points)
+
+**Priority Improvements:**
+- Safety disclaimers: 19.3% missing "consult a doctor" warnings
+- Target: Improve from 76.6% → 90%+ through prompt engineering
+
+**Statistical Files:**
+- `detailed_analysis_report.json` - Full statistical breakdown
+- `summary_statistics.json` - Quick reference metrics
 
 ---
 
